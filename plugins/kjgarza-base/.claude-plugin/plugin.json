@@ -15,7 +15,6 @@
     "context7",
     "documentation"
   ],
-  "category": "utilities",
   "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/kjgarza-base",
   "repository": "https://github.com/kjgarza/marketplace-claude",
   "skills": ["./skills/"]

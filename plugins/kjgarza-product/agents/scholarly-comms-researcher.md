@@ -1,6 +1,45 @@
 ---
 name: scholarly-comms-researcher
-description: Use this agent when the user needs comprehensive research, analysis, or insights related to scholarly communication and infrastructure topics. This includes questions about academic publishing, open access, research data management, institutional repositories, preprint servers, peer review systems, bibliometrics, research impact metrics, scholarly identity systems (ORCID, etc.), publishing platforms, library systems, research workflows, and the broader ecosystem of how academic knowledge is created, disseminated, and preserved. Also use when synthesizing literature, analyzing trends in scholarly communication, or generating reports on infrastructure developments in academia.\n\nExamples:\n\n<example>\nContext: User is asking about trends in open access publishing.\nuser: "What are the current trends in open access publishing and how are they affecting traditional journal publishers?"\nassistant: "This is a question about scholarly communication trends. Let me use the scholarly-comms-researcher agent to provide a comprehensive analysis."\n<commentary>\nSince the user is asking about open access publishing trends, use the Task tool to launch the scholarly-comms-researcher agent to synthesize current developments and provide expert analysis.\n</commentary>\n</example>\n\n<example>\nContext: User needs analysis of research infrastructure.\nuser: "Can you compare different preprint server models and their impact on peer review?"\nassistant: "I'll engage the scholarly-comms-researcher agent to conduct a thorough comparative analysis of preprint servers and their relationship to peer review systems."\n<commentary>\nThis requires deep expertise in scholarly infrastructure. Use the scholarly-comms-researcher agent to provide a nuanced comparison with evidence-based insights.\n</commentary>\n</example>\n\n<example>\nContext: User is working on a policy document.\nuser: "I need to understand the landscape of persistent identifiers in research - DOIs, ORCIDs, RORs, etc."\nassistant: "This requires comprehensive knowledge of scholarly infrastructure. Let me use the scholarly-comms-researcher agent to map out the persistent identifier ecosystem."\n<commentary>\nPersistent identifiers are core scholarly infrastructure. The scholarly-comms-researcher agent can provide expert-level synthesis of this complex landscape.\n</commentary>\n</example>\n\n<example>\nContext: User needs literature synthesis.\nuser: "What does the research say about the effectiveness of post-publication peer review?"\nassistant: "I'll use the scholarly-comms-researcher agent to synthesize the literature on post-publication peer review effectiveness."\n<commentary>\nThis requires systematic literature analysis in a specialized domain. Use the scholarly-comms-researcher agent for rigorous evidence synthesis.\n</commentary>\n</example>
+description: |
+  Use this agent when the user needs comprehensive research, analysis, or insights related to scholarly communication and infrastructure topics. This includes questions about academic publishing, open access, research data management, institutional repositories, preprint servers, peer review systems, bibliometrics, research impact metrics, scholarly identity systems (ORCID, etc.), publishing platforms, library systems, research workflows, and the broader ecosystem of how academic knowledge is created, disseminated, and preserved. Also use when synthesizing literature, analyzing trends in scholarly communication, or generating reports on infrastructure developments in academia.
+
+  Examples:
+
+  <example>
+  Context: User is asking about trends in open access publishing.
+  user: "What are the current trends in open access publishing and how are they affecting traditional journal publishers?"
+  assistant: "This is a question about scholarly communication trends. Let me use the scholarly-comms-researcher agent to provide a comprehensive analysis."
+  <commentary>
+  Since the user is asking about open access publishing trends, use the Task tool to launch the scholarly-comms-researcher agent to synthesize current developments and provide expert analysis.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User needs analysis of research infrastructure.
+  user: "Can you compare different preprint server models and their impact on peer review?"
+  assistant: "I'll engage the scholarly-comms-researcher agent to conduct a thorough comparative analysis of preprint servers and their relationship to peer review systems."
+  <commentary>
+  This requires deep expertise in scholarly infrastructure. Use the scholarly-comms-researcher agent to provide a nuanced comparison with evidence-based insights.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User is working on a policy document.
+  user: "I need to understand the landscape of persistent identifiers in research - DOIs, ORCIDs, RORs, etc."
+  assistant: "This requires comprehensive knowledge of scholarly infrastructure. Let me use the scholarly-comms-researcher agent to map out the persistent identifier ecosystem."
+  <commentary>
+  Persistent identifiers are core scholarly infrastructure. The scholarly-comms-researcher agent can provide expert-level synthesis of this complex landscape.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User needs literature synthesis.
+  user: "What does the research say about the effectiveness of post-publication peer review?"
+  assistant: "I'll use the scholarly-comms-researcher agent to synthesize the literature on post-publication peer review effectiveness."
+  <commentary>
+  This requires systematic literature analysis in a specialized domain. Use the scholarly-comms-researcher agent for rigorous evidence synthesis.
+  </commentary>
+  </example>
 model: sonnet
 color: cyan
 tools: Read, Grep, Glob, Bash, Edit, Write

@@ -1,6 +1,54 @@
 ---
 name: senior-dev-advisor
-description: Use this agent when you need expert technical guidance on software architecture, system design, code quality, performance optimization, security best practices, or technical decision-making. This agent excels at providing pragmatic advice that balances ideal solutions with real-world constraints, explaining tradeoffs, and helping developers learn rather than just follow instructions.\n\nExamples of when to use this agent:\n\n<example>\nContext: The user is designing a new system and needs architecture guidance.\nuser: "I'm building a new e-commerce platform. Should I use microservices or start with a monolith?"\nassistant: "This is an important architectural decision. Let me use the senior-dev-advisor agent to help you think through the tradeoffs and make an informed choice based on your specific context."\n<commentary>\nSince the user is asking about fundamental architecture decisions with significant long-term implications, use the senior-dev-advisor agent to provide comprehensive guidance on the tradeoffs between microservices and monolithic architectures.\n</commentary>\n</example>\n\n<example>\nContext: The user has written code and wants feedback on quality and best practices.\nuser: "I just finished this authentication module. Can you review it and tell me if I'm following best practices?"\nassistant: "I'll use the senior-dev-advisor agent to provide a thorough code review with constructive feedback on security, maintainability, and best practices."\n<commentary>\nSince the user is requesting a code review focused on best practices and quality, use the senior-dev-advisor agent to provide expert-level feedback that explains not just what to improve but why.\n</commentary>\n</example>\n\n<example>\nContext: The user is facing a technical decision and needs help weighing options.\nuser: "Our API response times are slow. Should I add Redis caching or optimize our database queries first?"\nassistant: "This is a great performance optimization question. Let me use the senior-dev-advisor agent to help you identify the actual bottleneck and choose the right approach."\n<commentary>\nSince the user needs guidance on a technical tradeoff decision involving performance optimization, use the senior-dev-advisor agent to provide pragmatic advice that considers measurement before optimization.\n</commentary>\n</example>\n\n<example>\nContext: The user needs help with technical debt and refactoring strategy.\nuser: "We have a lot of legacy code that's hard to maintain. How should we approach refactoring without breaking everything?"\nassistant: "Managing technical debt requires a thoughtful strategy. I'll use the senior-dev-advisor agent to help you create an incremental refactoring plan that balances improvement with stability."\n<commentary>\nSince the user is dealing with technical debt management and needs a strategic approach to refactoring, use the senior-dev-advisor agent to provide guidance on incremental improvements over big rewrites.\n</commentary>\n</example>\n\n<example>\nContext: The user is choosing between technologies or frameworks.\nuser: "For our new backend service, should we use Go, Rust, or stick with Node.js?"\nassistant: "Technology selection should serve your project's specific needs. Let me use the senior-dev-advisor agent to help you evaluate these options based on your team, scale, and requirements."\n<commentary>\nSince the user needs help with technology selection, use the senior-dev-advisor agent to provide polyglot expertise and pragmatic advice that considers team expertise, project requirements, and long-term maintainability.\n</commentary>\n</example>
+description: |
+  Use this agent when you need expert technical guidance on software architecture, system design, code quality, performance optimization, security best practices, or technical decision-making. This agent excels at providing pragmatic advice that balances ideal solutions with real-world constraints, explaining tradeoffs, and helping developers learn rather than just follow instructions.
+
+  Examples of when to use this agent:
+
+  <example>
+  Context: The user is designing a new system and needs architecture guidance.
+  user: "I'm building a new e-commerce platform. Should I use microservices or start with a monolith?"
+  assistant: "This is an important architectural decision. Let me use the senior-dev-advisor agent to help you think through the tradeoffs and make an informed choice based on your specific context."
+  <commentary>
+  Since the user is asking about fundamental architecture decisions with significant long-term implications, use the senior-dev-advisor agent to provide comprehensive guidance on the tradeoffs between microservices and monolithic architectures.
+  </commentary>
+  </example>
+
+  <example>
+  Context: The user has written code and wants feedback on quality and best practices.
+  user: "I just finished this authentication module. Can you review it and tell me if I'm following best practices?"
+  assistant: "I'll use the senior-dev-advisor agent to provide a thorough code review with constructive feedback on security, maintainability, and best practices."
+  <commentary>
+  Since the user is requesting a code review focused on best practices and quality, use the senior-dev-advisor agent to provide expert-level feedback that explains not just what to improve but why.
+  </commentary>
+  </example>
+
+  <example>
+  Context: The user is facing a technical decision and needs help weighing options.
+  user: "Our API response times are slow. Should I add Redis caching or optimize our database queries first?"
+  assistant: "This is a great performance optimization question. Let me use the senior-dev-advisor agent to help you identify the actual bottleneck and choose the right approach."
+  <commentary>
+  Since the user needs guidance on a technical tradeoff decision involving performance optimization, use the senior-dev-advisor agent to provide pragmatic advice that considers measurement before optimization.
+  </commentary>
+  </example>
+
+  <example>
+  Context: The user needs help with technical debt and refactoring strategy.
+  user: "We have a lot of legacy code that's hard to maintain. How should we approach refactoring without breaking everything?"
+  assistant: "Managing technical debt requires a thoughtful strategy. I'll use the senior-dev-advisor agent to help you create an incremental refactoring plan that balances improvement with stability."
+  <commentary>
+  Since the user is dealing with technical debt management and needs a strategic approach to refactoring, use the senior-dev-advisor agent to provide guidance on incremental improvements over big rewrites.
+  </commentary>
+  </example>
+
+  <example>
+  Context: The user is choosing between technologies or frameworks.
+  user: "For our new backend service, should we use Go, Rust, or stick with Node.js?"
+  assistant: "Technology selection should serve your project's specific needs. Let me use the senior-dev-advisor agent to help you evaluate these options based on your team, scale, and requirements."
+  <commentary>
+  Since the user needs help with technology selection, use the senior-dev-advisor agent to provide polyglot expertise and pragmatic advice that considers team expertise, project requirements, and long-term maintainability.
+  </commentary>
+  </example>
 model: opus
 color: red
 ---

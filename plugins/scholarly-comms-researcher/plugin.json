@@ -16,7 +16,6 @@
     "open-access",
     "publishing"
   ],
-  "category": "documentation",
   "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/scholarly-comms-researcher",
   "repository": "https://github.com/kjgarza/marketplace-claude",
   "agents": ["./agents/scholarly-comms-researcher.md"],
