@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/kgarza/digitalscience/ds-org/.claude/skills/coda/scripts/coda-cli/logs/.f6abe9221a3c206f42cdc076b83bf406832c3db7-audit.json",
+    "files": [
+        {
+            "date": 1764799804114,
+            "name": "/Users/kgarza/digitalscience/ds-org/.claude/skills/coda/scripts/coda-cli/logs/mcp-puppeteer-2025-12-03.log",
+            "hash": "b93ffdd16a6a71838e8ef35bb7a71b1641e5c07d395a6e8a1e93d2186038cd2a"
+        }
+    ],
+    "hashType": "sha256"
+}
