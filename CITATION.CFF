@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Garza
+    given-names: Kristian
+    email: kj.garza@gmail.com
+    orcid: https://orcid.org/0000-0003-3484-6875
+    affiliation: 
+title: Whispers of the Forgotten Forest
+version: 1.0.0
+doi: https://doi.org/
+license: CC-BY-NC-ND-4.0
+url: https://github.com/kjgarza/
+date-released: 08-01-2026
+keywords: 
+  - Emotion Recognition
+  - Image Generation
+  - Machine Learning
+  - Real-time
+  - Video Processing
+  - OpenCV
+  - Python
+

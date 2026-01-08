@@ -1,0 +1,21 @@
+"""{{PROJECT_NAME_PASCAL}} CLI commands."""
+
+import click
+
+
+@click.group()
+@click.version_option(version="0.1.0")
+def main() -> None:
+    """{{PROJECT_NAME_PASCAL}} CLI."""
+    pass
+
+
+@main.command()
+@click.argument("name", default="World")
+def greet(name: str) -> None:
+    """Say hello to NAME."""
+    click.echo(f"Hello, {name}!")
+
+
+if __name__ == "__main__":
+    main()

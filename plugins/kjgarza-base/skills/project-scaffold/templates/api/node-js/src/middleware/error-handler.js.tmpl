@@ -1,0 +1,14 @@
+/**
+ * Express error handling middleware
+ * @param {Error} err
+ * @param {import('express').Request} _req
+ * @param {import('express').Response} res
+ * @param {import('express').NextFunction} _next
+ */
+export function errorHandler(err, _req, res, _next) {
+  console.error(err.stack)
+  res.status(500).json({
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined,
+  })
+}

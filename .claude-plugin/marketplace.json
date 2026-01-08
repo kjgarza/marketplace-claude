@@ -1,0 +1,30 @@
+{
+  "name": "marketplace-claude",
+  "owner": {
+    "name": "Your Organization",
+    "email": "[email protected]"
+  },
+  "metadata": {
+    "description": "A collection of useful Claude Code plugins for development workflows",
+    "version": "1.0.0",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "kjgarza-base",
+      "source": "./plugins/kjgarza-base",
+      "description": "Base MCP server configuration with puppeteer, fetch, sequential thinking, and context7 documentation servers",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "utilities",
+      "keywords": ["mcp", "puppeteer", "fetch", "sequential-thinking", "context7", "documentation"],
+      "mcpServers": "./mcp-config.json",
+      "strict": true
+    }
+  ]
+}
+

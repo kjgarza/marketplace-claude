@@ -1,0 +1,19 @@
+[project]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "click>=8.1.0",
+]
+
+[project.scripts]
+{{PROJECT_NAME}} = "{{PROJECT_NAME_SNAKE}}.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/{{PROJECT_NAME_SNAKE}}"]

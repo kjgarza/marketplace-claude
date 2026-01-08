@@ -1,0 +1,9 @@
+"""Pytest configuration and fixtures."""
+
+import pytest
+
+
+@pytest.fixture
+def sample_fixture() -> str:
+    """A sample fixture that returns a string."""
+    return "Hello from fixture"

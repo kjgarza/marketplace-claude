@@ -1,0 +1,19 @@
+import { useState } from 'react'
+
+function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div className="app">
+      <h1>{{PROJECT_NAME_PASCAL}}</h1>
+      <div className="card">
+        <button onClick={() => setCount((c) => c + 1)}>
+          Count: {count}
+        </button>
+      </div>
+      <p>Edit <code>src/App.tsx</code> and save to see changes.</p>
+    </div>
+  )
+}
+
+export default App

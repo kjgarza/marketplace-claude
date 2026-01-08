@@ -1,0 +1,14 @@
+[project]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+description = "{{PROJECT_NAME_PASCAL}} monorepo"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.uv.workspace]
+members = ["apps/*", "packages/*"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
