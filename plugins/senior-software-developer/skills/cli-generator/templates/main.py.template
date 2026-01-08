@@ -1,0 +1,384 @@
+"""Main CLI entry point.
+
+This is the entry point for the CLI application.
+All commands should follow the 'Every Output is a Prompt' pattern.
+"""
+
+import click
+from rich.console import Console
+
+from .models.responses import CommandResult, Suggestion, ErrorDetail
+from .output.conversational import ConversationalOutput
+
+# Initialize Rich console and conversational output
+console = Console()
+output = ConversationalOutput(console)
+
+
+@click.group()
+@click.version_option()
+def cli():
+    """{{description}}
+
+    This CLI provides AI-friendly output designed for agentic coding environments.
+    Every command provides context and suggests next steps.
+
+    Examples:
+        {{cli_name}} list
+        {{cli_name}} show RESOURCE_ID
+        {{cli_name}} search "query"
+        {{cli_name}} export RESOURCE_ID --format json
+    """
+    pass
+
+
+# =============================================================================
+# List Command
+# =============================================================================
+
+@cli.command(epilog="""
+Examples:
+    # List all resources
+    {{cli_name}} list
+
+    # List with limit
+    {{cli_name}} list --limit 5
+
+    # List only your resources
+    {{cli_name}} list --mine
+""")
+@click.option("--limit", default=10, help="Maximum number of results")
+@click.option("--mine", is_flag=True, help="Only show resources you own")
+def list(limit: int, mine: bool):
+    """List available resources."""
+    try:
+        # TODO: Replace with your API call
+        resources = []  # your_api.list_resources(limit=limit, mine=mine)
+
+        result = CommandResult(
+            success=True,
+            message=f"Found {len(resources)} resources",
+            context={
+                "Total resources": len(resources),
+                "Limit": limit,
+                "Filter": "mine" if mine else "all",
+            },
+            data=resources,
+            suggestions=[
+                Suggestion(
+                    command=f"{{{{cli_name}}}} show {resources[0]['id']}" if resources else "{{cli_name}} search 'query'",
+                    description="View resource details" if resources else "Search for resources",
+                    category="view" if resources else "search"
+                ),
+                Suggestion(
+                    command="{{cli_name}} list --limit 20",
+                    description="Show more results",
+                    category="list"
+                ),
+            ]
+        )
+        output.success(result)
+
+    except Exception as e:
+        result = CommandResult(
+            success=False,
+            message="Failed to list resources",
+            error=ErrorDetail(
+                what_went_wrong=str(e),
+                how_to_fix=[
+                    "Check your network connection",
+                    "Verify your authentication credentials",
+                ],
+                whats_next=[
+                    Suggestion(command="{{cli_name}} auth test", description="Test authentication", category="auth"),
+                ]
+            )
+        )
+        output.error(result)
+
+
+# =============================================================================
+# Show Command
+# =============================================================================
+
+@cli.command(epilog="""
+Examples:
+    # Show resource details
+    {{cli_name}} show abc123
+
+    # Show with JSON output
+    {{cli_name}} show abc123 --json
+""")
+@click.argument("resource_id")
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON")
+def show(resource_id: str, as_json: bool):
+    """Show details for a specific resource."""
+    try:
+        # TODO: Replace with your API call
+        resource = {}  # your_api.get_resource(resource_id)
+
+        if as_json:
+            console.print_json(data=resource)
+            return
+
+        result = CommandResult(
+            success=True,
+            message=f"Resource details for '{resource.get('name', resource_id)}'",
+            context={
+                "Resource ID": resource_id,
+                "Name": resource.get("name", "Unknown"),
+                "Created": resource.get("created_at", "Unknown"),
+                "Updated": resource.get("updated_at", "Unknown"),
+            },
+            suggestions=[
+                Suggestion(
+                    command=f"{{{{cli_name}}}} export {resource_id} --format json",
+                    description="Export resource data",
+                    category="export"
+                ),
+                Suggestion(
+                    command="{{cli_name}} list",
+                    description="List all resources",
+                    category="list"
+                ),
+            ]
+        )
+        output.success(result)
+
+    except Exception as e:
+        result = CommandResult(
+            success=False,
+            message=f"Failed to show resource '{resource_id}'",
+            error=ErrorDetail(
+                what_went_wrong=str(e),
+                how_to_fix=[
+                    "Verify the resource ID is correct",
+                    "Check if you have permission to access this resource",
+                ],
+                whats_next=[
+                    Suggestion(command="{{cli_name}} list", description="List available resources", category="list"),
+                    Suggestion(command="{{cli_name}} search 'query'", description="Search for resources", category="search"),
+                ]
+            )
+        )
+        output.error(result)
+
+
+# =============================================================================
+# Search Command
+# =============================================================================
+
+@cli.command(epilog="""
+Examples:
+    # Search for resources
+    {{cli_name}} search "machine learning"
+
+    # Search with limit
+    {{cli_name}} search "data" --limit 5
+""")
+@click.argument("query")
+@click.option("--limit", default=10, help="Maximum number of results")
+def search(query: str, limit: int):
+    """Search for resources matching a query."""
+    try:
+        # TODO: Replace with your API call
+        results = []  # your_api.search(query, limit=limit)
+
+        result = CommandResult(
+            success=True,
+            message=f"Found {len(results)} results for '{query}'",
+            context={
+                "Query": query,
+                "Total results": len(results),
+                "First result ID": results[0]["id"] if results else None,
+            },
+            data=results,
+            suggestions=[
+                Suggestion(
+                    command=f"{{{{cli_name}}}} show {results[0]['id']}" if results else "{{cli_name}} list",
+                    description="View details" if results else "List all resources",
+                    category="view" if results else "list"
+                ),
+                Suggestion(
+                    command=f"{{{{cli_name}}}} search '{query}' --limit {limit * 2}",
+                    description="Search with more results",
+                    category="search"
+                ),
+            ]
+        )
+        output.success(result)
+
+    except Exception as e:
+        result = CommandResult(
+            success=False,
+            message=f"Search failed for '{query}'",
+            error=ErrorDetail(
+                what_went_wrong=str(e),
+                how_to_fix=[
+                    "Check your search query syntax",
+                    "Verify your authentication",
+                ],
+                whats_next=[
+                    Suggestion(command="{{cli_name}} list", description="List all resources instead", category="list"),
+                ]
+            )
+        )
+        output.error(result)
+
+
+# =============================================================================
+# Export Command
+# =============================================================================
+
+@cli.command(epilog="""
+Examples:
+    # Export as JSON
+    {{cli_name}} export abc123 --format json
+
+    # Export as CSV
+    {{cli_name}} export abc123 --format csv
+
+    # Export to file
+    {{cli_name}} export abc123 --format json --output data.json
+""")
+@click.argument("resource_id")
+@click.option("--format", "fmt", default="json", type=click.Choice(["json", "csv"]), help="Export format")
+@click.option("--output", "-o", "output_file", help="Output file path")
+def export(resource_id: str, fmt: str, output_file: str):
+    """Export resource data to a file."""
+    try:
+        # TODO: Replace with your export logic
+        data = {}  # your_api.export(resource_id, format=fmt)
+
+        if output_file:
+            # Write to file
+            with open(output_file, "w") as f:
+                f.write(str(data))
+            message = f"Exported to '{output_file}'"
+        else:
+            # Print to stdout
+            console.print_json(data=data) if fmt == "json" else console.print(data)
+            message = f"Exported {resource_id} as {fmt.upper()}"
+
+        result = CommandResult(
+            success=True,
+            message=message,
+            context={
+                "Resource ID": resource_id,
+                "Format": fmt,
+                "Output": output_file or "stdout",
+            },
+            suggestions=[
+                Suggestion(
+                    command=f"{{{{cli_name}}}} show {resource_id}",
+                    description="View resource details",
+                    category="view"
+                ),
+                Suggestion(
+                    command="{{cli_name}} list",
+                    description="List other resources",
+                    category="list"
+                ),
+            ]
+        )
+        output.success(result)
+
+    except Exception as e:
+        result = CommandResult(
+            success=False,
+            message=f"Export failed for '{resource_id}'",
+            error=ErrorDetail(
+                what_went_wrong=str(e),
+                how_to_fix=[
+                    "Verify the resource ID exists",
+                    "Check write permissions for output file",
+                ],
+                whats_next=[
+                    Suggestion(command=f"{{{{cli_name}}}} show {resource_id}", description="Verify resource exists", category="view"),
+                ]
+            )
+        )
+        output.error(result)
+
+
+# =============================================================================
+# Auth Commands
+# =============================================================================
+
+@cli.group()
+def auth():
+    """Authentication commands."""
+    pass
+
+
+@auth.command(name="test", epilog="""
+Examples:
+    {{cli_name}} auth test
+""")
+def auth_test():
+    """Test authentication credentials."""
+    try:
+        # TODO: Replace with your auth test
+        # your_api.test_auth()
+
+        result = CommandResult(
+            success=True,
+            message="Authentication successful",
+            context={
+                "Status": "Connected",
+                "User": "your-username",  # Get from auth
+            },
+            suggestions=[
+                Suggestion(command="{{cli_name}} list", description="List resources", category="list"),
+                Suggestion(command="{{cli_name}} search 'query'", description="Search for resources", category="search"),
+            ]
+        )
+        output.success(result)
+
+    except Exception as e:
+        result = CommandResult(
+            success=False,
+            message="Authentication failed",
+            error=ErrorDetail(
+                what_went_wrong=str(e),
+                how_to_fix=[
+                    "Check your API key is set correctly",
+                    "Verify your credentials are valid",
+                    "Regenerate your API token if expired",
+                ],
+                whats_next=[
+                    Suggestion(command="{{cli_name}} auth setup", description="Run setup wizard", category="auth"),
+                ]
+            )
+        )
+        output.error(result)
+
+
+@auth.command(name="setup", epilog="""
+Examples:
+    {{cli_name}} auth setup
+""")
+def auth_setup():
+    """Interactive authentication setup."""
+    output.info("Starting authentication setup...")
+
+    # TODO: Implement interactive setup
+    # api_key = click.prompt("Enter your API key")
+    # save_config(api_key)
+
+    result = CommandResult(
+        success=True,
+        message="Authentication configured successfully",
+        context={
+            "Config location": "~/.{{cli_name}}/config.yaml",
+        },
+        suggestions=[
+            Suggestion(command="{{cli_name}} auth test", description="Test your configuration", category="auth"),
+            Suggestion(command="{{cli_name}} list", description="Start using the CLI", category="list"),
+        ]
+    )
+    output.success(result)
+
+
+if __name__ == "__main__":
+    cli()

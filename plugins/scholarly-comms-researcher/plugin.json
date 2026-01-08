@@ -1,0 +1,24 @@
+{
+  "name": "scholarly-comms-researcher",
+  "version": "1.0.0",
+  "description": "Expert agent for scholarly communication research with Dimensions database integration and academic search capabilities",
+  "author": {
+    "name": "Kristian Garza",
+    "email": "kj.garza@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "scholarly-communication",
+    "academic-research",
+    "dimensions",
+    "research-infrastructure",
+    "bibliometrics",
+    "open-access",
+    "publishing"
+  ],
+  "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/scholarly-comms-researcher",
+  "repository": "https://github.com/kjgarza/marketplace-claude",
+  "agents": ["./agents/scholarly-comms-researcher.md"],
+  "skills": ["./skills/"]
+}
+

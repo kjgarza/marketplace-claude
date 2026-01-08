@@ -1,0 +1,241 @@
+"""Conversational output system following 'Every Output is a Prompt' pattern.
+
+This module provides AI-friendly output formatting for CLI commands.
+Every output - success or failure - is designed to guide the agent's next action.
+"""
+
+import json
+from typing import Any, List, Optional
+
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+
+from ..models.responses import CommandResult, Suggestion
+
+
+class ConversationalOutput:
+    """Output manager that makes every CLI interaction conversational and actionable.
+
+    Usage:
+        console = Console()
+        output = ConversationalOutput(console)
+
+        # On success
+        output.success(result)
+
+        # On error
+        output.error(result)
+    """
+
+    def __init__(
+        self,
+        console: Console,
+        show_suggestions: bool = True,
+        show_context: bool = True,
+    ):
+        """Initialize the output manager.
+
+        Args:
+            console: Rich Console instance for output
+            show_suggestions: Whether to show suggested next commands
+            show_context: Whether to show context (resource IDs, etc.)
+        """
+        self.console = console
+        self.show_suggestions = show_suggestions
+        self.show_context = show_context
+
+    def success(self, result: CommandResult) -> None:
+        """Display successful command result with suggestions for next steps.
+
+        Format:
+            ✅ {message}
+
+            📋 Available Resources:
+              • key: value
+              • key: value
+
+            📊 Results:
+            [table of data]
+
+            💡 What's next? Try these commands:
+              1. 👁️ command - description
+              2. 📤 command - description
+        """
+        # Main success message
+        self.console.print(f"✅ {result.message}", style="bold green")
+
+        # Show context (resource IDs, counts, metadata)
+        if self.show_context and result.context:
+            self.console.print("\n📋 Available Resources:", style="bold blue")
+            for key, value in result.context.items():
+                # Truncate long values
+                display_value = str(value)
+                if len(display_value) > 50:
+                    display_value = f"{display_value[:47]}..."
+                self.console.print(f"  • {key}: [cyan]{display_value}[/cyan]")
+
+        # Show structured data in table format
+        if result.data:
+            self._render_data(result.data)
+
+        # Show suggested next commands
+        if self.show_suggestions and result.suggestions:
+            self._render_suggestions(result.suggestions)
+
+        self.console.print()
+
+    def error(self, result: CommandResult) -> None:
+        """Display error with three-part pattern: what/how/next.
+
+        Format:
+            ❌ Command failed
+               {message}
+
+            🔍 What went wrong:
+              {explanation}
+
+            🔧 How to fix:
+              1. Step one
+              2. Step two
+
+            💡 What's next:
+              • command - description
+        """
+        if not result.error:
+            self.console.print(f"❌ {result.message}", style="bold red")
+            return
+
+        error = result.error
+
+        # What went wrong
+        self.console.print("❌ Command failed", style="bold red")
+        self.console.print(f"   {result.message}")
+
+        self.console.print("\n🔍 What went wrong:", style="bold yellow")
+        self.console.print(f"  {error.what_went_wrong}")
+
+        # How to fix it
+        if error.how_to_fix:
+            self.console.print("\n🔧 How to fix:", style="bold green")
+            for i, fix_step in enumerate(error.how_to_fix, 1):
+                self.console.print(f"  {i}. {fix_step}")
+
+        # What's next
+        if error.whats_next:
+            self.console.print("\n💡 What's next:", style="bold blue")
+            for suggestion in error.whats_next:
+                self.console.print(
+                    f"  • [cyan]{suggestion.command}[/cyan] - {suggestion.description}"
+                )
+
+        self.console.print()
+
+    def _render_data(self, data: List[Any]) -> None:
+        """Render structured data as a Rich table."""
+        if not data:
+            return
+
+        self.console.print("\n📊 Results:", style="bold blue")
+
+        table = Table(show_header=True, header_style="bold magenta")
+
+        # Handle list of dicts
+        if isinstance(data[0], dict):
+            # Add columns from first item's keys (limit to 5 for readability)
+            keys = list(data[0].keys())[:5]
+            for key in keys:
+                column_name = str(key).replace("_", " ").title()
+                table.add_column(column_name, no_wrap=False)
+
+            # Add rows (limit to 10 for readability)
+            for item in data[:10]:
+                row_values = []
+                for key in keys:
+                    val = str(item.get(key, ""))
+                    # Truncate long values
+                    if len(val) > 40:
+                        val = f"{val[:37]}..."
+                    row_values.append(val)
+                table.add_row(*row_values)
+
+            self.console.print(table)
+
+            if len(data) > 10:
+                self.console.print(f"  ... and {len(data) - 10} more items")
+
+        # Handle list of Pydantic models
+        elif hasattr(data[0], "model_dump"):
+            first_dict = data[0].model_dump()
+            keys = list(first_dict.keys())[:5]
+
+            for key in keys:
+                table.add_column(key.replace("_", " ").title())
+
+            for item in data[:10]:
+                item_dict = item.model_dump()
+                row_values = [str(item_dict.get(k, ""))[:40] for k in keys]
+                table.add_row(*row_values)
+
+            self.console.print(table)
+
+        # Fallback for other types
+        else:
+            table.add_column("Item", style="cyan")
+            for item in data[:10]:
+                table.add_row(str(item)[:80])
+            self.console.print(table)
+
+    def _render_suggestions(self, suggestions: List[Suggestion]) -> None:
+        """Render suggested next commands with category emojis."""
+        self.console.print("\n💡 What's next? Try these commands:", style="bold yellow")
+
+        for i, suggestion in enumerate(suggestions[:5], 1):
+            emoji = self._get_category_emoji(suggestion.category)
+            self.console.print(
+                f"  {i}. {emoji}[bold cyan]{suggestion.command}[/bold cyan] - {suggestion.description}"
+            )
+
+    def _get_category_emoji(self, category: Optional[str]) -> str:
+        """Get emoji for suggestion category."""
+        emoji_map = {
+            "view": "👁️ ",
+            "export": "📤 ",
+            "search": "🔍 ",
+            "create": "✨ ",
+            "edit": "✏️ ",
+            "delete": "🗑️ ",
+            "auth": "🔐 ",
+            "config": "⚙️ ",
+            "list": "📋 ",
+        }
+        return emoji_map.get(category, "")
+
+    def info(self, message: str, details: Optional[dict] = None) -> None:
+        """Display informational message."""
+        self.console.print(f"ℹ️  {message}", style="bold blue")
+
+        if details:
+            for key, value in details.items():
+                self.console.print(f"   {key}: [cyan]{value}[/cyan]")
+
+        self.console.print()
+
+    def warning(self, message: str, suggestions: Optional[List[Suggestion]] = None) -> None:
+        """Display warning message with optional suggestions."""
+        self.console.print(f"⚠️  {message}", style="bold yellow")
+
+        if suggestions:
+            self.console.print("\n💡 Consider these options:", style="yellow")
+            for suggestion in suggestions:
+                self.console.print(
+                    f"  • [cyan]{suggestion.command}[/cyan] - {suggestion.description}"
+                )
+
+        self.console.print()
+
+    def json_output(self, data: Any, pretty: bool = True) -> str:
+        """Export data as JSON string for programmatic use."""
+        if pretty:
+            return json.dumps(data, indent=2, default=str)
+        return json.dumps(data, default=str)

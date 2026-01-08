@@ -1,0 +1,22 @@
+{
+  "name": "api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target node",
+    "start": "bun run dist/index.js",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@monorepo/db": "workspace:*",
+    "@monorepo/utils": "workspace:*",
+    "hono": "^4.6.0",
+    "@hono/node-server": "^1.13.0"
+  },
+  "devDependencies": {
+    "@monorepo/typescript-config": "workspace:*",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}

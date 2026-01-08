@@ -1,8 +1,8 @@
 {
   "name": "marketplace-claude",
   "owner": {
-    "name": "Your Organization",
-    "email": "[email protected]"
+    "name": "Kristian Garza",
+    "email": "kj.garza@gmail.com"
   },
   "metadata": {
     "description": "A collection of useful Claude Code plugins for development workflows",
@@ -23,6 +23,47 @@
       "category": "utilities",
       "keywords": ["mcp", "puppeteer", "fetch", "sequential-thinking", "context7", "documentation"],
       "mcpServers": "./mcp-config.json",
+      "strict": true
+    },
+    {
+      "name": "scholarly-comms-researcher",
+      "source": "./plugins/scholarly-comms-researcher",
+      "description": "Expert agent for scholarly communication research with Dimensions database integration and academic search capabilities",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "documentation",
+      "keywords": ["scholarly-communication", "academic-research", "dimensions", "research-infrastructure", "bibliometrics", "open-access", "publishing"],
+      "strict": true
+    },
+    {
+      "name": "senior-software-developer",
+      "source": "./plugins/senior-software-developer",
+      "description": "Expert-level development assistance for architecture, code review, system design, and technical leadership",
+      "version": "1.0.0",
+      "author": {
+        "name": "Claude Code Team"
+      },
+      "license": "MIT",
+      "category": "development",
+      "keywords": ["senior-developer", "architecture", "code-review", "system-design", "best-practices", "technical-leadership"],
+      "strict": true
+    },
+    {
+      "name": "kjgarza-product",
+      "source": "./plugins/kjgarza-product",
+      "description": "Product management toolkit with document processing, integrations, and research capabilities",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["product-management", "document-processing", "integrations", "research", "pdf", "docx", "xlsx", "pptx"],
       "strict": true
     }
   ]

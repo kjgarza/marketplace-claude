@@ -1,1 +1,9 @@
 mise
+
+# Local settings with potentially sensitive data
+settings.local.json
+**/settings.local.json
+
+# Logs
+logs/
+*.log

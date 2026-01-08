@@ -1,0 +1,21 @@
+{
+  "name": "kjgarza-base",
+  "version": "1.0.0",
+  "description": "Base MCP server configuration with puppeteer, fetch, sequential thinking, and context7 documentation servers",
+  "author": {
+    "name": "Kristian Garza",
+    "email": "kj.garza@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "puppeteer",
+    "fetch",
+    "sequential-thinking",
+    "context7",
+    "documentation"
+  ],
+  "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/kjgarza-base",
+  "repository": "https://github.com/kjgarza/marketplace-claude",
+  "skills": ["./skills/"]
+}

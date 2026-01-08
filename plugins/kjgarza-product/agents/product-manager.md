@@ -1,6 +1,43 @@
 ---
 name: product-manager
-description: Use this agent when you need strategic product guidance, feature prioritization, user research analysis, go-to-market planning, or data-driven product decisions. Examples of when to invoke this agent:\n\n<example>\nContext: The user is discussing a new feature idea and needs product perspective.\nuser: "We're thinking about adding a collaboration feature to our tool. What should we consider?"\nassistant: "I'll use the product-manager agent to analyze this feature opportunity and provide strategic guidance."\n<commentary>\nSince the user is exploring a new feature, use the Task tool to launch the product-manager agent to evaluate the opportunity from user value, business impact, and market positioning perspectives.\n</commentary>\n</example>\n\n<example>\nContext: The user has collected user feedback and needs help prioritizing.\nuser: "We have 50 feature requests from users. How should we prioritize them?"\nassistant: "Let me bring in the product-manager agent to help create a prioritization framework for these requests."\n<commentary>\nSince the user needs help with feature prioritization, use the Task tool to launch the product-manager agent to apply product management frameworks and data-driven analysis.\n</commentary>\n</example>\n\n<example>\nContext: The user is preparing for a product launch.\nuser: "We're launching our AI assistant next month. What should our go-to-market strategy look like?"\nassistant: "I'll invoke the product-manager agent to develop a comprehensive go-to-market strategy."\n<commentary>\nSince the user is planning a product launch, use the Task tool to launch the product-manager agent to create a strategic GTM plan with positioning, messaging, and execution milestones.\n</commentary>\n</example>\n\n<example>\nContext: After writing a feature specification, product validation is needed.\nuser: "Here's the spec for our new search functionality"\nassistant: "Great spec! Let me use the product-manager agent to review this from a product strategy perspective."\n<commentary>\nSince a feature spec has been created, proactively use the Task tool to launch the product-manager agent to validate alignment with user needs and business objectives.\n</commentary>\n</example>
+description: |
+  Use this agent when you need strategic product guidance, feature prioritization, user research analysis, go-to-market planning, or data-driven product decisions. Examples of when to invoke this agent:
+
+  <example>
+  Context: The user is discussing a new feature idea and needs product perspective.
+  user: "We're thinking about adding a collaboration feature to our tool. What should we consider?"
+  assistant: "I'll use the product-manager agent to analyze this feature opportunity and provide strategic guidance."
+  <commentary>
+  Since the user is exploring a new feature, use the Task tool to launch the product-manager agent to evaluate the opportunity from user value, business impact, and market positioning perspectives.
+  </commentary>
+  </example>
+
+  <example>
+  Context: The user has collected user feedback and needs help prioritizing.
+  user: "We have 50 feature requests from users. How should we prioritize them?"
+  assistant: "Let me bring in the product-manager agent to help create a prioritization framework for these requests."
+  <commentary>
+  Since the user needs help with feature prioritization, use the Task tool to launch the product-manager agent to apply product management frameworks and data-driven analysis.
+  </commentary>
+  </example>
+
+  <example>
+  Context: The user is preparing for a product launch.
+  user: "We're launching our AI assistant next month. What should our go-to-market strategy look like?"
+  assistant: "I'll invoke the product-manager agent to develop a comprehensive go-to-market strategy."
+  <commentary>
+  Since the user is planning a product launch, use the Task tool to launch the product-manager agent to create a strategic GTM plan with positioning, messaging, and execution milestones.
+  </commentary>
+  </example>
+
+  <example>
+  Context: After writing a feature specification, product validation is needed.
+  user: "Here's the spec for our new search functionality"
+  assistant: "Great spec! Let me use the product-manager agent to review this from a product strategy perspective."
+  <commentary>
+  Since a feature spec has been created, proactively use the Task tool to launch the product-manager agent to validate alignment with user needs and business objectives.
+  </commentary>
+  </example>
 model: sonnet
 color: purple
 tools: Read, Grep, Glob, Bash, Edit, Write
