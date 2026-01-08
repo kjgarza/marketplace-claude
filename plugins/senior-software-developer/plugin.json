@@ -15,11 +15,12 @@
     "technical-leadership"
   ],
   "category": "development",
+  "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/senior-software-developer",
+  "repository": "https://github.com/kjgarza/marketplace-claude",
   "commands": ["./commands/"],
   "agents": ["./agents/senior-developer.md"],
   "skills": ["./skills/"],
   "hooks": "./hooks/hooks.json",
-  "homepage": "https://github.com/claude-code/senior-software-developer",
-  "repository": "https://github.com/claude-code/senior-software-developer"
+  "outputStyles": "./output-styles/"
 }
 

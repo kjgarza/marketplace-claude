@@ -1,0 +1,27 @@
+{
+  "name": "kjgarza-product",
+  "version": "1.0.0",
+  "description": "Product management toolkit with document processing, integrations, and research capabilities",
+  "author": {
+    "name": "Kristian Garza",
+    "email": "kj.garza@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "product-management",
+    "document-processing",
+    "integrations",
+    "research",
+    "pdf",
+    "docx",
+    "xlsx",
+    "pptx"
+  ],
+  "category": "productivity",
+  "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/kjgarza-product",
+  "repository": "https://github.com/kjgarza/marketplace-claude",
+  "agents": ["./agents/"],
+  "skills": ["./skills/"],
+  "commands": ["./commands/"],
+  "outputStyles": "./output-styles/"
+}
