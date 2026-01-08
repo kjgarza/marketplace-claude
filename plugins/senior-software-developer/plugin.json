@@ -1,0 +1,25 @@
+{
+  "name": "senior-software-developer",
+  "version": "1.0.0",
+  "description": "Expert-level development assistance for architecture, code review, system design, and technical leadership",
+  "author": {
+    "name": "Claude Code Team"
+  },
+  "license": "MIT",
+  "keywords": [
+    "senior-developer",
+    "architecture",
+    "code-review",
+    "system-design",
+    "best-practices",
+    "technical-leadership"
+  ],
+  "category": "development",
+  "commands": ["./commands/"],
+  "agents": ["./agents/senior-developer.md"],
+  "skills": ["./skills/"],
+  "hooks": "./hooks/hooks.json",
+  "homepage": "https://github.com/claude-code/senior-software-developer",
+  "repository": "https://github.com/claude-code/senior-software-developer"
+}
+

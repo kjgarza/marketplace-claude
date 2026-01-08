@@ -1,0 +1,96 @@
+"""Pydantic models for CLI command responses.
+
+These models follow the 'Every Output is a Prompt' pattern for AI-friendly CLIs.
+"""
+
+from datetime import datetime
+from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel, Field
+
+
+class Suggestion(BaseModel):
+    """A suggested next command with description.
+
+    Used to guide AI agents toward the next logical action.
+    """
+    command: str = Field(..., description="The exact command to run")
+    description: str = Field(..., description="Human-readable description of what the command does")
+    category: Optional[str] = Field(
+        None,
+        description="Category of suggestion: view, export, search, create, edit, delete, auth, config"
+    )
+
+
+class ErrorDetail(BaseModel):
+    """Detailed error information following the three-part pattern.
+
+    Every error should tell the user:
+    1. What went wrong
+    2. How to fix it
+    3. What to do next
+    """
+    what_went_wrong: str = Field(..., description="Clear explanation of the failure")
+    how_to_fix: List[str] = Field(..., description="Step-by-step instructions to resolve")
+    whats_next: List[Suggestion] = Field(..., description="Suggested commands to try after fixing")
+    error_code: Optional[str] = Field(None, description="Machine-readable error code for programmatic handling")
+
+
+class CommandResult(BaseModel):
+    """Result of a CLI command with conversational context.
+
+    This is the standard response model for all CLI commands.
+    Both success and failure states use this model.
+    """
+    success: bool = Field(..., description="Whether the command succeeded")
+    message: str = Field(..., description="Primary result message")
+
+    # Success context - provide resource IDs and metadata for follow-up commands
+    context: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Resource IDs and metadata that can be used in follow-up commands"
+    )
+    data: Optional[List[Any]] = Field(
+        None,
+        description="Structured data results (list of dicts, models, etc.)"
+    )
+    suggestions: List[Suggestion] = Field(
+        default_factory=list,
+        description="Suggested next commands"
+    )
+
+    # Error context - only populated on failure
+    error: Optional[ErrorDetail] = Field(None, description="Detailed error information")
+
+    # Metadata
+    timestamp: datetime = Field(default_factory=datetime.now, description="Command execution time")
+    execution_time_ms: Optional[int] = Field(None, description="Command execution time in milliseconds")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
+
+
+# Example domain-specific models - customize for your CLI
+
+class ResourceInfo(BaseModel):
+    """Example: Information about a resource."""
+    id: str = Field(..., description="Resource ID")
+    name: str = Field(..., description="Resource name")
+    created_at: Optional[datetime] = Field(None, description="Creation timestamp")
+    updated_at: Optional[datetime] = Field(None, description="Last update timestamp")
+
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
+
+
+class ExportResult(BaseModel):
+    """Result of a data export operation."""
+    format: str = Field(..., description="Export format (json, csv, excel, etc.)")
+    file_path: Optional[str] = Field(None, description="Path to exported file")
+    row_count: int = Field(..., description="Number of rows exported")
+    column_count: int = Field(..., description="Number of columns exported")
+    size_bytes: Optional[int] = Field(None, description="File size in bytes")

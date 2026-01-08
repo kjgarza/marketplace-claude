@@ -1,0 +1,89 @@
+{
+  "hooks": [
+    {
+      "event": "on_file_save",
+      "conditions": {
+        "filePattern": "*.{js,ts,jsx,tsx,py,java,go,rb,php}",
+        "excludePattern": "{node_modules/**,dist/**,build/**,*.test.*,*.spec.*}"
+      },
+      "action": {
+        "type": "notification",
+        "message": "Senior Developer Assistant: Code quality check available. Use /code-review for detailed analysis.",
+        "silent": true
+      }
+    },
+    {
+      "event": "on_file_open",
+      "conditions": {
+        "filePattern": "*auth*.{js,ts,py,java,go}",
+        "minimumLines": 50
+      },
+      "action": {
+        "type": "prompt",
+        "message": "This appears to be authentication code. Would you like a security review?",
+        "confirmCommand": "/code-review --focus=security"
+      }
+    },
+    {
+      "event": "on_git_commit",
+      "conditions": {
+        "filePattern": "*.{js,ts,jsx,tsx,py,java,go}"
+      },
+      "action": {
+        "type": "prompt",
+        "message": "Senior Developer: Run code review before committing?",
+        "confirmCommand": "/code-review"
+      }
+    },
+    {
+      "event": "on_error",
+      "conditions": {
+        "pattern": "(performance|slow|timeout|memory)",
+        "minimumSeverity": "warning"
+      },
+      "action": {
+        "type": "notification",
+        "message": "Performance issue detected. Senior Developer can help optimize with /code-review --focus=performance"
+      }
+    },
+    {
+      "event": "on_chat_message",
+      "conditions": {
+        "pattern": "(architecture|system design|scalability|how should I design)"
+      },
+      "action": {
+        "type": "command",
+        "command": "/system-design",
+        "autoExecute": false,
+        "suggestion": true
+      }
+    },
+    {
+      "event": "on_chat_message",
+      "conditions": {
+        "pattern": "(refactor|legacy|technical debt|code smell)"
+      },
+      "action": {
+        "type": "command",
+        "command": "/refactor-strategy",
+        "autoExecute": false,
+        "suggestion": true
+      }
+    },
+    {
+      "event": "on_project_open",
+      "conditions": {
+        "fileCount": {
+          "min": 50
+        }
+      },
+      "action": {
+        "type": "notification",
+        "message": "Senior Developer Assistant loaded. Commands: /architecture-review, /code-review, /system-design, /refactor-strategy, /technical-debt-audit",
+        "dismissible": true,
+        "showOnce": true
+      }
+    }
+  ]
+}
+
