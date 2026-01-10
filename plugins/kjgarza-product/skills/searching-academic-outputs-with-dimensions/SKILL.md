@@ -7,29 +7,26 @@ allowed-tools: Read, Grep, Glob, Bash, Edit, Write
 
 # Overview
 
-Query the Dimensions academic database to find publications, grants, patents, clinical trials, and researchers using the dimcli CLI.
+Query the Dimensions academic database to find publications, grants, patents, clinical trials, and researchers using the kestrel CLI.
 
-Queries use the Dimensions Search Language (DSL) piped to dimcli.
+Queries use the Dimensions Search Language (DSL) piped to kestrel.
 
 **Reference Documentation:**
 - [dsl-reference.md](dsl-reference.md) — Full DSL syntax, operators, fields, and example queries
 
-**Authentication:** Requires API key from https://app.dimensions.ai/account/tokens. Run `dimcli --init` to configure credentials. See Authentication section in [dsl-reference.md](dsl-reference.md) for details.
+**Authentication:** Requires API key from https://app.dimensions.ai/account/tokens. Configure credentials in `~/.dimensions/dsl.ini` or use environment variables (`DIMENSIONS_KEY`, `DIMENSIONS_ENDPOINT`). See Authentication section in [dsl-reference.md](dsl-reference.md) for details.
 
 # Quick Start
 
 ```bash
-# Configure credentials (first time only)
-dimcli --init
-
 # Search publications
-echo 'search publications for "machine learning" return publications limit 10' | dimcli
+echo 'search publications for "machine learning" return publications limit 10' | kestrel
 
 # Search grants
-echo 'search grants for "artificial intelligence" return grants[title+funding_usd] limit 10' | dimcli
+echo 'search grants for "artificial intelligence" return grants[title+funding_usd] limit 10' | kestrel
 
 # Find researchers
-echo 'search researchers for "John Smith" return researchers[first_name+last_name+current_research_org] limit 10' | dimcli
+echo 'search researchers for "John Smith" return researchers[first_name+last_name+current_research_org] limit 10' | kestrel
 ```
 
 # Query Structure
@@ -66,7 +63,7 @@ search <source> [for "<terms>"] [where <filters>] return <result> [limit N]
 
 Use `+` to combine fields:
 ```bash
-echo 'search publications for "quantum" return publications[id+title+doi+year+times_cited] limit 10' | dimcli
+echo 'search publications for "quantum" return publications[id+title+doi+year+times_cited] limit 10' | kestrel
 ```
 
 # Filter Operators
@@ -99,25 +96,25 @@ Boolean operators in search terms must be **UPPERCASE** and **inside** the quote
 1. **Use targeted search indexes** for relevant results:
    ```bash
    # Most specific - title only
-   echo 'search publications in title_only for "machine learning" return publications limit 20' | dimcli
+   echo 'search publications in title_only for "machine learning" return publications limit 20' | kestrel
 
    # Good balance - title and abstract
-   echo 'search publications in title_abstract_only for "peer feedback AND writing" return publications limit 20' | dimcli
+   echo 'search publications in title_abstract_only for "peer feedback AND writing" return publications limit 20' | kestrel
    ```
 
 2. **Use phrase searches** for exact multi-word terms:
    ```bash
-   echo 'search publications in title_abstract_only for "\"formative assessment\" AND \"higher education\"" return publications limit 20' | dimcli
+   echo 'search publications in title_abstract_only for "\"formative assessment\" AND \"higher education\"" return publications limit 20' | kestrel
    ```
 
 3. **Combine search with filters** to narrow scope:
    ```bash
-   echo 'search publications in title_abstract_only for "\"peer review\"" where year>=2020 and times_cited>10 return publications[title+doi+times_cited+year] limit 20' | dimcli
+   echo 'search publications in title_abstract_only for "\"peer review\"" where year>=2020 and times_cited>10 return publications[title+doi+times_cited+year] limit 20' | kestrel
    ```
 
 4. **Filter by citation count** to find influential papers:
    ```bash
-   echo 'search publications for "cognitive load" where times_cited>50 return publications sort by times_cited desc limit 10' | dimcli
+   echo 'search publications for "cognitive load" where times_cited>50 return publications sort by times_cited desc limit 10' | kestrel
    ```
 
 # General Tips
@@ -131,6 +128,7 @@ Boolean operators in search terms must be **UPPERCASE** and **inside** the quote
 
 | Error | Solution |
 |-------|----------|
-| dimcli not configured | Run `dimcli --init` |
+| kestrel not found | Install from ~/aves/kestrel: `cd ~/aves/kestrel && uv pip install .` |
+| Configuration error (exit code 2) | Set `DIMENSIONS_KEY` env var or create `~/.dimensions/dsl.ini` |
 | Invalid credentials | Get new key from https://app.dimensions.ai/account/tokens |
-| Query syntax error | Check DSL syntax in [dsl-reference.md](dsl-reference.md) |
+| Query syntax error (exit code 1) | Check DSL syntax in [dsl-reference.md](dsl-reference.md) |

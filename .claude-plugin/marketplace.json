@@ -22,7 +22,6 @@
       "license": "MIT",
       "category": "utilities",
       "keywords": ["mcp", "puppeteer", "fetch", "sequential-thinking", "context7", "documentation"],
-      "mcpServers": "./mcp-config.json",
       "strict": true
     },
     {
