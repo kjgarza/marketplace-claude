@@ -1,0 +1,22 @@
+{
+  "name": "bookclub",
+  "version": "1.0.0",
+  "description": "Book club management plugin for generating Slack communications, discussion materials, and reading schedules",
+  "author": {
+    "name": "Kristian Garza",
+    "email": "kj.garza@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "book-club",
+    "slack",
+    "reading-group",
+    "discussion-guide",
+    "communications"
+  ],
+  "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/bookclub",
+  "repository": "https://github.com/kjgarza/marketplace-claude",
+  "agents": ["./agents/bookclub-coordinator.md"],
+  "skills": ["./skills/"],
+  "commands": ["./commands/"]
+}

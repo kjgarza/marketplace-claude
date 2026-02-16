@@ -1,0 +1,93 @@
+{
+  "blocks": [
+    {
+      "type": "header",
+      "text": {
+        "type": "plain_text",
+        "text": "Book of the Month: Klara and the Sun",
+        "emoji": true
+      }
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":books: *_Klara and the Sun_* by Kazuo Ishiguro\n\nWhat does it mean to love someone — and can a machine truly understand that question? Ishiguro's first novel since winning the Nobel Prize is a quietly devastating story told through the eyes of an AI companion. It's tender, strange, and will change how you think about consciousness."
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":calendar: *Key Dates*\n• Reading deadline: March 20, 2026\n• Discussion session: March 22, 2026 at 12:00 PM"
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": ":brain: *Did you know?*\n• Ishiguro wrote this partly as a companion to _Never Let Me Go_, exploring what makes us human from the opposite direction — through an artificial being looking in.\n• Klara describes the visual world in geometric terms, as though processing images through sensors rather than eyes.\n• The book was written under enormous pressure — it was Ishiguro's first novel after the Nobel Prize, and he described the expectations as \"paralyzing.\""
+      }
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "type": "actions",
+      "elements": [
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": ":books: Bookshop.org",
+            "emoji": true
+          },
+          "url": "https://bookshop.org/p/books/klara-and-the-sun-kazuo-ishiguro/14723188",
+          "action_id": "bookshop_link"
+        },
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Amazon",
+            "emoji": true
+          },
+          "url": "https://www.amazon.com/dp/0571364888",
+          "action_id": "amazon_link"
+        },
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": "Goodreads",
+            "emoji": true
+          },
+          "url": "https://www.goodreads.com/book/show/54120408-klara-and-the-sun",
+          "action_id": "goodreads_link"
+        }
+      ]
+    },
+    {
+      "type": "context",
+      "elements": [
+        {
+          "type": "mrkdwn",
+          "text": "307 pages · Literary Fiction / Sci-Fi · Nominated for Booker Prize 2021"
+        }
+      ]
+    },
+    {
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "React with :book: if you're joining this month! :raised_hands:"
+      }
+    }
+  ]
+}
