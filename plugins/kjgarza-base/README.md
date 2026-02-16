@@ -1,6 +1,6 @@
 # kjgarza-base
 
-Base MCP server configuration with puppeteer, fetch, sequential thinking, and context7 documentation servers.
+A collection of productivity skills including project scaffolding, image processing, file organization, and skill creation tooling.
 
 ## Installation
 
@@ -8,24 +8,23 @@ Base MCP server configuration with puppeteer, fetch, sequential thinking, and co
 /plugin install kjgarza-base@marketplace-claude
 ```
 
-## Features
-
-This plugin provides foundational MCP server configurations:
-
-- **Puppeteer**: Browser automation for web interactions
-- **Fetch**: HTTP request capabilities
-- **Sequential Thinking**: Structured problem-solving
-- **Context7**: Documentation retrieval
-
 ## Skills
 
 ### project-scaffold
 
-Create new projects with best practices and proper structure.
+Scaffold new software projects with best practices. Supports frontend (React, Vue, vanilla), CLI tools, REST APIs, and monorepos in TypeScript/JavaScript or Python.
+
+### image-processing
+
+Process images using ImageMagick for format conversion, resizing, cropping, batch processing, effects, composition, watermarks, and optimization.
+
+### file-organizer
+
+Organize files and folders by analyzing directory contents, finding duplicates, suggesting better structures, and automating cleanup.
 
 ### skill-creator
 
-Generate new Claude Code skills with proper formatting and structure.
+Create, edit, and package skills that extend Claude's capabilities with specialized knowledge, workflows, or tool integrations.
 
 ## License
 
