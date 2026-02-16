@@ -9,7 +9,7 @@ description: Search and download documents from Google Drive using rclone. Expor
 
 Search for and download documents from Google Drive using rclone. Google Docs are automatically exported as Markdown for easy reading and processing.
 
-Scripts are located at `.claude/searching-documents-with-google-drive/gdrive/scripts/`.
+Scripts are located at `scripts/`.
 
 **Reference Documentation:**
 - [scripts/](scripts/) — Shell scripts for search, download, and sync operations

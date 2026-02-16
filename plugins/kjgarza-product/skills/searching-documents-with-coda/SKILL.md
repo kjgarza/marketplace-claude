@@ -1,7 +1,6 @@
 ---
 name: searching-documents-with-coda
 description: Search and extract content from Coda documents including PRDs, roadmaps, competitive analyses, and research docs. Use when user wants to find documents in Coda, list pages and tables, export content as Markdown/HTML/JSON/CSV, or access structured data from Coda workspace. Triggers on "find in Coda", "search Coda", "Coda document", "export from Coda", or references to product documentation.
-allowed-tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
 # Overview

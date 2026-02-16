@@ -39,7 +39,7 @@ description: |
   </commentary>
   </example>
 model: sonnet
-color: purple
+color: magenta
 tools: Read, Grep, Glob, Bash, Edit, Write
 skills: coda, product-frameworks, gdrive, docx, pdf, xlsx
 ---
