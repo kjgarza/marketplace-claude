@@ -64,6 +64,20 @@
       "category": "productivity",
       "keywords": ["product-management", "document-processing", "integrations", "research", "pdf", "docx", "xlsx", "pptx"],
       "strict": true
+    },
+    {
+      "name": "bookclub",
+      "source": "./plugins/bookclub",
+      "description": "Book club management plugin for generating Slack communications, discussion materials, and reading schedules",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["book-club", "slack", "reading-group", "discussion-guide", "communications"],
+      "strict": true
     }
   ]
 }

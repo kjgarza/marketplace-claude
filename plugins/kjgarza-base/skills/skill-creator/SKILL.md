@@ -1,7 +1,12 @@
 ---
 name: skill-creator
-description: Guide for creating effective skills. This skill should be used when users want to create a new skill (or update an existing skill) that extends Claude's capabilities with specialized knowledge, workflows, or tool integrations.
-license: Complete terms in LICENSE.txt
+description: >
+  Create, edit, and package skills that extend Claude's capabilities with specialized
+  knowledge, workflows, or tool integrations. This skill should be used when the user
+  wants to create a new skill, write a skill, update an existing skill, package a skill
+  for distribution, or design a workflow for Claude. Covers skill architecture, SKILL.md
+  writing, progressive disclosure, bundled resources (scripts, references, assets), and
+  packaging into distributable .skill files.
 ---
 
 # Skill Creator
@@ -109,7 +114,7 @@ A skill should only contain essential files that directly support its functional
 - CHANGELOG.md
 - etc.
 
-The skill should only contain the information needed for an AI agent to do the job at hand. It should not contain auxilary context about the process that went into creating it, setup and testing procedures, user-facing documentation, etc. Creating additional documentation files just adds clutter and confusion.
+The skill should only contain the information needed for an AI agent to do the job at hand. It should not contain auxiliary context about the process that went into creating it, setup and testing procedures, user-facing documentation, etc. Creating additional documentation files just adds clutter and confusion.
 
 ### Progressive Disclosure Design Principle
 

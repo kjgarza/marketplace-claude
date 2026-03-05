@@ -1,23 +1,16 @@
 ---
 name: project-scaffold
 description: >
-  Scaffold new software projects with best practices. Use this skill when users want to
-  create a new project, initialize a codebase, scaffold an application, start a new repo,
-  or set up a project from scratch. Supports frontend (React, Vue, vanilla), CLI tools,
-  REST APIs, and monorepos in TypeScript/JavaScript or Python.
+  Scaffold new software projects with best practices. This skill should be used when
+  the user wants to create a new project, initialize a codebase, scaffold an application,
+  start a new repo, set up a project from scratch, or generate a boilerplate/starter
+  template. Supports frontend (React, Vue, vanilla), CLI tools, REST APIs, and monorepos
+  in TypeScript/JavaScript or Python.
 ---
 
 # Project Scaffolder
 
 Scaffold production-ready projects with modern tooling and configurable features.
-
-## Trigger Conditions
-
-Use this skill when the user:
-- Wants to "create a new project" or "start a new app"
-- Asks to "scaffold" or "initialize" a project
-- Says "set up a new [frontend/CLI/API/monorepo]"
-- Requests a "boilerplate" or "starter template"
 
 ## Interactive Workflow
 

@@ -1,7 +1,6 @@
 ---
 name: searching-academic-outputs-with-dimensions
 description: Search for academic literature, empirical evidence, and scholarly research using the Dimensions database. Use when seeking research papers to support product decisions, find empirical studies, conduct literature reviews, explore funding patterns, validate hypotheses with academic sources, or discover research trends. Supports publications, grants, patents, clinical trials, and researcher profiles. Triggers on requests for "academic evidence", "empirical research", "find studies", "literature search", or "research to support decisions".
-allowed-tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
 

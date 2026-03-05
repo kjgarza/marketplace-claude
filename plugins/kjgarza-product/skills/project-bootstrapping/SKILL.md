@@ -108,15 +108,6 @@ Adapts to:
 - **Team size**: Solo vs collaborative
 - **Maturity**: Startup speed vs enterprise standards
 
-## Tools Used
-
-- **AskUserQuestion**: Gather requirements
-- **Write**: Create configuration files, documentation
-- **Edit**: Update existing files
-- **Bash**: Initialize tools (git init, npm init)
-- **Read**: Analyze existing structure
-- **Glob**: Find files to update
-
 ## Success Criteria
 
 - All standard files present and configured
@@ -136,12 +127,6 @@ Adapts to:
 - React/Next.js app
 - Go service
 - Rust CLI/library
-
-## Integration
-
-- **feature-planning**: For planning custom features
-- **code-auditor**: For validating setup quality
-- **codebase-documenter**: For generating detailed docs
 
 ## Scope Control
 

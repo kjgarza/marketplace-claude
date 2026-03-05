@@ -1,5 +1,5 @@
 ---
-name: product-frameworks-for-design-and-management
+name: product-frameworks
 description: Comprehensive product design and management frameworks including UX heuristics (Hick's Law, Fitts's Law), design processes (Double Diamond, Lean UX, Agile, User-Centered Design), prioritization methods (RICE, MoSCoW, Kano Model, Pareto Principle), product lifecycle guidance, PRD templates, user story formats, design critique guidelines, and usability testing checklists. Use when analyzing features, creating product documentation, facilitating design reviews, planning user research, applying UX principles to interfaces, or making product decisions that require framework-based guidance.
 ---
 
