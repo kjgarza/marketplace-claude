@@ -22,8 +22,9 @@ The `book-profile.json` file is the single source of truth for all bookclub comm
   "themes": ["string — 3-5 key themes"],
   "factoids": ["string — 5 surprising/interesting facts, 1-2 sentences each"],
   "links": {
-    "amazon": "url (optional)",
-    "bookshop": "url (optional)",
+    "amazon_de": "url (optional)",
+    "buch7": "url (optional)",
+    "medimops": "url (optional)",
     "goodreads": "url (optional)",
     "publisher": "url (optional)",
     "library": "url or search pattern (optional)"
@@ -67,8 +68,9 @@ Bad factoids (too obvious):
 
 ### Links
 Construct URLs using known patterns when exact URLs aren't found:
-- Amazon: `https://www.amazon.com/s?k={title}+{author}`
-- Bookshop: `https://bookshop.org/search?keywords={title}+{author}`
+- Amazon.de: `https://www.amazon.de/s?k={title}+{author}`
+- buch7: `https://www.buch7.de/suche?search={title}+{author}`
+- Medimops: `https://www.medimops.de/produkte-C0/?searchparam={title}+{author}`
 - Goodreads: `https://www.goodreads.com/search?q={title}+{author}`
 
 ### Reading Dates
@@ -103,8 +105,9 @@ If the user doesn't provide dates, leave the `reading_dates` object with null va
     "Klara's solar-powered nature is central to the plot — her relationship with the Sun is both literal (energy source) and spiritual."
   ],
   "links": {
-    "amazon": "https://www.amazon.com/dp/0571364888",
-    "bookshop": "https://bookshop.org/p/books/klara-and-the-sun-kazuo-ishiguro/14723188",
+    "amazon_de": "https://www.amazon.de/dp/0571364888",
+    "buch7": "https://www.buch7.de/suche?search=klara+and+the+sun+ishiguro",
+    "medimops": "https://www.medimops.de/produkte-C0/?searchparam=klara+and+the+sun+ishiguro",
     "goodreads": "https://www.goodreads.com/book/show/54120408-klara-and-the-sun",
     "publisher": "https://www.faber.co.uk/product/9780571364886-klara-and-the-sun/",
     "library": "https://www.worldcat.org/search?q=klara+and+the+sun+ishiguro"
@@ -135,6 +138,6 @@ If the user doesn't provide dates, leave the `reading_dates` object with null va
     "discussion_date": "2026-03-22"
   },
   "cover_image_url": "https://images-na.ssl-images-amazon.com/images/I/81oBMNjFMVL.jpg",
-  "qr_target_url": "https://bookshop.org/p/books/klara-and-the-sun-kazuo-ishiguro/14723188"
+  "qr_target_url": "https://www.amazon.de/dp/0571364888"
 }
 ```

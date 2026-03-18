@@ -188,8 +188,9 @@ A single-page visual summary for printing or digital sharing.
 - **Discussion**: {discussion_date}
 
 ## Get the Book
-- [Amazon]({links.amazon})
-- [Bookshop.org]({links.bookshop})
+- [Amazon.de]({links.amazon_de})
+- [buch7]({links.buch7})
+- [Medimops]({links.medimops})
 - [Goodreads]({links.goodreads})
 
 ---

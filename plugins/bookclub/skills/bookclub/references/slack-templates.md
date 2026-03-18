@@ -15,17 +15,14 @@ The flagship message introducing the book of the month.
 
 {hook — 2-3 sentences on why this book is exciting, what makes it stand out}
 
-:calendar: *Key Dates*
-• Reading deadline: {reading_date}
-• Discussion session: {discussion_date}
+:calendar: {reading_date} · Discussion: {discussion_date}
 
 :brain: *Did you know?*
 • {factoid_1}
 • {factoid_2}
-• {factoid_3}
 
 :link: *Get the book*
-<{links.amazon}|Amazon> | <{links.bookshop}|Bookshop.org> | <{links.goodreads}|Goodreads>
+<{links.amazon_de}|Amazon.de> | <{links.buch7}|buch7> | <{links.medimops}|Medimops> | <{links.goodreads}|Goodreads>
 
 React with :book: if you're joining this month! :raised_hands:
 ```
@@ -43,22 +40,16 @@ React with :book: if you're joining this month! :raised_hands:
       "type": "section",
       "text": { "type": "mrkdwn", "text": "*_{title}_* by {author}\n\n{hook}" }
     },
-    { "type": "divider" },
     {
       "type": "section",
-      "text": { "type": "mrkdwn", "text": ":calendar: *Key Dates*\n• Reading deadline: {reading_date}\n• Discussion session: {discussion_date}" }
+      "text": { "type": "mrkdwn", "text": ":calendar: {reading_date} · Discussion: {discussion_date}\n\n:brain: *Did you know?*\n• {factoid_1}\n• {factoid_2}" }
     },
-    { "type": "divider" },
-    {
-      "type": "section",
-      "text": { "type": "mrkdwn", "text": ":brain: *Did you know?*\n• {factoid_1}\n• {factoid_2}\n• {factoid_3}" }
-    },
-    { "type": "divider" },
     {
       "type": "actions",
       "elements": [
-        { "type": "button", "text": { "type": "plain_text", "text": "Amazon" }, "url": "{links.amazon}" },
-        { "type": "button", "text": { "type": "plain_text", "text": "Bookshop.org" }, "url": "{links.bookshop}" },
+        { "type": "button", "text": { "type": "plain_text", "text": "Amazon.de" }, "url": "{links.amazon_de}" },
+        { "type": "button", "text": { "type": "plain_text", "text": "buch7" }, "url": "{links.buch7}" },
+        { "type": "button", "text": { "type": "plain_text", "text": "Medimops" }, "url": "{links.medimops}" },
         { "type": "button", "text": { "type": "plain_text", "text": "Goodreads" }, "url": "{links.goodreads}" }
       ]
     },
@@ -94,12 +85,9 @@ Urgency-scaled reminders that adapt based on timing.
 :alarm_clock: *One week until we discuss _{title}_!*
 
 Still haven't started? No worries — at {page_count} pages, that's about {estimated_reading_hours} hours of reading. Totally doable this week.
+:bulb: Keep in mind as you read: {factoid}
 
-:bulb: Here's something to keep in mind as you read: {factoid}
-
-:link: <{links.bookshop}|Grab a copy> if you haven't yet.
-
-How far along are you? Drop your page number below! :book:
+<{links.amazon_de}|Grab a copy> if you haven't yet. How far along are you? Drop your page number below! :book:
 ```
 
 **3-day reminder:**
@@ -107,7 +95,6 @@ How far along are you? Drop your page number below! :book:
 :alarm_clock: *3 days until our _{title}_ discussion!*
 
 We're meeting on {discussion_date}. If you're not done yet, focus on the first half — you'll still have plenty to contribute.
-
 > {theme_teaser — one-line thematic question to think about while reading}
 
 Almost there! :raised_hands:
@@ -118,7 +105,6 @@ Almost there! :raised_hands:
 :alarm_clock: *Tomorrow: _{title}_ discussion!*
 
 Last chance to finish up! Even if you're not done, come anyway — the best conversations happen when people bring different perspectives.
-
 :calendar: {discussion_date} | See you there!
 ```
 
@@ -127,7 +113,6 @@ Last chance to finish up! Even if you're not done, come anyway — the best conv
 :books: *Today's the day! _{title}_ discussion happening now*
 
 {discussion_time_and_location_if_available}
-
 Bring your favorite passage, a burning question, or just your opinions. Let's go! :raised_hands:
 ```
 
@@ -142,15 +127,12 @@ Pre-reading conversation starters designed around themes, not plot.
 ```
 :thought_balloon: *Before you read _{title}_ — let's warm up*
 
-This month's book explores themes of {theme_1}, {theme_2}, and {theme_3}. Before diving in, think about these questions:
-
+Themes: {theme_1}, {theme_2}, {theme_3}. Think about:
 1. {spark_question_1}
 2. {spark_question_2}
 3. {spark_question_3}
-4. {spark_question_4}
-5. {spark_question_5}
 
-Reply in thread with your thoughts! No spoilers needed — these are about *your* perspective, not the book's answers. :brain:
+Reply in thread — these are about *your* perspective, not the book's answers. :brain:
 ```
 
 ### Question Guidelines
@@ -172,16 +154,10 @@ Curated related reading to deepen engagement.
 ```
 :studio_microphone: *Going deeper with _{title}_*
 
-Want more context before (or after) reading? Here are some great companion pieces:
-
-:one: *<{article_1_url}|{article_1_title}>* — {article_1_source}
-{article_1_summary}
-
-:two: *<{article_2_url}|{article_2_title}>* — {article_2_source}
-{article_2_summary}
-
-:three: *<{article_3_url}|{article_3_title}>* — {article_3_source}
-{article_3_summary}
+Want more context? Great companion pieces:
+:one: *<{article_1_url}|{article_1_title}>* ({article_1_source}) — {article_1_summary}
+:two: *<{article_2_url}|{article_2_title}>* ({article_2_source}) — {article_2_summary}
+:three: *<{article_3_url}|{article_3_title}>* ({article_3_source}) — {article_3_summary}
 
 Found something else worth sharing? Drop it in the thread! :link:
 ```
@@ -203,22 +179,19 @@ Post-session summary to close the loop.
 ```
 :memo: *_{title}_ — Discussion Recap*
 
-Thanks to everyone who joined! Here's a summary of what we talked about:
+Thanks to everyone who joined! Here's what we talked about:
 
 *Key takeaways:*
 • {takeaway_1}
 • {takeaway_2}
 • {takeaway_3}
 
-*Favorite quotes from the discussion:*
+*Standout quote:*
 > "{quote_1}" — {quoter_1}
-> "{quote_2}" — {quoter_2}
 
-*Surprise of the session:*
-{surprise — something unexpected that came up}
+*Surprise of the session:* {surprise — something unexpected that came up}
 
 :sparkles: *Coming up next month:* Stay tuned for our next pick announcement!
-
 Missed the session? Reply in thread and we'll catch you up. :raised_hands:
 ```
 
