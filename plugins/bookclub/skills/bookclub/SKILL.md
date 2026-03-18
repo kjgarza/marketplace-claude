@@ -61,7 +61,7 @@ The `book-profile.json` is the single source of truth. All generate commands rea
 The init command creates a `book-profile.json` containing:
 - **Metadata**: title, author, author_bio, publication_year, genre, page_count, isbn
 - **Content**: synopsis (paraphrased), themes, factoids, awards
-- **Links**: amazon, bookshop, goodreads, publisher, library
+- **Links**: amazon_de, buch7, medimops, goodreads, publisher, library
 - **Articles**: 3-5 related articles with title, source, url, summary
 - **Dates**: announcement_date, reading_date, discussion_date
 - **Assets**: cover_image_url, qr_target_url
@@ -73,7 +73,7 @@ Full schema: [references/book-profile-schema.md](references/book-profile-schema.
 - **Tone**: Enthusiastic but not cheesy. Smart-casual. The friend who always has great book recommendations
 - **Structure**: Hook -> Body -> CTA. Every message ends with a clear call to action
 - **Format**: Slack mrkdwn (`*bold*`, `_italic_`, `:emoji:`, `>` quotes)
-- **Length**: Announcements ~150-250 words, reminders ~80-120 words
+- **Length**: Announcements ~120-180 words, reminders ~80-120 words
 - **Emoji**: 2-4 relevant emojis per message. Prefer: :books: :book: :brain: :bulb: :calendar:
 - **Links**: Format as `<url|Display Text>`, group in a links section
 

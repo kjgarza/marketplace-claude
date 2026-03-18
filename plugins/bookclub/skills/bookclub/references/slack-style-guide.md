@@ -48,7 +48,7 @@ Use blank lines between sections. Don't use horizontal rules (Slack doesn't rend
 
 | Type | Target Length |
 |------|-------------|
-| Announcement | 150-250 words |
+| Announcement | 120-180 words |
 | Reminder | 80-120 words |
 | Spark questions | 100-150 words |
 | Articles roundup | 100-150 words |
@@ -67,7 +67,17 @@ Every message follows: **Hook -> Body -> CTA**
 - Always format as `<url|Display Text>` — never paste raw URLs
 - Group links in a dedicated section with a :link: or :paperclip: header
 - Separate multiple links with ` | ` (space-pipe-space)
-- Example: `<https://bookshop.org/...|Bookshop.org> | <https://amazon.com/...|Amazon> | <https://goodreads.com/...|Goodreads>`
+- Example: `<https://www.amazon.de/...|Amazon.de> | <https://www.buch7.de/...|buch7> | <https://www.medimops.de/...|Medimops> | <https://goodreads.com/...|Goodreads>`
+
+## Mobile-First Spacing
+
+Most readers view these messages on phones. Optimize for vertical compactness:
+
+- Prefer inline separators (`·`, `|`) over bullet lists for short items (e.g., dates, links)
+- Limit blank lines to 1 between sections — never use double blank lines
+- Target **15 visible lines or fewer** on mobile per message
+- Merge related short sections (e.g., dates + factoids) rather than giving each its own header
+- Use single-line CTAs instead of multi-line sign-offs
 
 ## Accessibility
 
