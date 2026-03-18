@@ -22,7 +22,10 @@ The flagship message introducing the book of the month.
 • {factoid_2}
 
 :link: *Get the book*
-<{links.amazon_de}|Amazon.de> | <{links.buch7}|buch7> | <{links.medimops}|Medimops> | <{links.goodreads}|Goodreads>
+Amazon.de: {links.amazon_de}
+buch7: {links.buch7}
+Medimops: {links.medimops
+Goodreads: {links.goodreads}
 
 React with :book: if you're joining this month! :raised_hands:
 ```
