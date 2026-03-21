@@ -6,7 +6,6 @@ description: >
   an 11ty project", "set up Eleventy", or when working in any project that uses 11ty
   with Bun. Also load when Claude is about to suggest templating, data handling, or
   styling approaches in an 11ty context — this skill defines the defaults.
-version: 0.1.0
 ---
 
 # 11ty MVP Stack

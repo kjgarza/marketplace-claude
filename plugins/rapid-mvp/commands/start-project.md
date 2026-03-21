@@ -54,17 +54,23 @@ Create the project directory with the monorepo structure from the shared-package
 9. `packages/ui/` — shadcn/ui component library with tsup, Radix UI, CVA
 10. `packages/eslint-config/` — ESLint config for Next.js
 11. `apps/<project-name>/` — Next.js 15 app with:
-   - `next.config.js` (transpiling monorepo packages)
-   - `tailwind.config.ts` (HSL custom properties, dark mode class-based, plugins: animate + typography)
-   - `postcss.config.js`
+   - `next.config.js` (static export, basePath/assetPrefix for GitHub Pages, transpiling monorepo packages)
+   - `postcss.config.js` (Tailwind CSS v4 via `@tailwindcss/postcss` — no autoprefixer needed)
    - `tsconfig.json` extending `@repo/tsconfig/app.json`
-   - `src/app/layout.tsx` with ThemeProvider, fonts
+   - `src/app/layout.tsx` with ThemeProvider, Inter + Space Grotesk fonts, Open Graph metadata, metadataBase for GitHub Pages
    - `src/app/page.tsx` with landing page skeleton
-   - `src/app/globals.css` with Tailwind directives and CSS custom property theme
-   - `components.json` for shadcn/ui (new-york style, tsx, rsc)
+   - `src/app/globals.css` with Tailwind v4 (`@import "tailwindcss"`, `@plugin`, `@theme inline`, `@source` for monorepo packages)
+   - `src/components/theme-provider.tsx` — client-side ThemeProvider wrapper
+   - `components.json` for shadcn/ui (new-york style, tsx, rsc — no `config` field, v4 doesn't use JS config)
    - `src/content/about.ts` — about page data (motivations, principles, how-built)
    - `src/app/about/page.tsx` — about page using `@tailwindcss/typography` prose classes
+   - `public/opengraph.png` — placeholder OG image (1200x630) — remind user to replace
    - App-specific `CLAUDE.md`
+12. `.github/workflows/deploy-pages.yml` — GitHub Actions workflow for deploying to GitHub Pages (Bun setup, build with `NEXT_PUBLIC_REPO_NAME`, upload artifact from `apps/<project-name>/out`, deploy)
+
+Do NOT create a `tailwind.config.ts` file — Tailwind CSS v4 configures everything in CSS via `globals.css`.
+
+The `package.json` dev script must be `"dev": "next dev"` (no `--webpack` flag — Turbopack is the default in Next.js 15.5+, and next-pwa is disabled during dev).
 
 ### For 11ty stack, additionally generate:
 

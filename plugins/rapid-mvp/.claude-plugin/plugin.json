@@ -1,6 +1,6 @@
 {
   "name": "rapid-mvp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Opinionated defaults and scaffolding for rapid MVP static websites using Next.js or 11ty monorepo patterns",
   "author": {
     "name": "Kristian Garza"

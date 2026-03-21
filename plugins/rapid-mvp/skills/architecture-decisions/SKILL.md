@@ -6,7 +6,6 @@ description: >
   a technology or library choice, when the user asks "why do we use X", or when
   evaluating trade-offs between approaches. This is the source of truth for what
   the team's defaults are and when alternatives are warranted.
-version: 0.1.0
 ---
 
 # Architecture Decisions
@@ -31,7 +30,7 @@ This matters because multiple people work on these prototypes. Consistency reduc
 | Next.js vs 11ty | Depends on project type | Next.js for interactive apps (forms, dashboards, auth). 11ty for content-driven sites (displays, timers, informational). If unclear, ask. |
 | Runtime | Bun | Never deviate. Bun is always the runtime and package manager. |
 | Monorepo tool | Bun workspaces | Never deviate. |
-| Hosting | GitHub Pages (11ty) or Vercel (Next.js) | Only deviate if the project has specific infrastructure requirements (e.g., edge functions, specific region). |
+| Hosting | GitHub Pages (both stacks, via static export) | Deviate to Vercel only if the project needs SSR, edge functions, or specific region requirements. Default is GitHub Pages with `output: "export"`. |
 
 ## UI Decisions (Next.js)
 
@@ -101,7 +100,7 @@ Every new project must have CLAUDE.md files that encode these decisions for the 
 5. Anti-patterns specific to the stack
 6. Any project-specific deviations from defaults (with rationale)
 
-App-level CLAUDE.md files should contain app-specific guidance (ports, env vars, special build flags like `--webpack` for next-pwa).
+App-level CLAUDE.md files should contain app-specific guidance (ports, env vars, deployment target, basePath handling).
 
 ## Working With the Team
 

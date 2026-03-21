@@ -6,7 +6,6 @@ description: >
   the monorepo", "add utilities", or when scaffolding any new MVP project. Also
   load when Claude needs to understand the monorepo workspace structure or when
   creating cross-package imports.
-version: 0.1.0
 ---
 
 # Shared Monorepo Packages

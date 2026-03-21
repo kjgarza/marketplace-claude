@@ -7,7 +7,6 @@ description: >
   in any project that uses Next.js with Bun workspaces. Also load when Claude is about
   to suggest UI libraries, form handling, or styling approaches in a Next.js context —
   this skill defines the defaults.
-version: 0.1.0
 ---
 
 # Next.js MVP Stack
@@ -90,6 +89,37 @@ Next.js projects enforce data/format separation:
 - **Format** (`src/components/` + `src/app/`): React components and pages — these only define presentation
 - Never hardcode content in page components or templates — always extract to `src/content/` files
 
+## Tailwind CSS v4 (critical)
+
+Tailwind CSS v4 is a major change from v3. These rules are non-negotiable:
+
+- **No `tailwind.config.ts`** — v4 does not use a JS/TS config file
+- **`@import "tailwindcss"`** replaces `@tailwind base/components/utilities` in `globals.css`
+- **`@plugin`** directives replace the `plugins: []` array
+- **`@theme inline`** maps CSS custom properties to Tailwind utility classes
+- **`@source`** tells Tailwind where to scan for class usage (for monorepo `packages/ui/`)
+- **`@tailwindcss/postcss`** is the PostCSS plugin (replaces `tailwindcss` + `autoprefixer`)
+- **`components.json`** must NOT have a `tailwind.config` field
+
+## Deployment (GitHub Pages)
+
+Default deployment target is GitHub Pages via static export:
+
+- `next.config.js` uses `output: "export"`, `basePath`, and `assetPrefix` driven by `NEXT_PUBLIC_REPO_NAME`
+- GitHub Actions workflow builds with Bun and deploys to Pages
+- All image paths in components must use the basePath helper pattern
+- Use static `public/opengraph.png` (1200x630) for OG images — no dynamic generation (incompatible with static export)
+- `images: { unoptimized: true }` is required for static export
+
+## Open Graph
+
+Every project must include Open Graph metadata in the root layout:
+
+- `metadataBase` dynamically constructed from `NEXT_PUBLIC_REPO_NAME` for GitHub Pages
+- Static `opengraph.png` (1200x630) in `public/`
+- Twitter card set to `summary_large_image`
+- Never use `opengraph-image.tsx` or `twitter-image.tsx` dynamic routes — incompatible with static export
+
 ## Anti-patterns (never do these)
 
 - Never use `pages/` directory — App Router only
@@ -97,7 +127,10 @@ Next.js projects enforce data/format separation:
 - Never use CSS Modules or styled-components — Tailwind only
 - Never use `var` — `const` preferred, `let` when needed
 - Never hardcode colors — use CSS custom properties via Tailwind theme
-- Never use Turbopack with next-pwa — use `--webpack` flag
+- Never hardcode image paths without basePath — use the `basePath` helper for GitHub Pages compatibility
+- Never create `tailwind.config.ts` — Tailwind v4 configures everything in CSS
+- Never use `--webpack` flag in dev script — Turbopack is the default in Next.js 15.5+
+- Never use dynamic OG image routes with `output: "export"` — use static images
 - Never put business logic in page.tsx files — extract to components
 - Never hardcode content in page.tsx or components — extract to `src/content/`
 
