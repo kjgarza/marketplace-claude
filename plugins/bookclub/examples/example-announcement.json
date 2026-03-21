@@ -45,21 +45,31 @@
           "type": "button",
           "text": {
             "type": "plain_text",
-            "text": ":books: Bookshop.org",
+            "text": ":de: Thalia",
             "emoji": true
           },
-          "url": "https://bookshop.org/p/books/klara-and-the-sun-kazuo-ishiguro/14723188",
-          "action_id": "bookshop_link"
+          "url": "https://www.thalia.de/shop/home/artikeldetails/A1062628498",
+          "action_id": "thalia_link"
         },
         {
           "type": "button",
           "text": {
             "type": "plain_text",
-            "text": "Amazon",
+            "text": "Amazon.de",
             "emoji": true
           },
-          "url": "https://www.amazon.com/dp/0571364888",
-          "action_id": "amazon_link"
+          "url": "https://www.amazon.de/dp/0571364888",
+          "action_id": "amazon_de_link"
+        },
+        {
+          "type": "button",
+          "text": {
+            "type": "plain_text",
+            "text": ":books: Shakespeare & Sons",
+            "emoji": true
+          },
+          "url": "https://www.shakespeareandsons.com/search?q=klara+and+the+sun",
+          "action_id": "shakespeare_link"
         },
         {
           "type": "button",

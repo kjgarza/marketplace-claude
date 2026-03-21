@@ -26,11 +26,16 @@ Research and enrich the book above, then save a structured `book-profile.json` t
      - Notable awards
      - Key themes (3-5)
      - 5 interesting factoids (surprising things most readers wouldn't know)
-   - Find purchase/info links: Amazon, Bookshop.org, Goodreads, publisher page
+   - Find purchase/info links (prioritize German/local sources):
+     - Thalia.de (German bookstore)
+     - Amazon.de (German Amazon)
+     - Shakespeare and Sons (local Berlin bookshop — check `shakespeareandsons.com/products/{slug}`)
+     - Goodreads (for reviews and community info)
+     - Publisher page
    - Find 3-5 related articles: reviews, author interviews, thematic essays
 
 3. **Optionally scrape a provided URL**
-   - If the user provides a Goodreads/Amazon URL or DOM snapshot, use WebFetch to extract data
+   - If the user provides a Goodreads/Amazon/Thalia/Shakespeare and Sons URL or DOM snapshot, use WebFetch to extract data
    - Apply scraping patterns from [scraping-patterns.md](../skills/bookclub/references/scraping-patterns.md)
    - Supplement with web search for any missing fields
 

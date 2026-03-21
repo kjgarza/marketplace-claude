@@ -77,7 +77,7 @@ When generating a one-pager:
 
 ## Notes
 
-- The QR code should encode the `qr_target_url` from the book profile (typically a Bookshop.org or Goodreads link)
+- The QR code should encode the `qr_target_url` from the book profile (typically a Thalia.de or Goodreads link)
 - If no `qr_target_url` is set, fall back to the first available link in `links`
 - Test the generated QR code by reading it back (most phone cameras work)
 - For PDF generation, the QR PNG can be embedded directly
