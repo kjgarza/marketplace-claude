@@ -92,6 +92,34 @@
       "category": "development",
       "keywords": ["mvp", "monorepo", "nextjs", "eleventy", "scaffolding", "static-site"],
       "strict": true
+    },
+    {
+      "name": "berlin-events",
+      "source": "./plugins/berlin-events",
+      "description": "Discover interesting art and food events in Berlin, check against your Google Calendar, and get a curated list with travel context from your neighborhood.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["berlin", "events", "art", "food", "calendar", "discovery"],
+      "strict": true
+    },
+    {
+      "name": "readitlater-digest",
+      "source": "./plugins/readitlater-digest",
+      "description": "Generate themed weekly digests from Obsidian ReadItLater bookmarks with SQLite state tracking and automated cleanup",
+      "version": "0.2.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["obsidian", "readitlater", "bookmarks", "digest", "reading-list", "sqlite"],
+      "strict": true
     }
   ]
 }
