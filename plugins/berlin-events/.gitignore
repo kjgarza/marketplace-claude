@@ -1,0 +1,4 @@
+scripts/node_modules/
+scripts/bun.lock
+.DS_Store
+.claude/*.local.md
