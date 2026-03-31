@@ -1,5 +1,5 @@
 ---
-description: "Use this skill when the user wants to control smart home devices — lights, speakers, music playback, or scenes. Triggers on phrases like 'turn on the lights', 'play some jazz', 'dim the lights', 'stop the music', 'goodnight', 'movie mode', 'what's playing', or any reference to Yeelight bulbs, Google Cast speakers, or SomaFM radio."
+description: "This skill should be used when the user wants to control smart home devices — lights, speakers, music playback, or scenes. Triggers on phrases like 'turn on the lights', 'play some jazz', 'dim the lights', 'stop the music', 'goodnight', 'movie mode', 'what's playing', or any reference to Yeelight bulbs, Google Cast speakers, or SomaFM radio."
 argument-hint: "natural language command (e.g., 'play jazz in the living room')"
 allowed-tools: ["Bash", "Read","Bash(python3:*)","Bash(pip3:*)"]
 model: "haiku"
@@ -7,14 +7,14 @@ model: "haiku"
 
 # Home Control
 
-Control Yeelight bulbs and Google Cast speakers on the local network using `~/.claude/skills/home-control/scripts/home.py`.
+Control Yeelight bulbs and Google Cast speakers on the local network using the `scripts/home.py` script bundled with this skill.
 
 ## CLI Reference
 
-All commands output JSON. Always run from the scripts directory:
+All commands output JSON. Always run from the skill's scripts directory (the base directory is provided above as "Base directory for this skill"):
 
 ```
-cd ~/.claude/skills/home-control/scripts
+cd <base-directory>/scripts
 ```
 
 ### Discover devices
@@ -116,7 +116,7 @@ If a genre is not directly mapped, autonomously pick the closest channel from `r
 ## Troubleshooting
 
 - **"no lights matching"**: Lights may be powered off at the switch. Run `discover` to re-scan.
-- **"pychromecast not installed"**: Run `bash ~/.claude/skills/home-control/scripts/setup.sh`
+- **"pychromecast not installed"**: Run `bash <base-directory>/scripts/setup.sh`
 - **Cast device not found**: Device may be asleep. Try increasing timeout: `--timeout 10`
 - **Cast plays but no sound / "IDLE" after play**: Streams must use **HTTP AAC** format (not HTTPS MP3). The built-in SomaFM URLs already use the correct format. For custom URLs, ensure they are HTTP and the content type matches.
 - **Connection refused on Yeelight**: Ensure "LAN Control" is enabled in the Yeelight app for each bulb.
