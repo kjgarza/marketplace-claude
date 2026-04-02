@@ -1,0 +1,17 @@
+{
+  "description": "Enforce conventional commit messages in prototype monorepos",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Check if this Bash command is a git commit. If it is NOT a git commit command, respond with 'approve' immediately.\n\nIf it IS a git commit command, extract the commit message and validate it against conventional commit format:\n- Must match: type(scope): description  OR  type: description\n- Allowed types: feat, fix, refactor, test, docs, chore, style, perf, ci, build\n- Description (after the colon and space) must be at least 15 characters\n- Scope is optional but if present must be lowercase alphanumeric\n\nExamples of VALID messages:\n- feat(api): add user authentication endpoint with JWT tokens\n- fix: resolve race condition in database connection pooling\n- refactor(core): extract validation logic into shared module\n- test: add integration tests for item CRUD operations\n\nExamples of INVALID messages:\n- fix stuff (no type prefix with colon)\n- feat: add thing (description under 15 characters)\n- update (no type: prefix format)\n- WIP (no conventional format)\n\nIf the commit message is VALID, respond: approve\nIf the commit message is INVALID, respond: deny — suggest a properly formatted message that preserves the original intent. Explain the format: type(scope): description (min 15 char description).",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
