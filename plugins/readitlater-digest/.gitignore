@@ -1,0 +1,6 @@
+# Eval results (regenerated on each run)
+evals/results/
+!evals/results/.gitkeep
+
+# Python cache
+__pycache__/
