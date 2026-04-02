@@ -120,6 +120,20 @@
       "category": "productivity",
       "keywords": ["obsidian", "readitlater", "bookmarks", "digest", "reading-list", "sqlite"],
       "strict": true
+    },
+    {
+      "name": "prototyping-skills",
+      "source": "./plugins/prototyping-skills",
+      "description": "Skills for rapid prototype development with a standardized Bun monorepo stack (core, types, api, ui, mcp). Encodes conventions, deviation protocol, per-package patterns, test scaffolding, and development workflow chaining.",
+      "version": "0.2.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "development",
+      "keywords": ["prototyping", "monorepo", "bun", "hono", "nextjs", "mcp", "team-conventions", "biome", "jsonapi", "actor-pattern", "bun-sqlite"],
+      "strict": true
     }
   ]
 }
