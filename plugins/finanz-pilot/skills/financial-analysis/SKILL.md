@@ -1,7 +1,6 @@
 ---
 name: financial-analysis
 description: This skill should be used when the user asks to "analyze finances", "financial position", "German tax", "pension analysis", "real estate purchase Germany", "expat finances Berlin", "Steuerklasse", "Kapitalertragsteuer", "investment comparison", "net worth overview", "savings rate", "Steuererklarung", "Grunderwerbsteuer", "retirement projection", "financial snapshot", "how much am I worth", or "budget review". Core knowledge skill providing German financial system context for an English-speaking expat in Berlin.
-version: 0.1.0
 ---
 
 # Financial Analysis — Core Context

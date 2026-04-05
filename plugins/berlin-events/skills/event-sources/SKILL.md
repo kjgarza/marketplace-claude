@@ -1,7 +1,6 @@
 ---
-name: Berlin Event Sources
+name: event-sources
 description: This skill should be used when the user asks about "Berlin event websites", "where to find events in Berlin", "event sources", "Berlin art listings", "Berlin food events", "scrape Berlin events", "extract event data", or when needing to know which websites, APIs, or RSS feeds to use for Berlin event discovery. Provides a curated directory of Berlin event sources organized by extraction method with scraping strategies.
-version: 0.1.0
 ---
 
 # Berlin Event Sources

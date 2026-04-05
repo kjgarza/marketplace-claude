@@ -1,9 +1,8 @@
 ---
 name: find-events
-description: "Find interesting art and food events in Berlin"
+description: "Find interesting art and food events in Berlin. Use when the user asks 'What events are happening in Berlin this week?' or 'Find me art exhibitions and food festivals in Berlin next weekend.' Search event sources, check against Google Calendar for conflicts, and produce a curated list of relevant events with location context."
 argument-hint: "[days ahead, e.g. '7' or 'this weekend']"
 allowed-tools: ["Read", "Bash", "WebSearch", "WebFetch", "Grep", "Glob", "Agent", "mcp__claude-in-chrome__navigate", "mcp__claude-in-chrome__read_page", "mcp__claude-in-chrome__get_page_text", "mcp__claude-in-chrome__tabs_create_mcp", "mcp__claude-in-chrome__tabs_context_mcp"]
-version: 0.1.0
 ---
 
 # Find Berlin Events
