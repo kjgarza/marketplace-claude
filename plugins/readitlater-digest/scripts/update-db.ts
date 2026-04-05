@@ -84,37 +84,35 @@ export function updateAfterDigest(
 }
 
 if (import.meta.main) {
-  const { values } = parseArgs({
+  const { values, positionals } = parseArgs({
     args: Bun.argv.slice(2),
     options: {
       "db-path": { type: "string" },
       "digest-file": { type: "string" },
-      "bookmark-files": { type: "string" },
+      "bookmark-files": { type: "string", multiple: true },
       "week-start": { type: "string" },
       "week-end": { type: "string" },
       "themes-json": { type: "string" },
     },
     strict: true,
+    allowPositionals: false,
   });
 
   if (
     !values["db-path"] ||
     !values["digest-file"] ||
-    !values["bookmark-files"] ||
+    !values["bookmark-files"]?.length ||
     !values["week-start"] ||
     !values["week-end"]
   ) {
     console.error(
       "Usage: bun run update-db.ts --db-path <path> --digest-file <path> " +
-        "--bookmark-files <comma-separated> --week-start <YYYY-MM-DD> --week-end <YYYY-MM-DD>",
+        "--bookmark-files <file1> --bookmark-files <file2> ... --week-start <YYYY-MM-DD> --week-end <YYYY-MM-DD>",
     );
     process.exit(1);
   }
 
-  const bookmarkFiles = values["bookmark-files"]!
-    .split(",")
-    .map((f) => f.trim())
-    .filter(Boolean);
+  const bookmarkFiles = values["bookmark-files"]!.filter(Boolean);
 
   const themes = values["themes-json"]
     ? JSON.parse(values["themes-json"])
