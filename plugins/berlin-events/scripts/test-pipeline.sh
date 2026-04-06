@@ -133,7 +133,7 @@ while IFS= read -r line; do
     current_url=$(echo "$line" | grep -oE 'https?://[^)]+' | head -1)
   # Snippet line: check for event date keywords
   elif [[ -n "$current_url" ]]; then
-    if echo "$line" | grep -qiE "(april|may|mai|2026|monday|tuesday|wednesday|thursday|friday|saturday|sunday|vernissage|opening|exhibition|finissage)"; then
+    if echo "$line" | grep -qiE "(april|may|mai|2026|monday|tuesday|wednesday|thursday|friday|saturday|sunday|vernissage|opening|exhibition|finissage|ausstellung|veranstaltung|fuhrung|führung|kalender|programm)"; then
       # Only count each unique URL once
       if [[ "$seen_urls" != *"$current_url"* ]]; then
         seen_urls="$seen_urls $current_url"
