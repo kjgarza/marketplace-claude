@@ -111,7 +111,7 @@ echo ""
 results=$(
   qurl vsearch "$QUERY" \
     --source berlin-events \
-    --limit 10 \
+    --limit 20 \
     --provider "$EMBED_PROVIDER" \
     --model "$EMBED_MODEL" \
   2>/dev/null
