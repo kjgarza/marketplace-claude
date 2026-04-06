@@ -33,6 +33,10 @@ SOURCES=(
   "https://www.indexberlin.com/events/list/|art"
   "https://www.berlin.de/en/events/|food"
   "https://mitvergnuegen.com/category/ausgehen/events|food"
+  "https://www.berlinerfestspiele.de/en/gropius-bau/programm/veranstaltungen|art"
+  "https://www.kw-berlin.de/en/events|art"
+  "https://co-berlin.org/de/programm/kalender|art"
+  "https://berlinischegalerie.de/programme/kalender/|art"
 )
 
 # ─── Step 1: Scrape & Ingest ──────────────────────────────────────────────────
