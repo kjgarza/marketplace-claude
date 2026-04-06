@@ -26,15 +26,13 @@ EMBED_MODEL="${QURL_EMBED_MODEL:-hf:ggml-org/embeddinggemma-300M-GGUF/embeddingg
 
 # ─── Sources ──────────────────────────────────────────────────────────────────
 
-declare -A ART_SOURCES=(
-  ["https://www.berlinartlink.com/"]="art"
-  ["https://www.artatberlin.com/en/calendar-for-vernissagen-exhibitions-events/"]="art"
-  ["https://www.indexberlin.com/events/list/"]="art"
-)
-
-declare -A FOOD_SOURCES=(
-  ["https://www.berlin.de/en/events/"]="food"
-  ["https://mitvergnuegen.com/category/ausgehen/events"]="food"
+# Sources: "url|tags" pairs
+SOURCES=(
+  "https://www.berlinartlink.com/|art"
+  "https://www.artatberlin.com/en/calendar-for-vernissagen-exhibitions-events/|art"
+  "https://www.indexberlin.com/events/list/|art"
+  "https://www.berlin.de/en/events/|food"
+  "https://mitvergnuegen.com/category/ausgehen/events|food"
 )
 
 # ─── Step 1: Scrape & Ingest ──────────────────────────────────────────────────
@@ -51,27 +49,30 @@ ingest_url() {
 
   content=$(bun run "$SCRIPT_DIR/extract-content.js" "$url" 2>/dev/null) || {
     echo "SKIP (extraction failed)"
-    (( fail_count++ )) || true
+    fail_count=$((fail_count + 1))
     return
   }
 
   if [[ -z "${content// /}" ]]; then
     echo "SKIP (empty content)"
-    (( fail_count++ )) || true
+    fail_count=$((fail_count + 1))
     return
   fi
 
   echo "$content" | qurl add "$url" --source berlin-events --tags "$tag" 2>/dev/null && {
     echo "OK [$tag]"
-    (( ingest_count++ )) || true
+    ingest_count=$((ingest_count + 1))
   } || {
     echo "SKIP (ingest failed)"
-    (( fail_count++ )) || true
+    fail_count=$((fail_count + 1))
   }
 }
 
-for url in "${!ART_SOURCES[@]}";  do ingest_url "$url" "${ART_SOURCES[$url]}";  done
-for url in "${!FOOD_SOURCES[@]}"; do ingest_url "$url" "${FOOD_SOURCES[$url]}"; done
+for entry in "${SOURCES[@]}"; do
+  url="${entry%%|*}"
+  tag="${entry##*|}"
+  ingest_url "$url" "$tag"
+done
 
 echo ""
 echo "  ingested=$ingest_count  failed=$fail_count"
@@ -115,8 +116,28 @@ results=$(
 echo "$results"
 
 # ─── Metric ───────────────────────────────────────────────────────────────────
+# Count unique document URLs in results whose snippet contains event date keywords.
+# This avoids inflating the count with duplicate chunks from the same document.
 
-count=$(echo "$results" | grep -cE '^[0-9]+\.[0-9]+ - ' || echo 0)
+relevant=0
+seen_urls=""
+
+while IFS= read -r line; do
+  # Score line: "0.692 - Title (https://...)"
+  if [[ "$line" =~ ^[0-9]+\.[0-9]+\ -\ .*\(https?://([^)]+)\) ]]; then
+    current_url="${BASH_REMATCH[1]}"
+  # Snippet line: check for event date keywords
+  elif [[ -n "${current_url:-}" ]]; then
+    if echo "$line" | grep -qiE "(april|may|mai|2026|monday|tuesday|wednesday|thursday|friday|saturday|sunday|vernissage|opening|exhibition|finissage)"; then
+      # Only count each unique URL once
+      if [[ "$seen_urls" != *"$current_url"* ]]; then
+        seen_urls="$seen_urls $current_url"
+        relevant=$((relevant + 1))
+      fi
+    fi
+    current_url=""
+  fi
+done <<< "$results"
 
 echo ""
-echo "relevant_results: $count"
+echo "relevant_results: $relevant"
