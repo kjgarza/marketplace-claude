@@ -50,17 +50,37 @@ Extract content from high-value pages using:
 bun run ${CLAUDE_PLUGIN_ROOT}/scripts/extract-content.js "<url>"
 ```
 
-Priority pages for art:
+Priority pages for art (confirmed working with Readability):
 - https://www.indexberlin.com/events/list/
-- https://www.berlinartlink.com/
 - https://www.artatberlin.com/en/calendar-for-vernissagen-exhibitions-events/
+- https://berlinischegalerie.de/programme/kalender/
+- https://www.kw-berlin.de/en/events
+- https://co-berlin.org/de/programm/kalender
+- https://kunstleben-berlin.de/events/
 
 Priority pages for food:
 - https://www.berlin.de/en/events/
-- https://mitvergnuegen.com/category/ausgehen/events
+- https://www.visitberlin.de/en/event-calendar-berlin
+
+Note: avoid `mitvergnuegen.com` (cookie-consent blocks extraction) and `berlinerfestspiele.de/gropius-bau` (JS-rendered, returns only address).
 
 **Group 3 - Browser (for dynamic pages)**
 If browser tools are available, use Chrome automation to load JavaScript-heavy event pages that Readability cannot extract.
+
+### Step 3b: qurl Ingest & Search (for cached/repeated queries)
+
+If qurl already has berlin-events indexed, run semantic search instead of re-scraping:
+
+```bash
+qurl vsearch "April 2026 Berlin exhibition opening vernissage workshop event calendar art food" \
+  --source berlin-events \
+  --limit 20
+```
+
+A result is **relevant** if its snippet contains any of these keywords (EN or DE):
+- English: `april`, `may`, `monday`–`sunday`, `vernissage`, `opening`, `exhibition`, `finissage`
+- German: `ausstellung`, `veranstaltung`, `führung`, `kalender`, `programm`
+- Dates: `2026`, `.04.26`, `.05.26`
 
 ### Step 4: Check Google Calendar
 
