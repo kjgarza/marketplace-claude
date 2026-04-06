@@ -103,7 +103,7 @@ echo "=== [3/3] Semantic search ==="
 #   interests: art, food
 #   neighborhood: Schöneberg
 #   notes: free events, photography exhibitions, Japanese/Mexican food, Francis Bacon style
-QUERY="art food events Berlin Schöneberg photography exhibitions Japanese Mexican Francis Bacon free"
+QUERY="April 2026 Berlin exhibition opening vernissage workshop event calendar art food"
 
 echo "  query: $QUERY"
 echo ""
