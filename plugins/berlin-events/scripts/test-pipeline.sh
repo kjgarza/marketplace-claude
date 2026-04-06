@@ -122,12 +122,13 @@ echo "$results"
 relevant=0
 seen_urls=""
 
+current_url=""
 while IFS= read -r line; do
-  # Score line: "0.692 - Title (https://...)"
-  if [[ "$line" =~ ^[0-9]+\.[0-9]+\ -\ .*\(https?://([^)]+)\) ]]; then
-    current_url="${BASH_REMATCH[1]}"
+  # Score line: "0.692 - Title (https://...)" — extract URL via grep
+  if echo "$line" | grep -qE '^[0-9]+\.[0-9]+ - '; then
+    current_url=$(echo "$line" | grep -oE 'https?://[^)]+' | head -1)
   # Snippet line: check for event date keywords
-  elif [[ -n "${current_url:-}" ]]; then
+  elif [[ -n "$current_url" ]]; then
     if echo "$line" | grep -qiE "(april|may|mai|2026|monday|tuesday|wednesday|thursday|friday|saturday|sunday|vernissage|opening|exhibition|finissage)"; then
       # Only count each unique URL once
       if [[ "$seen_urls" != *"$current_url"* ]]; then
