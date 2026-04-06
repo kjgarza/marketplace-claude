@@ -33,71 +33,75 @@ Distilled from the Berlin Event Research Report. Focus: art and food events in E
 - **RSS**: https://www.berlinartlink.com/feed
 - **Categories**: Weekly art openings, exhibitions, gallery events
 - **Language**: EN
-- **Scraping**: RSS feed; also use Readability on weekly roundup pages
+- **Readability**: ⚠️ Home page returns cookie-consent banner — use RSS feed directly or fetch individual article URLs from the feed
+- **qurl ingestion**: Fetch article URLs from RSS, pipe each via `extract-content.js`
 
 ### ART@Berlin
 - **URL**: https://www.artatberlin.com/en/calendar-for-vernissagen-exhibitions-events/
 - **RSS**: https://www.artatberlin.com/en/feed
 - **Categories**: Vernissages, exhibitions, art events
 - **Language**: EN/DE
-- **Scraping**: RSS feed for latest; calendar page via Readability
+- **Readability**: ✅ Calendar page extracts cleanly; snippet contains "openings/vernissages"
+- **qurl ingestion**: `extract-content.js "<url>" | qurl add "<url>" --source berlin-events --tags art`
 
 ### Mit Vergnuegen
 - **URL**: https://mitvergnuegen.com/category/ausgehen/events
 - **RSS**: http://www.mitvergnuegen.com/category/hingehen/feed
 - **Categories**: Food events, art, nightlife, lifestyle
 - **Language**: DE (some EN)
-- **Scraping**: RSS feed; food tips published biweekly
-- **Notes**: Great for food event discovery
+- **Readability**: ❌ Cookie-consent wall blocks extraction — only consent text returned
+- **qurl ingestion**: Use RSS feed only; do not scrape the page directly
 
 ### Staatliche Museen zu Berlin (SMB)
 - **URL**: https://www.smb.museum/
 - **RSS**: https://www.smb.museum/rss-feed/pressemitteilungen.xml
 - **Categories**: Museum exhibitions, tours, events
 - **Language**: DE/EN
-- **Scraping**: RSS for updates; institution pages via Readability
+- **Readability**: Not validated
+- **qurl ingestion**: Use RSS feed
 
 ## Tier 3: Web Scraping via Readability
 
 ### Berlin.de Events
-- **URL (DE)**: https://www.berlin.de/events/
 - **URL (EN)**: https://www.berlin.de/en/events/
 - **Categories**: Broad: festivals, arts, film, concerts, fairs
 - **Language**: DE/EN
-- **Scraping**: Use Readability on event listing pages; filter for art/food
-- **Notes**: Official portal, daily/weekly editorial tips
+- **Readability**: ⚠️ Extracts only generic intro paragraph ("There's never a dull moment in Berlin…"); no specific event dates in first chunk
+- **qurl ingestion**: Include for broad coverage but expect low relevance signal; useful for food category
 
 ### visitBerlin
 - **URL**: https://www.visitberlin.de/en/event-calendar-berlin
 - **Categories**: Mainstream culture, city highlights
 - **Language**: EN/DE
-- **Scraping**: Readability on calendar pages
+- **Readability**: ⚠️ First chunk is a featured article ("Weekend Club…"), not dated event list
+- **qurl ingestion**: Include for breadth; low date-signal in top chunks
 
 ### INDEX Berlin
 - **URL**: https://www.indexberlin.com/events/list/
 - **Categories**: Contemporary art openings, talks, performances
 - **Language**: EN
-- **Scraping**: Readability on events list; per-event iCal links available
-- **Notes**: High signal for gallery openings
+- **Readability**: ✅ Event dates (e.g. "Monday, April 6", "Friday, April 10") appear in first chunk
+- **qurl ingestion**: High priority — `extract-content.js "<url>" | qurl add "<url>" --source berlin-events --tags art`
 
 ### Tip Berlin
 - **URL**: https://www.tip-berlin.de/event/
 - **Categories**: Curated listings, editorial picks (art, food, culture)
 - **Language**: DE
-- **Scraping**: Readability on event pages
+- **Readability**: ❌ JS-rendered; extraction fails entirely
 
 ### Rausgegangen
 - **URL**: https://rausgegangen.de/berlin/
 - **Categories**: Culture, nightlife, food, community
 - **Language**: DE
-- **Scraping**: Readability on Berlin event pages
+- **Readability**: ⚠️ Loads but content doesn't surface in top vsearch results; low semantic signal
+- **qurl ingestion**: Low priority
 
 ### Kunstleben Berlin
-- **URL**: https://www.kunstleben-berlin.de/
+- **URL**: https://kunstleben-berlin.de/events/
 - **Categories**: Art calendar, vernissages, exhibitions
 - **Language**: DE
-- **Scraping**: Readability on calendar pages
-- **Notes**: Newsletter 10-15x/year
+- **Readability**: ✅ Extracts event archive with "Veranstaltungen" keyword; slow to load (~60s)
+- **qurl ingestion**: Include; use in pipeline with sufficient timeout
 
 ## Tier 4: Institutional Calendars (Art-Specific)
 
@@ -105,25 +109,29 @@ Distilled from the Berlin Event Research Report. Focus: art and food events in E
 - **URL**: https://berlinischegalerie.de/programme/kalender/
 - **Categories**: Tours, workshops, talks
 - **Language**: DE
-- **Scraping**: Readability
+- **Readability**: ✅ Extracts dated listings ("April 2026", "7.4.26 – 10.4.26", "Führung")
+- **qurl ingestion**: High priority — `extract-content.js "<url>" | qurl add "<url>" --source berlin-events --tags art`
 
 ### Gropius Bau
 - **URL**: https://www.berlinerfestspiele.de/en/gropius-bau/programm/veranstaltungen
 - **Categories**: Exhibitions, tours, talks, screenings
 - **Language**: EN/DE
-- **Scraping**: Readability
+- **Readability**: ❌ JS-rendered; only returns venue address ("Niederkirchnerstraße 7…")
+- **qurl ingestion**: Skip; find an alternative static page or use their RSS if available
 
 ### C/O Berlin
 - **URL**: https://co-berlin.org/de/programm/kalender
 - **Categories**: Photography, talks, screenings, workshops
 - **Language**: DE/EN
-- **Scraping**: Readability
+- **Readability**: ✅ Extracts navigation with "Ausstellungen", "Kalender", "Führungen" — matches DE keyword set; slow (~90s)
+- **qurl ingestion**: Include; use with sufficient timeout
 
 ### KW Institute for Contemporary Art
 - **URL**: https://www.kw-berlin.de/en/events
 - **Categories**: Contemporary art events, talks, openings
 - **Language**: EN/DE
-- **Scraping**: Readability
+- **Readability**: ✅ Extracts dated listings ("Wed, 08.04.26, 16:00–18:00") — highest date-signal of all sources
+- **qurl ingestion**: High priority — `extract-content.js "<url>" | qurl add "<url>" --source berlin-events --tags art`
 
 ## Data Hubs (For Building Aggregators)
 
