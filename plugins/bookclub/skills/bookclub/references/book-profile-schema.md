@@ -2,10 +2,13 @@
 
 The `book-profile.json` file is the single source of truth for all bookclub commands. It is created by `/bookclub:init` and read by `/bookclub:generate` and `/bookclub:timeline`.
 
+**Location:** Primary path is `<output_root>/<folder_slug>/book-profile.json`. The `output_root` comes from `.claude/bookclub.local.md` (see [SKILL.md](../SKILL.md#configuration)). **`folder_slug`** matches the directory name (snake_case from the title). **Legacy:** a lone `<output_root>/book-profile.json` with no per-book subfolders is still supported until you migrate into a subfolder.
+
 ## JSON Schema
 
 ```json
 {
+  "folder_slug": "string — snake_case directory name under output_root (set by init, required for new profiles)",
   "title": "string (required)",
   "author": "string (required)",
   "author_bio": "string — 2-3 sentences (required)",
@@ -51,6 +54,9 @@ The `book-profile.json` file is the single source of truth for all bookclub comm
 
 ### Required Fields
 - `title`, `author`, `author_bio`, `publication_year`, `genre`, `synopsis` — these are needed for all message types
+
+### folder_slug
+Written by `/bookclub:init` for the per-book folder layout. Must match the parent directory name. Filesystem-safe name derived from `title` (lowercase, non-alphanumeric → `_`, trim `_`). Example: *The Great Gatsby* → `the_great_gatsby`. Omit only on **legacy** profiles that still live as a single `book-profile.json` directly under `output_root`.
 - The researcher should always be able to find these via web search
 
 ### Synopsis
@@ -80,6 +86,7 @@ If the user doesn't provide dates, leave the `reading_dates` object with null va
 
 ```json
 {
+  "folder_slug": "klara_and_the_sun",
   "title": "Klara and the Sun",
   "author": "Kazuo Ishiguro",
   "author_bio": "Kazuo Ishiguro is a British novelist born in Nagasaki, Japan. He won the Nobel Prize in Literature in 2017 for novels that 'uncovered the abyss beneath our illusory sense of connection with the world.' He is best known for The Remains of the Day and Never Let Me Go.",

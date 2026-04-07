@@ -2,6 +2,8 @@
 
 All Slack message templates for book club communications. Each template uses `{variable}` placeholders that map to fields in `book-profile.json`.
 
+**Plugin config** (`.claude/bookclub.local.md`): When `bookclub_name` is set, prefix the main announcement-style headline with `{bookclub_name} — ` before "Book of the Month" (see [SKILL.md](../SKILL.md#configuration)). Use `discussion_venue` from config in reminder bodies when the profile lacks a concrete location line.
+
 ---
 
 ## Announcement
@@ -10,9 +12,21 @@ The flagship message introducing the book of the month.
 
 ### mrkdwn Template
 
+Default headline (no `bookclub_name` in config):
+
 ```
 :books: *Book of the Month: _{title}_ by {author}* :books:
+```
 
+When `bookclub_name` is set in `.claude/bookclub.local.md`, use:
+
+```
+:books: *{bookclub_name} — Book of the Month: _{title}_ by {author}* :books:
+```
+
+Body:
+
+```
 {hook — 2-3 sentences on why this book is exciting, what makes it stand out}
 
 :calendar: {reading_date} · Discussion: {discussion_date}
@@ -24,7 +38,7 @@ The flagship message introducing the book of the month.
 :link: *Get the book*
 Amazon.de: {links.amazon_de}
 buch7: {links.buch7}
-Medimops: {links.medimops
+Medimops: {links.medimops}
 Goodreads: {links.goodreads}
 
 React with :book: if you're joining this month! :raised_hands:
@@ -90,7 +104,8 @@ Urgency-scaled reminders that adapt based on timing.
 Still haven't started? No worries — at {page_count} pages, that's about {estimated_reading_hours} hours of reading. Totally doable this week.
 :bulb: Keep in mind as you read: {factoid}
 
-<{links.amazon_de}|Grab a copy> if you haven't yet. How far along are you? Drop your page number below! :book:
+Grab a copy if you need it: {links.amazon_de}
+How far along are you? Drop your page number below! :book:
 ```
 
 **3-day reminder:**
@@ -158,9 +173,12 @@ Curated related reading to deepen engagement.
 :studio_microphone: *Going deeper with _{title}_*
 
 Want more context? Great companion pieces:
-:one: *<{article_1_url}|{article_1_title}>* ({article_1_source}) — {article_1_summary}
-:two: *<{article_2_url}|{article_2_title}>* ({article_2_source}) — {article_2_summary}
-:three: *<{article_3_url}|{article_3_title}>* ({article_3_source}) — {article_3_summary}
+:one: *{article_1_title}* ({article_1_source}) — {article_1_summary}
+{article_1_url}
+:two: *{article_2_title}* ({article_2_source}) — {article_2_summary}
+{article_2_url}
+:three: *{article_3_title}* ({article_3_source}) — {article_3_summary}
+{article_3_url}
 
 Found something else worth sharing? Drop it in the thread! :link:
 ```
@@ -169,7 +187,7 @@ Found something else worth sharing? Drop it in the thread! :link:
 
 - Prioritize: author interviews, thematic essays, review round-ups, podcast episodes
 - Avoid: spoiler-heavy plot summaries, academic papers (unless the book is nonfiction)
-- Each article gets: title (as link), source name, 1-sentence summary
+- Each article gets: bold title, source name, 1-sentence summary, then the full URL on its own line (copy-paste friendly; not `<url|title>` mrkdwn)
 
 ---
 

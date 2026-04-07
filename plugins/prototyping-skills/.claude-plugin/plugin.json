@@ -5,5 +5,6 @@
   "author": {
     "name": "Kristian Garza"
   },
-  "keywords": ["prototyping", "monorepo", "bun", "hono", "nextjs", "mcp", "team-conventions", "biome", "jsonapi", "actor-pattern", "bun-sqlite"]
+  "keywords": ["prototyping", "monorepo", "bun", "hono", "nextjs", "mcp", "team-conventions", "biome", "jsonapi", "actor-pattern", "bun-sqlite"],
+  "agents": ["./agents/scaffold-dispatcher.md"]
 }

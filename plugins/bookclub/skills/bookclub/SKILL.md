@@ -7,6 +7,49 @@ description: "Book club management: generate Slack announcements, reminders, spa
 
 Automate every aspect of running a recurring book club: research books, generate Slack messages, create session materials, and plan communication schedules.
 
+## Configuration
+
+Read **`.claude/bookclub.local.md`** in the project root if it exists. Parse the **YAML frontmatter** for the fields below. If the file is missing, use the defaults — do not block init or generate.
+
+**Template to copy:** [settings-template.md](../../settings-template.md) → save as `.claude/bookclub.local.md`.
+
+| Field | Default (no config file) | Description |
+|-------|--------------------------|-------------|
+| `output_root` | `.` | Root directory; each book is a subfolder `<folder_slug>/` with its own `book-profile.json` and `bookclub-*` files. Relative paths resolve from the workspace root. |
+| `bookclub_name` | *(unset)* | Full name for branding (e.g. "Digital Science Reads"). See Slack headers below. |
+| `bookclub_short_name` | *(unset)* | Short label for one-pagers or buttons when space is tight. |
+| `slack_channel` | *(unset)* | e.g. `#book-club` — include in runbooks or timeline notes when useful. |
+| `discussion_venue` | *(unset)* | Default "where / how we meet" line for reminders if not in the book profile. |
+| `organizer_contact` | *(unset)* | Facilitator contact (Slack handle, email). |
+| `timezone` | *(unset)* | IANA timezone for schedule wording when you need explicit TZ context. |
+| `current_book_folder` | *(unset)* | Name of the book subfolder under `output_root` (e.g. `klara_and_the_sun`). **Required when more than one book folder exists**; optional when only one book. |
+
+**Per-book layout**
+
+Each book has its own directory under `output_root`:
+
+- `book_dir` = `<output_root>/<folder_slug>/`
+- `book_profile_path` = `<book_dir>/book-profile.json`
+- Generated files (`bookclub-announce.md`, `bookclub-timeline.json`, etc.) live in the same `book_dir`.
+
+**`folder_slug` (directory name)** — derived from the book `title` at init time:
+
+1. Lowercase; replace `&` with ` and `.
+2. Replace any sequence of non-alphanumeric characters with a single `_`.
+3. Trim leading/trailing `_`. If the result is empty, use `book`.
+4. **Collisions:** If `<output_root>/<folder_slug>/` already exists and contains a `book-profile.json` for a *different* book (different normalized title+author), append `_2`, `_3`, … until the path is free or matches the same book (then reuse the folder for re-init).
+
+**Resolving `book_dir` for generate / timeline**
+
+1. Read config: `output_root`, optional `current_book_folder`.
+2. If `current_book_folder` is set: `book_dir` = `<output_root>/<current_book_folder>`; require `book-profile.json` there.
+3. Else if `<output_root>/book-profile.json` exists **and** no immediate child directory of `output_root` contains a `book-profile.json`: **legacy layout** — `book_dir` = `output_root`.
+4. Else: collect each immediate child directory of `output_root` that contains `book-profile.json`. If exactly one, use it as `book_dir`. If zero, tell the user to run `/bookclub:init`. If more than one, tell the user to set `current_book_folder` or pass `--book <folder_slug>` on the command.
+
+Create `output_root` and `book_dir` with `mkdir -p` before writing when they do not exist.
+
+**Slack headers:** Prefix announcement-style titles with `{bookclub_name} — ` only when `bookclub_name` is set to a non-empty value in `bookclub.local.md` (e.g. `*DS Reads — Book of the Month: _{title}_*`). If there is no config file or the key is blank, use the template headline without that prefix. For generic copy in documents when no name is configured, you may use the words "book club" in normal sentence case.
+
 ## When to Use This Skill
 
 Trigger when the user:
@@ -22,9 +65,9 @@ Trigger when the user:
 
 | Command | Description |
 |---------|-------------|
-| `/bookclub:init [title] by [author]` | Set up book of the month — research, enrich, save `book-profile.json` |
-| `/bookclub:generate [type]` | Generate any message or material (see types below) |
-| `/bookclub:timeline [cadence]` | Generate full communication schedule |
+| `/bookclub:init [title] by [author]` | Set up book of the month — research, enrich, create `<output_root>/<folder_slug>/`, save profile there |
+| `/bookclub:generate [type]` | Generate any message or material (optional `--book <folder_slug>` when multiple books) |
+| `/bookclub:timeline [cadence]` | Generate full communication schedule (optional `--book <folder_slug>`) |
 
 ### Generate Types
 
@@ -45,20 +88,21 @@ Trigger when the user:
 
 ```
 1. /bookclub:init "Book Title" by Author Name
-   → Researches book, saves book-profile.json
+   → Researches book, creates `<output_root>/<folder_slug>/`, saves `book-profile.json` there
 
 2. /bookclub:timeline monthly
-   → Generates full schedule of messages and materials
+   → Generates full schedule under that book folder
 
 3. /bookclub:generate announce
-   → Generates announcement (repeat for each type as scheduled)
+   → Writes outputs into the same book folder (repeat for each type as scheduled)
 ```
 
-The `book-profile.json` is the single source of truth. All generate commands read from it.
+The `book-profile.json` inside each book folder is the single source of truth for that title. Resolve which folder using config + rules above.
 
 ## Book Profile
 
 The init command creates a `book-profile.json` containing:
+- **Paths**: `folder_slug` — directory name under `output_root` (snake_case from title; set at init)
 - **Metadata**: title, author, author_bio, publication_year, genre, page_count, isbn
 - **Content**: synopsis (paraphrased), themes, factoids, awards
 - **Links**: amazon_de, buch7, medimops, goodreads, publisher, library
@@ -75,7 +119,7 @@ Full schema: [references/book-profile-schema.md](references/book-profile-schema.
 - **Format**: Slack mrkdwn (`*bold*`, `_italic_`, `:emoji:`, `>` quotes)
 - **Length**: Announcements ~120-180 words, reminders ~80-120 words
 - **Emoji**: 2-4 relevant emojis per message. Prefer: :books: :book: :brain: :bulb: :calendar:
-- **Links**: Format as `<url|Display Text>`, group in a links section
+- **Links**: Use labeled full URLs (one per line) under a :link: section — not `<url|label>` mrkdwn, which breaks when copy-pasted outside Slack
 
 Full style guide: [references/slack-style-guide.md](references/slack-style-guide.md)
 All templates: [references/slack-templates.md](references/slack-templates.md)

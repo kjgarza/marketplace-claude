@@ -35,7 +35,7 @@ Use Slack mrkdwn syntax:
 - `_italic_` for book titles and author names
 - `>` for pull quotes or highlight blocks
 - `• ` (bullet + space) for list items
-- `<url|Display Text>` for all links
+- **Links**: use a short label plus the full URL (see Links below). Do **not** use Slack-only `<url|Display Text>` — it does not render when copy-pasted outside Slack
 - `` `code` `` only for literal commands or technical references
 
 ### Paragraph Length
@@ -64,16 +64,25 @@ Every message follows: **Hook -> Body -> CTA**
 
 ## Links
 
-- Always format as `<url|Display Text>` — never paste raw URLs
-- Group links in a dedicated section with a :link: or :paperclip: header
-- Separate multiple links with ` | ` (space-pipe-space)
-- Example: `<https://www.amazon.de/...|Amazon.de> | <https://www.buch7.de/...|buch7> | <https://www.medimops.de/...|Medimops> | <https://goodreads.com/...|Goodreads>`
+- Use **one labeled URL per line** so the message stays readable when copied into email, docs, or chat tools that are not Slack. Slack auto-linkifies bare `https://` URLs.
+- Pattern: `*Label:* https://...` or `Label: https://...` (bold the label when it is a section row)
+- Group links under a :link: or :paperclip: header
+- **Avoid** `<url|Display Text>` mrkdwn — it only works inside Slack and pastes as opaque angle-bracket text elsewhere
+- Example block:
+
+```
+:link: *Get the book*
+Amazon.de: https://www.amazon.de/...
+buch7: https://www.buch7.de/...
+Medimops: https://www.medimops.de/...
+Goodreads: https://www.goodreads.com/...
+```
 
 ## Mobile-First Spacing
 
 Most readers view these messages on phones. Optimize for vertical compactness:
 
-- Prefer inline separators (`·`, `|`) over bullet lists for short items (e.g., dates, links)
+- Prefer inline separators (`·`) over bullet lists for short metadata (e.g., dates). Keep **links on separate lines**, not chained with `|`
 - Limit blank lines to 1 between sections — never use double blank lines
 - Target **15 visible lines or fewer** on mobile per message
 - Merge related short sections (e.g., dates + factoids) rather than giving each its own header

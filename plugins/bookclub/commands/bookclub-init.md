@@ -9,9 +9,14 @@ Set up: **$ARGUMENTS**
 
 ## Your Task
 
-Research and enrich the book above, then save a structured `book-profile.json` to the workspace. This profile becomes the single source of truth for all subsequent bookclub commands.
+Research and enrich the book above, then create **a book folder** under `output_root` and save `book-profile.json` inside it. The folder name is a **snake_case slug** from the book title (e.g. `the_great_gatsby`). That folder holds this book’s profile and all later `bookclub-*` outputs.
 
 ## Steps
+
+0. **Load plugin settings**
+   - If `.claude/bookclub.local.md` exists in the project root, read its YAML frontmatter (see [SKILL.md](../skills/bookclub/SKILL.md#configuration)).
+   - Resolve `output_root` (default `.`). Ensure the directory exists (`mkdir -p` when needed).
+   - Remember `bookclub_name`, `discussion_venue`, and other fields for later generate steps (e.g. use `discussion_venue` in reminders when the profile has no explicit meeting line).
 
 1. **Parse the input**
    - Extract book title and author from the arguments
@@ -39,10 +44,14 @@ Research and enrich the book above, then save a structured `book-profile.json` t
    - Apply scraping patterns from [scraping-patterns.md](../skills/bookclub/references/scraping-patterns.md)
    - Supplement with web search for any missing fields
 
-4. **Save `book-profile.json`**
-   - Follow the schema in [book-profile-schema.md](../skills/bookclub/references/book-profile-schema.md)
-   - Save to the current workspace directory
-   - Display a summary of what was found
+4. **Create the book folder and save `book-profile.json`**
+   - Compute `folder_slug` from the book title per [SKILL.md path rules](../skills/bookclub/SKILL.md#configuration) (snake_case; resolve `_2`, `_3`, … on collision with a different book)
+   - `book_dir` = `<output_root>/<folder_slug>/` — `mkdir -p` as needed
+   - Follow the schema in [book-profile-schema.md](../skills/bookclub/references/book-profile-schema.md); include **`folder_slug`** in the JSON
+   - Save to `<book_dir>/book-profile.json`
+   - If no config file exists, mention that the user can add `.claude/bookclub.local.md` from [settings-template.md](../settings-template.md)
+   - If multiple books may live under `output_root`, suggest setting `current_book_folder: <folder_slug>` in `bookclub.local.md`
+   - Display a summary, including **`book_dir`** and the profile path
 
 5. **Propose a timeline**
    - If reading/discussion dates are provided, suggest a communication schedule
@@ -60,4 +69,4 @@ Research and enrich the book above, then save a structured `book-profile.json` t
 /bookclub:init "The Great Gatsby" by F. Scott Fitzgerald, reading date March 15, discussion March 20
 ```
 
-This creates a `book-profile.json` with all enriched metadata and proposes a communication timeline based on the dates.
+This creates `<output_root>/<folder_slug>/book-profile.json` with all enriched metadata and proposes a communication timeline based on the dates.
