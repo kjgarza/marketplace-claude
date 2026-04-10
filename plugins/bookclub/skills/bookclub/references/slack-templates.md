@@ -192,5 +192,5 @@ Found something else worth sharing? Drop it in the thread! :link:
 
 - Prioritize: author interviews, thematic essays, review round-ups, podcast episodes
 - Avoid: spoiler-heavy plot summaries, academic papers (unless the book is nonfiction)
-- Each article gets: bold title, source name, 1-sentence summary, then the full URL on its own line (copy-paste friendly; not `<url|title>` mrkdwn)
+- Each article gets: **bold** title (use `*title*` not `_title_`), source name in parentheses, 1-sentence summary, then the full URL on its own line (copy-paste friendly; not `<url|title>` mrkdwn). Do NOT italicize article titles; they must be bold.
 

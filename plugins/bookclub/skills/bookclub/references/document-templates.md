@@ -48,6 +48,8 @@ A single-page visual summary for printing or digital sharing.
 
 ### Guidelines
 - Keep it to one page when printed (aim for ~300 words max)
+- **Synopsis**: Must be exactly 3-4 sentences. No more, no less. Paraphrase; do not copy publisher copy.
+- **Reading Schedule dates**: If `announcement_date`, `reading_date`, or `discussion_date` is null or missing in `book-profile.json`, derive sensible dates from today: announcement = today, reading finish = 3 weeks from today, discussion = 4 weeks from today. Never output "TBD" or leave date fields blank.
 - QR code is generated via Python `qrcode` library; see [qr-code-generation.md](qr-code-generation.md)
 - Generated body copy (synopsis, hooks, badges text): no em dashes (—); use commas, periods, colons, or parentheses
 - When generating PDF, use clean layout with generous whitespace

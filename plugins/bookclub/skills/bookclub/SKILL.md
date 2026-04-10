@@ -108,18 +108,48 @@ The init command creates a `book-profile.json` containing:
 
 Full schema: [references/book-profile-schema.md](references/book-profile-schema.md)
 
+## Handling Null Dates
+
+If `reading_dates` fields in `book-profile.json` are `null` or missing, derive sensible defaults from today's date:
+- `announcement_date` = today
+- `reading_date` = 3 weeks from today
+- `discussion_date` = 4 weeks from today
+Never output "TBD" or leave date placeholders empty. Always show concrete dates.
+
 ## Slack Message Guidelines
 
 - **Tone**: Enthusiastic but not cheesy. Smart-casual. The friend who always has great book recommendations
 - **Structure**: Hook -> Body -> CTA. Every message ends with a clear call to action
 - **Format**: Slack mrkdwn (`*bold*`, `_italic_`, `:emoji:`, `>` quotes)
 - **Punctuation in generated copy**: Do not use em dashes (—) in member-facing Slack text. Use commas, periods, colons, or parentheses instead (see [slack-style-guide.md](references/slack-style-guide.md#punctuation-in-generated-copy)).
-- **Length**: Announcements ~120-180 words, reminders ~80-120 words
+- **Length (hard limits — count before outputting)**:
+  - Announcements: 120-180 words (no more, no less)
+  - Reminders: 80-120 words
+  - Articles roundup: 100-150 words
+  - Eve: 120-180 words
+  If your draft exceeds the upper limit, cut until it fits. If it is below the lower limit, expand. Count words carefully.
 - **Emoji**: 2-4 relevant emojis per message. Prefer: :books: :book: :brain: :bulb: :calendar:
 - **Links**: Use labeled full URLs (one per line) under a :link: section, not `<url|label>` mrkdwn, which breaks when copy-pasted outside Slack
 
 Full style guide: [references/slack-style-guide.md](references/slack-style-guide.md)
 All templates: [references/slack-templates.md](references/slack-templates.md)
+
+## Timeline Generation
+
+The `/bookclub:timeline` command produces a full communication schedule for a book club cycle. Output **both** formats:
+
+1. **Markdown table** with columns: Date, Type, Command, Description. Must have at least 6 rows covering the full cycle.
+2. **Structured JSON** in a ` ```json ` code block: an array of objects, each with `date`, `type`, `command`, and `description` fields. Must have at least 6 entries.
+
+**Required schedule items** (all must appear in both the table and the JSON):
+- `announcement` — book reveal
+- `articles` — related articles roundup
+- `remind` — 1-week-out reminder
+- `eve` — day-before spark questions
+- `one-pager` — printable summary
+- `discussion` — discussion day
+
+When dates are null in the book profile, derive them: announcement = today, articles = 1 week later, remind = 3 weeks later, one-pager = 3.5 weeks later, eve = day before discussion, discussion = 4 weeks from announcement.
 
 ## Document Generation
 
