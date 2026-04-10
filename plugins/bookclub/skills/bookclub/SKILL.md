@@ -123,7 +123,7 @@ Never output "TBD" or leave date placeholders empty. Always show concrete dates.
 - **Format**: Slack mrkdwn (`*bold*`, `_italic_`, `:emoji:`, `>` quotes)
 - **Punctuation in generated copy**: Do not use em dashes (—) in member-facing Slack text. Use commas, periods, colons, or parentheses instead (see [slack-style-guide.md](references/slack-style-guide.md#punctuation-in-generated-copy)).
 - **Length (STRICT hard limits — violations are failures)**:
-  - Announcements: 120-175 words
+  - Announcements: 120-220 words
   - Reminders: 80-115 words
   - Articles roundup: 100-145 words
   - Eve: 120-175 words
