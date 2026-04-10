@@ -75,7 +75,7 @@ Trigger when the user:
 - `announce`: Book announcement with hook, dates, factoids, links
 - `remind`: 1-week-out reading reminder with page count, factoid, purchase link
 - `articles`: Related articles/interviews roundup
-- `eve`: Day-before reminder plus 3 or 4 low-pressure spark questions: **1 generic** (any book), **1 or 2 book-specific** (~first half), **1 theme** (last); see [slack-templates.md Eve → Question Guidelines](references/slack-templates.md#eve)
+- `eve`: Day-before reminder plus 3 low-pressure spark questions (default): **1 generic** (any book), **1 book-specific** (~first half), **1 theme** (last). Only use 4 if message stays under 170 words. See [slack-templates.md Eve → Question Guidelines](references/slack-templates.md#eve)
 
 **Documents** (output: Markdown, optionally PDF with `--pdf`):
 - `one-pager`: Visual summary with QR code

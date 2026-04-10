@@ -10,7 +10,7 @@ When **filling** placeholders with real prose, follow [slack-style-guide.md](sla
 
 ## Announcement
 
-The flagship message introducing the book of the month. **Must be 120-175 words.** Output only the message.
+The flagship message introducing the book of the month. **STRICT: 120-175 words.** Output only the Slack message. No commentary.
 
 ### mrkdwn Template
 
@@ -29,22 +29,21 @@ When `bookclub_name` is set in `.claude/bookclub.local.md`, use:
 Body:
 
 ```
-{hook: 2-3 sentences on why this book is exciting, what makes it stand out}
+{hook: 1-2 sentences only on why this book is exciting}
 
 :calendar: {reading_date} · Discussion: {discussion_date}
 
 :brain: *Did you know?*
 • {factoid_1}
-• {factoid_2}
 
 :link: *Get the book*
 Amazon.de: {links.amazon_de}
-buch7: {links.buch7}
-Medimops: {links.medimops}
 Goodreads: {links.goodreads}
 
 React with :book: if you're joining this month! :raised_hands:
 ```
+
+Keep the hook to 1-2 short sentences. Use 1 factoid. Use 2 purchase links max. This keeps the message within 175 words.
 
 ### Block Kit Structure
 
@@ -108,25 +107,24 @@ Follow the template closely. Use one purchase link, one factoid, and one CTA lin
 
 Day-before reminder plus low-pressure spark questions. Structure: **one generic** (any book), **one or two** that need this title (~first half read), **one theme** (last). Avoid spoiling the back half. Sent the evening/day before the discussion session.
 
-**STRICT: The eve message must be 120-170 words total.** Keep each question to one short sentence (under 25 words each). Keep the intro to 2-3 sentences max. The message MUST end with a CTA line (e.g., "No wrong answers. Bring your thoughts tomorrow! :raised_hands:"). Do not add any text after the CTA. Output only the message, no commentary or notes.
+**STRICT: 120-170 words total.** Keep each question to one short sentence (max 20 words). Keep the intro to 2 sentences. The message MUST end with a CTA line. Do not add any text after the CTA. Output only the message.
 
 ### mrkdwn Template
 
 ```
 :alarm_clock: *Tomorrow: _{title}_ discussion!*
 
-Last chance to wrap up, or at least get past the halfway point. Not quite there? Come anyway; the group is better with you in it.
+Last chance to wrap up, or at least get past the halfway point. Come anyway; the group is better with you in it.
 
-:calendar: {discussion_date} | {discussion_venue}
-
-:thought_balloon: *Warm up for tomorrow: a few questions to think about tonight:*
+:thought_balloon: *A few questions to think about tonight:*
 1. {spark_question_1}
 2. {spark_question_2}
 3. {spark_question_3}
-4. {spark_question_4}
 
 No wrong answers. Bring your thoughts tomorrow! :raised_hands:
 ```
+
+Default to 3 questions (generic, book-specific, theme). Only use 4 if the message stays under 170 words.
 
 ### Block Kit Structure
 
