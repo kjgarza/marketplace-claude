@@ -106,6 +106,8 @@ How far along are you? Drop your page number below! :book:
 
 Day-before reminder plus low-pressure spark questions. Structure: **one generic** (any book), **one or two** that need this title (~first half read), **one theme** (last). Avoid spoiling the back half. Sent the evening/day before the discussion session.
 
+**IMPORTANT**: The eve message must be 120-175 words total. Keep questions short (one sentence each). The message MUST end with a CTA line (e.g., "No wrong answers. Bring your thoughts tomorrow! :raised_hands:"). Do not add any text after the CTA. Output only the message.
+
 ### mrkdwn Template
 
 ```
@@ -193,4 +195,5 @@ Found something else worth sharing? Drop it in the thread! :link:
 - Prioritize: author interviews, thematic essays, review round-ups, podcast episodes
 - Avoid: spoiler-heavy plot summaries, academic papers (unless the book is nonfiction)
 - Each article gets: **bold** title (use `*title*` not `_title_`), source name in parentheses, 1-sentence summary, then the full URL on its own line (copy-paste friendly; not `<url|title>` mrkdwn). Do NOT italicize article titles; they must be bold.
+- **IMPORTANT**: The articles roundup must be 100-145 words total. Use 3 articles maximum. Keep summaries to one short sentence. Output only the message, no commentary.
 

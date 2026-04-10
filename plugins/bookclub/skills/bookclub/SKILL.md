@@ -122,12 +122,13 @@ Never output "TBD" or leave date placeholders empty. Always show concrete dates.
 - **Structure**: Hook -> Body -> CTA. Every message ends with a clear call to action
 - **Format**: Slack mrkdwn (`*bold*`, `_italic_`, `:emoji:`, `>` quotes)
 - **Punctuation in generated copy**: Do not use em dashes (—) in member-facing Slack text. Use commas, periods, colons, or parentheses instead (see [slack-style-guide.md](references/slack-style-guide.md#punctuation-in-generated-copy)).
-- **Length (hard limits — count before outputting)**:
-  - Announcements: 120-180 words (no more, no less)
-  - Reminders: 80-120 words
-  - Articles roundup: 100-150 words
-  - Eve: 120-180 words
-  If your draft exceeds the upper limit, cut until it fits. If it is below the lower limit, expand. Count words carefully.
+- **Length (STRICT hard limits — violations are failures)**:
+  - Announcements: 120-175 words
+  - Reminders: 80-115 words
+  - Articles roundup: 100-145 words
+  - Eve: 120-175 words
+  Count every word in your final output before emitting it. If over the limit, remove words until compliant. URLs count as one word each. Emoji shortcodes (`:emoji:`) count as one word each.
+- **Output only the message**: Never append explanations, notes, commentary, or instructions after the message. The output must be the Slack message and nothing else.
 - **Emoji**: 2-4 relevant emojis per message. Prefer: :books: :book: :brain: :bulb: :calendar:
 - **Links**: Use labeled full URLs (one per line) under a :link: section, not `<url|label>` mrkdwn, which breaks when copy-pasted outside Slack
 
