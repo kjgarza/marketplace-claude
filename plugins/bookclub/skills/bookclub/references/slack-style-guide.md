@@ -54,7 +54,7 @@ Use blank lines between sections. Don't use horizontal rules (Slack doesn't rend
 
 | Type | Target Length |
 |------|-------------|
-| Announcement | 120-180 words |
+| Announcement | 120-220 words |
 | Reminder | 80-120 words |
 | Articles roundup | 100-150 words |
 | Eve | 120-180 words |

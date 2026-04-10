@@ -10,7 +10,7 @@ When **filling** placeholders with real prose, follow [slack-style-guide.md](sla
 
 ## Announcement
 
-The flagship message introducing the book of the month. **STRICT: 120-175 words.** Output only the Slack message. No commentary.
+The flagship message introducing the book of the month. **STRICT: 120-220 words.** Output only the Slack message. No commentary.
 
 ### mrkdwn Template
 
@@ -38,6 +38,8 @@ Body:
 
 :link: *Get the book*
 Amazon.de: {links.amazon_de}
+Buch7:  {links.buch7}
+Medimops: {links.medimops}
 Goodreads: {links.goodreads}
 
 React with :book: if you're joining this month! :raised_hands:
@@ -95,7 +97,7 @@ A single 1-week-out reminder, encouraging and casual. **Must be 80-115 words.** 
 Still haven't started? No worries. At {page_count} pages, that's about {estimated_reading_hours} hours of reading. Totally doable this week.
 :bulb: Keep in mind as you read: {factoid}
 
-Grab a copy if you need it: {links.amazon_de}
+Grab a copy if you need it: {links.medimops}
 How far along are you? Drop your page number below! :book:
 ```
 
