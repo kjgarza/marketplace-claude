@@ -136,6 +136,20 @@
       "strict": true
     },
     {
+      "name": "ideation",
+      "source": "./plugins/ideation",
+      "description": "5-stage ideation pipeline: problem intake, solution generation, review, ASCII UI concepts, and interactive HTML prototypes",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["ideation", "brainstorming", "prototyping", "product", "design-thinking"],
+      "strict": true
+    },
+    {
       "name": "finanz-pilot",
       "source": "./plugins/finanz-pilot",
       "description": "Personal financial intelligence system for English-speaking expats in Germany. Analyzes pensions, real estate readiness, and tax optimization using German financial regulations and Obsidian-based data.",
