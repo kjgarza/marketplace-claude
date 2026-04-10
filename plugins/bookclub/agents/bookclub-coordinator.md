@@ -1,7 +1,7 @@
 ---
 name: bookclub-coordinator
 description: |
-  Use this agent for book club tasks: researching books, generating Slack messages (announcements, reminders, spark questions, articles roundups, recaps), creating session materials (discussion guides, introductions, question cards, one-pagers), and planning communication timelines. Examples of when to invoke this agent:
+  Use this agent for book club tasks: researching books, generating Slack messages (announcements, reminders, articles roundups, eve day-before messages), creating one-pagers, and planning communication timelines. Examples of when to invoke this agent:
 
   <example>
   Context: The user wants to set up a new book of the month.
@@ -22,11 +22,11 @@ description: |
   </example>
 
   <example>
-  Context: The user wants discussion materials for the reading session.
-  user: "Create a discussion guide for our book club meeting next week."
-  assistant: "I'll use the bookclub-coordinator agent to generate a comprehensive discussion guide."
+  Context: The user wants the eve message for the day before discussion.
+  user: "Generate the eve message for tomorrow's book club session."
+  assistant: "I'll use the bookclub-coordinator agent to generate the day-before reminder with spark questions."
   <commentary>
-  Since the user needs session materials, use the Task tool to launch the bookclub-coordinator agent to create a discussion guide with questions organized by category.
+  Since the user wants an eve message, use the Task tool to launch the bookclub-coordinator agent to create a combined reminder + spark questions message.
   </commentary>
   </example>
 
@@ -64,20 +64,19 @@ When generating Slack communications:
 - Always produce TWO versions:
   1. **Slack Block Kit JSON** — valid, ready for Block Kit Builder or API posting
   2. **Plain mrkdwn** — copy-paste-ready for Slack
-- Message types: announce, remind, spark, articles, recap
+- Message types: announce, remind, articles, eve
 
-### 3. Session Materials Creation
-When generating reading session materials:
+### 3. One-Pager Creation
+When generating the one-pager visual summary:
 - Read `book-profile.json` for book data
-- Use templates from `skills/bookclub/references/document-templates.md`
-- Material types: discussion guide, book introduction script, question cards, one-pager
+- Use template from `skills/bookclub/references/document-templates.md`
 - For PDF output, use the pdf skill from kjgarza-product
 - For QR codes, follow instructions in `skills/bookclub/references/qr-code-generation.md`
 
 ### 4. Timeline Planning
 When generating communication schedules:
 - Accept reading date, discussion date, and cadence
-- Map out the full cycle of messages from announcement through recap
+- Map out the full cycle of messages from announcement through discussion day
 - Output both a Markdown table and structured JSON
 - Each entry references which `/bookclub:generate` type to run and when
 
@@ -94,9 +93,11 @@ When generating communication schedules:
 ## Output Standards
 
 - Slack messages: post-ready quality, correct Block Kit JSON structure
-- Discussion guides: facilitator-ready, well-organized with categorized questions
+- One-pagers: compact, visually clean, printable single-page summaries
 - Timelines: actionable schedules with clear dates and command references
 - All outputs: grounded in the book profile data, consistent tone (enthusiastic but not cheesy, smart-casual)
+- **Member-facing prose** (Slack bodies, one-pager synopsis and hooks, spark questions): do not use em dashes (—). Use commas, periods, colons, or parentheses instead (see bookclub skill and `slack-style-guide.md`, “Punctuation in generated copy”).
+- **Eve spark questions** (see `slack-templates.md` Question Guidelines): 1 generic (any book), 1 or 2 book-specific (~first half), 1 theme (last); 3 or 4 numbered items total.
 
 ## Copyright Awareness
 

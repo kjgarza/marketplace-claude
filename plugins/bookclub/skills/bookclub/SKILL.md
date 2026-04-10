@@ -1,6 +1,6 @@
 ---
 name: bookclub
-description: "Book club management: generate Slack announcements, reminders, spark questions, article roundups, recaps, discussion guides, one-pagers, and communication timelines. Use when user mentions book club, reading group, book of the month, or wants book-club-related communications or materials."
+description: "Book club management: generate Slack announcements, reminders, article roundups, eve (day-before + spark questions), one-pagers, and communication timelines. Use when user mentions book club, reading group, book of the month, or wants book-club-related communications or materials."
 ---
 
 # Book Club Management
@@ -9,7 +9,7 @@ Automate every aspect of running a recurring book club: research books, generate
 
 ## Configuration
 
-Read **`.claude/bookclub.local.md`** in the project root if it exists. Parse the **YAML frontmatter** for the fields below. If the file is missing, use the defaults — do not block init or generate.
+Read **`.claude/bookclub.local.md`** in the project root if it exists. Parse the **YAML frontmatter** for the fields below. If the file is missing, use the defaults. Do not block init or generate.
 
 **Template to copy:** [settings-template.md](../../settings-template.md) → save as `.claude/bookclub.local.md`.
 
@@ -18,7 +18,7 @@ Read **`.claude/bookclub.local.md`** in the project root if it exists. Parse the
 | `output_root` | `.` | Root directory; each book is a subfolder `<folder_slug>/` with its own `book-profile.json` and `bookclub-*` files. Relative paths resolve from the workspace root. |
 | `bookclub_name` | *(unset)* | Full name for branding (e.g. "Digital Science Reads"). See Slack headers below. |
 | `bookclub_short_name` | *(unset)* | Short label for one-pagers or buttons when space is tight. |
-| `slack_channel` | *(unset)* | e.g. `#book-club` — include in runbooks or timeline notes when useful. |
+| `slack_channel` | *(unset)* | e.g. `#book-club`; include in runbooks or timeline notes when useful. |
 | `discussion_venue` | *(unset)* | Default "where / how we meet" line for reminders if not in the book profile. |
 | `organizer_contact` | *(unset)* | Facilitator contact (Slack handle, email). |
 | `timezone` | *(unset)* | IANA timezone for schedule wording when you need explicit TZ context. |
@@ -32,7 +32,7 @@ Each book has its own directory under `output_root`:
 - `book_profile_path` = `<book_dir>/book-profile.json`
 - Generated files (`bookclub-announce.md`, `bookclub-timeline.json`, etc.) live in the same `book_dir`.
 
-**`folder_slug` (directory name)** — derived from the book `title` at init time:
+**`folder_slug` (directory name)** is derived from the book `title` at init time:
 
 1. Lowercase; replace `&` with ` and `.
 2. Replace any sequence of non-alphanumeric characters with a single `_`.
@@ -43,19 +43,19 @@ Each book has its own directory under `output_root`:
 
 1. Read config: `output_root`, optional `current_book_folder`.
 2. If `current_book_folder` is set: `book_dir` = `<output_root>/<current_book_folder>`; require `book-profile.json` there.
-3. Else if `<output_root>/book-profile.json` exists **and** no immediate child directory of `output_root` contains a `book-profile.json`: **legacy layout** — `book_dir` = `output_root`.
+3. Else if `<output_root>/book-profile.json` exists **and** no immediate child directory of `output_root` contains a `book-profile.json`: **legacy layout**; then `book_dir` = `output_root`.
 4. Else: collect each immediate child directory of `output_root` that contains `book-profile.json`. If exactly one, use it as `book_dir`. If zero, tell the user to run `/bookclub:init`. If more than one, tell the user to set `current_book_folder` or pass `--book <folder_slug>` on the command.
 
 Create `output_root` and `book_dir` with `mkdir -p` before writing when they do not exist.
 
-**Slack headers:** Prefix announcement-style titles with `{bookclub_name} — ` only when `bookclub_name` is set to a non-empty value in `bookclub.local.md` (e.g. `*DS Reads — Book of the Month: _{title}_*`). If there is no config file or the key is blank, use the template headline without that prefix. For generic copy in documents when no name is configured, you may use the words "book club" in normal sentence case.
+**Slack headers:** Prefix announcement-style titles with `{bookclub_name} · ` only when `bookclub_name` is set to a non-empty value in `bookclub.local.md` (e.g. `*DS Reads · Book of the Month: _{title}_*`). If there is no config file or the key is blank, use the template headline without that prefix. For generic copy in documents when no name is configured, you may use the words "book club" in normal sentence case.
 
 ## When to Use This Skill
 
 Trigger when the user:
 - Mentions "book club", "reading group", or "book of the month"
 - Asks to generate Slack messages about a book
-- Asks for discussion questions, reading guides, or session materials
+- Asks for discussion questions or session materials
 - Wants to announce, remind, or promote a book reading
 - Asks for a QR code, one-pager, or visual summary for a book
 - Wants a timeline or schedule for book club communications
@@ -65,24 +65,20 @@ Trigger when the user:
 
 | Command | Description |
 |---------|-------------|
-| `/bookclub:init [title] by [author]` | Set up book of the month — research, enrich, create `<output_root>/<folder_slug>/`, save profile there |
+| `/bookclub:init [title] by [author]` | Set up book of the month: research, enrich, create `<output_root>/<folder_slug>/`, save profile there |
 | `/bookclub:generate [type]` | Generate any message or material (optional `--book <folder_slug>` when multiple books) |
 | `/bookclub:timeline [cadence]` | Generate full communication schedule (optional `--book <folder_slug>`) |
 
 ### Generate Types
 
 **Slack messages** (output: Block Kit JSON + mrkdwn):
-- `announce` — Book announcement with hook, dates, factoids, links
-- `remind` — Reading reminder (use `--timing 1week|3days|tomorrow|today`)
-- `spark` — Pre-reading thought-provoking questions
-- `articles` — Related articles/interviews roundup
-- `recap` — Post-session summary template
+- `announce`: Book announcement with hook, dates, factoids, links
+- `remind`: 1-week-out reading reminder with page count, factoid, purchase link
+- `articles`: Related articles/interviews roundup
+- `eve`: Day-before reminder plus 3 or 4 low-pressure spark questions: **1 generic** (any book), **1 or 2 book-specific** (~first half), **1 theme** (last); see [slack-templates.md Eve → Question Guidelines](references/slack-templates.md#eve)
 
 **Documents** (output: Markdown, optionally PDF with `--pdf`):
-- `guide` — Discussion guide with categorized questions
-- `intro` — Facilitator introduction script (3-5 min)
-- `cards` — Individual question cards for printing
-- `one-pager` — Visual summary with QR code
+- `one-pager`: Visual summary with QR code
 
 ## Workflow
 
@@ -102,7 +98,7 @@ The `book-profile.json` inside each book folder is the single source of truth fo
 ## Book Profile
 
 The init command creates a `book-profile.json` containing:
-- **Paths**: `folder_slug` — directory name under `output_root` (snake_case from title; set at init)
+- **Paths**: `folder_slug` is the directory name under `output_root` (snake_case from title; set at init)
 - **Metadata**: title, author, author_bio, publication_year, genre, page_count, isbn
 - **Content**: synopsis (paraphrased), themes, factoids, awards
 - **Links**: amazon_de, buch7, medimops, goodreads, publisher, library
@@ -117,16 +113,19 @@ Full schema: [references/book-profile-schema.md](references/book-profile-schema.
 - **Tone**: Enthusiastic but not cheesy. Smart-casual. The friend who always has great book recommendations
 - **Structure**: Hook -> Body -> CTA. Every message ends with a clear call to action
 - **Format**: Slack mrkdwn (`*bold*`, `_italic_`, `:emoji:`, `>` quotes)
+- **Punctuation in generated copy**: Do not use em dashes (—) in member-facing Slack text. Use commas, periods, colons, or parentheses instead (see [slack-style-guide.md](references/slack-style-guide.md#punctuation-in-generated-copy)).
 - **Length**: Announcements ~120-180 words, reminders ~80-120 words
 - **Emoji**: 2-4 relevant emojis per message. Prefer: :books: :book: :brain: :bulb: :calendar:
-- **Links**: Use labeled full URLs (one per line) under a :link: section — not `<url|label>` mrkdwn, which breaks when copy-pasted outside Slack
+- **Links**: Use labeled full URLs (one per line) under a :link: section, not `<url|label>` mrkdwn, which breaks when copy-pasted outside Slack
 
 Full style guide: [references/slack-style-guide.md](references/slack-style-guide.md)
 All templates: [references/slack-templates.md](references/slack-templates.md)
 
 ## Document Generation
 
-Discussion guides, introductions, and one-pagers are generated as Markdown by default. Use the `--pdf` flag to also produce PDF output via the pdf skill from kjgarza-product.
+One-pagers are generated as Markdown by default. Use the `--pdf` flag to also produce PDF output via the pdf skill from kjgarza-product.
+
+In **one-pager body copy** (synopsis, hooks, labels), follow the same rule as Slack: no em dashes (—) in generated member-facing text; prefer commas, periods, colons, or parentheses.
 
 For QR codes on one-pagers, use the Python `qrcode` library. See [references/qr-code-generation.md](references/qr-code-generation.md).
 
@@ -145,11 +144,10 @@ Scraping patterns: [references/scraping-patterns.md](references/scraping-pattern
 
 ## Copyright
 
-- Never reproduce publisher synopses or blurbs verbatim — always paraphrase
+- Never reproduce publisher synopses or blurbs verbatim; always paraphrase
 - Attribute ratings and awards to their source
 - When citing articles, include title, source, and URL
 
 ## Examples
 
 - [Example announcement (Block Kit JSON)](../../examples/example-announcement.json)
-- [Example discussion guide](../../examples/example-discussion-guide.md)

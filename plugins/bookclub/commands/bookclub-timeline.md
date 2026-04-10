@@ -35,15 +35,10 @@ Generate a complete communication timeline for the current book club cycle, mapp
    | When | Day | Type | Command |
    |------|-----|------|---------|
    | Week 1 | Monday | Announcement | `/bookclub:generate announce` |
-   | Week 1 | Wednesday | Spark questions #1 | `/bookclub:generate spark` |
    | Week 1 | Friday | Articles roundup | `/bookclub:generate articles` |
-   | Week 2 | Monday | Spark questions #2 | `/bookclub:generate spark` |
-   | Week 2 | Friday | 1-week reminder | `/bookclub:generate remind --timing 1week` |
-   | Week 3 | Monday | Spark questions #3 | `/bookclub:generate spark` |
-   | Week 3 | Wednesday | 3-day reminder | `/bookclub:generate remind --timing 3days` |
-   | Week 3 | Thursday | Materials distributed | `/bookclub:generate guide` |
+   | Week 2 | Friday | 1-week reminder | `/bookclub:generate remind` |
+   | Week 3 | Thursday | Eve + one-pager | `/bookclub:generate eve` + `/bookclub:generate one-pager` |
    | Week 3 | Friday | Discussion session | (session day) |
-   | Week 4 | Monday | Session recap | `/bookclub:generate recap` |
 
 5. **Output two formats**
 
