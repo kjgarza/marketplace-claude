@@ -10,7 +10,7 @@ When **filling** placeholders with real prose, follow [slack-style-guide.md](sla
 
 ## Announcement
 
-The flagship message introducing the book of the month.
+The flagship message introducing the book of the month. **Must be 120-175 words.** Output only the message.
 
 ### mrkdwn Template
 
@@ -86,7 +86,7 @@ React with :book: if you're joining this month! :raised_hands:
 
 ## Reminder
 
-A single 1-week-out reminder, encouraging and casual.
+A single 1-week-out reminder, encouraging and casual. **Must be 80-115 words.** Do not add extra sections or links beyond what the template shows. Output only the message.
 
 ### mrkdwn Template
 
@@ -100,13 +100,15 @@ Grab a copy if you need it: {links.amazon_de}
 How far along are you? Drop your page number below! :book:
 ```
 
+Follow the template closely. Use one purchase link, one factoid, and one CTA line. Do not add extra link sections or additional factoids.
+
 ---
 
 ## Eve
 
 Day-before reminder plus low-pressure spark questions. Structure: **one generic** (any book), **one or two** that need this title (~first half read), **one theme** (last). Avoid spoiling the back half. Sent the evening/day before the discussion session.
 
-**IMPORTANT**: The eve message must be 120-175 words total. Keep questions short (one sentence each). The message MUST end with a CTA line (e.g., "No wrong answers. Bring your thoughts tomorrow! :raised_hands:"). Do not add any text after the CTA. Output only the message.
+**STRICT: The eve message must be 120-170 words total.** Keep each question to one short sentence (under 25 words each). Keep the intro to 2-3 sentences max. The message MUST end with a CTA line (e.g., "No wrong answers. Bring your thoughts tomorrow! :raised_hands:"). Do not add any text after the CTA. Output only the message, no commentary or notes.
 
 ### mrkdwn Template
 
