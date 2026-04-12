@@ -1,6 +1,6 @@
 {
   "name": "finanz-pilot",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, balance sheets, income statements, VAT treatment, tax checks, pensions, and financial analysis.",
   "author": {
     "name": "Kristian Garza",
@@ -17,6 +17,7 @@
     "journal-entry",
     "balance-sheet",
     "income-statement",
+    "trial-balance",
     "ust",
     "jahresabschluss",
     "tax",

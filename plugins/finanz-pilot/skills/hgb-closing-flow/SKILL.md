@@ -17,6 +17,9 @@ Prefer one of these inputs:
 
 If the user does not provide enough data for a final statement, say what is missing and continue with a draft structure instead of blocking early.
 
+For a guided end-to-end close from trial balance to Bilanz and GuV, also use:
+- `${CLAUDE_PLUGIN_ROOT}/skills/hgb-closing-flow/references/trial-balance-to-statements.md`
+
 ## Working method
 
 1. Confirm the reporting date or reporting period.
@@ -31,6 +34,7 @@ If the user does not provide enough data for a final statement, say what is miss
    - GuV: subtotals add up correctly
    - Jahresueberschuss/Jahresfehlbetrag flows consistently into equity
 6. Surface unresolved items separately from finalized mappings.
+7. When the task starts from a trial balance, follow the staged checklist from the reference file instead of jumping straight to final statements.
 
 ## Typical checks
 
