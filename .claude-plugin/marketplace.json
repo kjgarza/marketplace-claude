@@ -138,17 +138,16 @@
     {
       "name": "finanz-pilot",
       "source": "./plugins/finanz-pilot",
-      "description": "Personal financial intelligence system for English-speaking expats in Germany. Analyzes pensions, real estate readiness, and tax optimization using German financial regulations and Obsidian-based data.",
-      "version": "1.0.0",
+      "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, financial statements, tax checks, and personal finance analysis.",
+      "version": "1.2.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
       },
       "license": "MIT",
       "category": "productivity",
-      "keywords": ["finance", "germany", "expat", "pension", "real-estate", "tax", "berlin", "obsidian"],
+      "keywords": ["finance", "germany", "hgb", "skr04", "journal-entry", "balance-sheet", "income-statement", "tax", "berlin"],
       "strict": true
     }
   ]
 }
-

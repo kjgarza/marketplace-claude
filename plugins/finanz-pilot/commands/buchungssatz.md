@@ -1,4 +1,5 @@
 ---
+name: buchungssatz
 description: Buchungssatz erstellen fuer deutsche HGB-Buchhaltung mit SKR04-Konten und USt-Pruefung
 argument-hint: <Geschaeftsvorfall Beschreibung>
 ---
@@ -9,12 +10,13 @@ Erstelle einen HGB-konformen Buchungssatz fuer: **$ARGUMENTS**
 
 ## Vorgehen
 
-1. Analysiere den Geschaeftsvorfall.
-2. Nutze den Skill `skr04-kontenrahmen`, um passende SKR04-Konten zu finden.
-3. Bestimme Soll und Haben nach den Regeln der doppelten Buchfuehrung.
-4. Pruefe die USt-Behandlung: 19%, 7%, 0%, steuerfrei oder Reverse Charge.
-5. Pruefe bei nicht-trivialen Faellen die HGB-Basis, insbesondere bei Rueckstellungen, RAP, Abschreibungen oder Bewertungsfragen.
-6. Wenn Informationen fehlen, frage nur nach den Fakten, die die Buchungslogik aendern.
+1. Verwende denselben Kernablauf wie der primaere Command `journal-entry`.
+2. Analysiere den Geschaeftsvorfall.
+3. Nutze den Skill `skr04-kontenrahmen`, um passende SKR04-Konten zu finden.
+4. Bestimme Soll und Haben nach den Regeln der doppelten Buchfuehrung.
+5. Pruefe die USt-Behandlung: 19%, 7%, 0%, steuerfrei oder Reverse Charge.
+6. Pruefe bei nicht-trivialen Faellen die HGB-Basis, insbesondere bei Rueckstellungen, RAP, Abschreibungen oder Bewertungsfragen.
+7. Wenn Informationen fehlen, frage nur nach den Fakten, die die Buchungslogik aendern.
 
 ## Ausgabeformat
 
