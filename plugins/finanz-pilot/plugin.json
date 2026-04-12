@@ -1,12 +1,27 @@
 {
   "name": "finanz-pilot",
-  "version": "1.0.0",
-  "description": "Personal financial intelligence system for English-speaking expats in Germany. Analyzes pensions, real estate readiness, and tax optimization using German financial regulations.",
+  "version": "1.1.0",
+  "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, VAT treatment, tax checks, pensions, and financial analysis.",
   "author": {
     "name": "Kristian Garza",
     "email": "kj.garza@gmail.com"
   },
   "license": "MIT",
   "category": "productivity",
-  "keywords": ["finance", "germany", "expat", "pension", "real-estate", "tax", "berlin"]
+  "keywords": [
+    "finance",
+    "germany",
+    "hgb",
+    "skr04",
+    "buchhaltung",
+    "ust",
+    "jahresabschluss",
+    "tax",
+    "berlin"
+  ],
+  "skills": ["./skills/"],
+  "commands": ["./commands/"],
+  "agents": ["./agents/"],
+  "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/finanz-pilot",
+  "repository": "https://github.com/kjgarza/marketplace-claude"
 }
