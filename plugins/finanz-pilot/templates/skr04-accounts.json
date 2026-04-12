@@ -1,0 +1,86 @@
+{
+  "1200": {
+    "name": "Bank",
+    "type": "Aktivkonto",
+    "ust_satz": 0,
+    "gegenkonto_typ": "liquiditaet",
+    "guv_position": null
+  },
+  "1360": {
+    "name": "Forderungen aus Lieferungen und Leistungen",
+    "type": "Aktivkonto",
+    "ust_satz": 0,
+    "gegenkonto_typ": "forderung",
+    "guv_position": null
+  },
+  "1600": {
+    "name": "Verbindlichkeiten aus Lieferungen und Leistungen",
+    "type": "Passivkonto",
+    "ust_satz": 0,
+    "gegenkonto_typ": "verbindlichkeit",
+    "guv_position": null
+  },
+  "1576": {
+    "name": "Abziehbare Vorsteuer 19%",
+    "type": "Steuerkonto",
+    "ust_satz": 19,
+    "gegenkonto_typ": "vorsteuer",
+    "guv_position": null
+  },
+  "1776": {
+    "name": "Umsatzsteuer 19%",
+    "type": "Steuerkonto",
+    "ust_satz": 19,
+    "gegenkonto_typ": "umsatzsteuer",
+    "guv_position": null
+  },
+  "4400": {
+    "name": "Erlöse 19% USt",
+    "type": "Ertragskonto",
+    "ust_satz": 19,
+    "gegenkonto_typ": "forderung",
+    "guv_position": "Umsatzerloese"
+  },
+  "4960": {
+    "name": "Fremdleistungen",
+    "type": "Aufwandskonto",
+    "ust_satz": 19,
+    "gegenkonto_typ": "verbindlichkeit",
+    "guv_position": "Sonstige betriebliche Aufwendungen"
+  },
+  "6300": {
+    "name": "Sonstige betriebliche Aufwendungen",
+    "type": "Aufwandskonto",
+    "ust_satz": 19,
+    "gegenkonto_typ": "verbindlichkeit",
+    "guv_position": "Sonstige betriebliche Aufwendungen"
+  },
+  "6815": {
+    "name": "Bueroaufwand",
+    "type": "Aufwandskonto",
+    "ust_satz": 19,
+    "gegenkonto_typ": "verbindlichkeit",
+    "guv_position": "Sonstige betriebliche Aufwendungen"
+  },
+  "7600": {
+    "name": "Zinsaufwendungen",
+    "type": "Aufwandskonto",
+    "ust_satz": 0,
+    "gegenkonto_typ": "verbindlichkeit",
+    "guv_position": "Zinsen und aehnliche Aufwendungen"
+  },
+  "8600": {
+    "name": "Ertraege aus Abgang von Anlagevermoegen",
+    "type": "Ertragskonto",
+    "ust_satz": 19,
+    "gegenkonto_typ": "forderung",
+    "guv_position": "Sonstige betriebliche Ertraege"
+  },
+  "9000": {
+    "name": "Saldenvortraege Sachkonten",
+    "type": "Abschlusskonto",
+    "ust_satz": 0,
+    "gegenkonto_typ": "abschluss",
+    "guv_position": null
+  }
+}
