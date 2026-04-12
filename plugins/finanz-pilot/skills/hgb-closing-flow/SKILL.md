@@ -20,6 +20,7 @@ If the user does not provide enough data for a final statement, say what is miss
 For a guided end-to-end close from trial balance to Bilanz and GuV, also use:
 - `${CLAUDE_PLUGIN_ROOT}/skills/hgb-closing-flow/references/trial-balance-to-statements.md`
 - `${CLAUDE_PLUGIN_ROOT}/skills/hgb-closing-flow/references/skr04-hgb-starter-mapping.md`
+- `${CLAUDE_PLUGIN_ROOT}/skills/hgb-closing-flow/references/saldenliste-fixture-gkv.md`
 
 ## Working method
 
