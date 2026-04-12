@@ -19,6 +19,7 @@ If the user does not provide enough data for a final statement, say what is miss
 
 For a guided end-to-end close from trial balance to Bilanz and GuV, also use:
 - `${CLAUDE_PLUGIN_ROOT}/skills/hgb-closing-flow/references/trial-balance-to-statements.md`
+- `${CLAUDE_PLUGIN_ROOT}/skills/hgb-closing-flow/references/skr04-hgb-starter-mapping.md`
 
 ## Working method
 
@@ -29,16 +30,18 @@ For a guided end-to-end close from trial balance to Bilanz and GuV, also use:
    - both statements as a closing package
 3. Use `skr04-kontenrahmen` when an account class or line-item mapping is unclear.
 4. Use `bilanz-guv-format` for the statutory structure and preserve the ordering from the templates.
-5. Make the tie-outs explicit:
+5. Use the starter SKR04-to-HGB mapping reference for common closing lines before falling back to ad hoc classification.
+6. Make the tie-outs explicit:
    - Bilanz: Aktiva = Passiva
    - GuV: subtotals add up correctly
    - Jahresueberschuss/Jahresfehlbetrag flows consistently into equity
-6. Surface unresolved items separately from finalized mappings.
-7. When the task starts from a trial balance, follow the staged checklist from the reference file instead of jumping straight to final statements.
+7. Surface unresolved items separately from finalized mappings.
+8. When the task starts from a trial balance, follow the staged checklist from the reference file instead of jumping straight to final statements.
 
 ## Typical checks
 
 - Distinguish Anlagevermoegen, Umlaufvermoegen, RAP, equity, provisions, and liabilities cleanly.
+- Use the starter mapping for common bank, receivables, payables, VAT, revenue, and operating expense balances, but mark edge cases explicitly.
 - Flag when provisions, accruals, and simple payables appear to be mixed.
 - Flag when the result shown in the GuV does not reconcile to the balance-sheet equity movement.
 - Keep statutory headings even when individual amounts are zero, omitted, or still open in the source draft.

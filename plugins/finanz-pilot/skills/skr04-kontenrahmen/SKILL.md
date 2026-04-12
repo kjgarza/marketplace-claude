@@ -11,6 +11,9 @@ Use this skill to ground bookkeeping answers in plausible SKR04 account numbers 
 
 Read `${CLAUDE_PLUGIN_ROOT}/templates/skr04-accounts.json` before proposing account mappings.
 
+For Bilanz/GuV preparation flows, also consult:
+- `${CLAUDE_PLUGIN_ROOT}/skills/hgb-closing-flow/references/skr04-hgb-starter-mapping.md`
+
 ## Working method
 
 1. Identify the business event.
@@ -18,6 +21,7 @@ Read `${CLAUDE_PLUGIN_ROOT}/templates/skr04-accounts.json` before proposing acco
 3. Prefer the most specific account that matches VAT treatment and statement classification.
 4. If multiple accounts are plausible, list the top options and explain the deciding factor.
 5. Return both account number and account name.
+6. If the task is statement preparation rather than a single booking, add the likely HGB destination line from the starter mapping reference when available.
 
 ## Output format
 
@@ -31,6 +35,7 @@ When used as a lookup answer, format like:
 ## Guardrails
 
 - Treat `skr04-accounts.json` as the source of truth for this plugin.
+- Treat the starter HGB mapping reference as a pragmatic aid for close flows, not as a complete DATEV or statutory taxonomy.
 - Do not claim certainty when several common practice mappings exist.
 - Flag when account selection depends on whether the item is operating expense, fixed asset, private withdrawal, or payroll.
 - If the needed account is missing from the JSON, say so and suggest the nearest available class.

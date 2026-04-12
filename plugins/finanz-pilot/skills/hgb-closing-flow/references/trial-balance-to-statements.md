@@ -20,6 +20,7 @@ Ask only for the items that block classification or tie-out:
    - source account or account group
    - tentative HGB destination line
    - confidence or open issue note
+   - use `skr04-hgb-starter-mapping.md` first for common accounts and account classes
 3. Draft the GuV first when the result account flow is clearer from revenue and expense balances.
 4. Draft the Bilanz next, ensuring the annual result is reflected in equity consistently.
 5. Run the tie-outs explicitly before presenting the final statements.

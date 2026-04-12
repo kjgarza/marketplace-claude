@@ -139,7 +139,7 @@
       "name": "finanz-pilot",
       "source": "./plugins/finanz-pilot",
       "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, financial statements, tax checks, and personal finance analysis.",
-      "version": "1.3.0",
+      "version": "1.4.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
