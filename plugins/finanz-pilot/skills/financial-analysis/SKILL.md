@@ -117,6 +117,8 @@ Parse markdown tables and key-value pairs from these files. When a data file is 
 
 Load the German financial system reference from `${CLAUDE_PLUGIN_ROOT}/skills/financial-analysis/references/german-financial-system.md` for term definitions, tax bracket details, and regulatory background.
 
+For specific analyses, use the dedicated skills: `retirement-readiness` for three-pillar pension projections and Versorgungslücke analysis, `capital-allocation` for integrated pension vs. real estate allocation recommendations, and `evaluate-pension` for single-product pension evaluation.
+
 ### Output Destination
 
 Write all generated reports to `finance/reports/` using the naming pattern:

@@ -152,15 +152,15 @@
     {
       "name": "finanz-pilot",
       "source": "./plugins/finanz-pilot",
-      "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, financial statements, tax checks, and personal finance analysis.",
-      "version": "1.4.1",
+      "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, financial statements, tax checks, pension evaluation, real estate readiness, retirement projections, capital allocation, and integrated personal finance advisory.",
+      "version": "1.5.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
       },
       "license": "MIT",
       "category": "productivity",
-      "keywords": ["finance", "germany", "hgb", "skr04", "journal-entry", "balance-sheet", "income-statement", "trial-balance", "tax", "berlin"],
+      "keywords": ["finance", "germany", "hgb", "skr04", "journal-entry", "balance-sheet", "income-statement", "trial-balance", "tax", "berlin", "pension", "real-estate", "capital-allocation", "personal-finance", "retirement"],
       "strict": true
     }
   ]
