@@ -64,7 +64,7 @@ standard package structure. Follow this exactly — do not improvise the structu
 │   │   │       └── globals.css
 │   │   ├── components.json
 │   │   ├── next.config.ts
-│   │   ├── tailwind.config.ts
+│   │   ├── postcss.config.mjs
 │   │   ├── package.json
 │   │   └── tsconfig.json
 │   └── mcp/                  # MCP server (follows prototyping-skills:generate-mcp conventions)
@@ -303,7 +303,7 @@ prototype is about and fill in this template:
 - **CI**: GitHub Actions (.github/workflows/ci.yml)
 - **Task runner**: justfile
 - **API**: Hono + @hono/zod-openapi — all routes use `createRoute` + `app.openapi()`, JSON:API spec paths
-- **UI**: Next.js 15 App Router + shadcn/ui — Server Components by default, Server Actions for mutations
+- **UI**: Next.js 16 App Router + shadcn/ui — Server Components by default, Server Actions for mutations
 - **MCP**: @modelcontextprotocol/sdk with stdio transport
 - **Database**: bun:sqlite when persistence is needed
 - **Types**: Shared via @repo/types, never duplicate across packages
@@ -385,7 +385,7 @@ Key rules:
 # UI Package
 
 This package follows the `prototyping-skills:generate-ui` skill conventions.
-Next.js 15 App Router + shadcn/ui patterns.
+Next.js 16 App Router + shadcn/ui patterns.
 
 Key rules:
 - Server Components by default — only add "use client" when genuinely needed

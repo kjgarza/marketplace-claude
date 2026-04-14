@@ -67,7 +67,7 @@ Gate this section with `AskUserQuestion` before scaffolding any files:
 "Do you want Google OAuth authentication on this UI? (Requires GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXTAUTH_SECRET env vars)"
 ```
 
-If yes, scaffold the following files using the **NextAuth.js v4** pattern. See `references/auth.md` for full code.
+If yes, scaffold the following files using the **Auth.js v5** pattern. See `references/auth.md` for full code.
 
 **Files to create:**
 
@@ -110,7 +110,7 @@ packages/ui/
 │           ├── ui/            # shadcn/ui components (managed by CLI)
 │           └── [feature]/     # Feature-specific components
 ├── components.json            # shadcn/ui config
-├── tailwind.config.ts
+├── postcss.config.mjs         # Tailwind CSS v4 via @tailwindcss/postcss
 ├── next.config.ts
 ├── package.json
 └── tsconfig.json
@@ -120,15 +120,16 @@ packages/ui/
 ```json
 {
   "scripts": {
-    "dev": "next dev --turbopack --port 3000",
+    "dev": "next dev --port 3000",
     "build": "next build"
   },
   "dependencies": {
-    "next": "^15",
+    "next": "^16",
     "react": "^19",
     "react-dom": "^19",
     "@repo/types": "workspace:*",
-    "tailwindcss": "^3",
+    "tailwindcss": "^4",
+    "@tailwindcss/postcss": "^4",
     "class-variance-authority": "latest",
     "clsx": "latest",
     "tailwind-merge": "latest",
@@ -349,7 +350,12 @@ Common pattern: Server Component fetches data, passes it to a Client Component f
 
 ## Styling Conventions
 
-- **Tailwind CSS only.** No CSS modules, no styled-components, no inline style objects.
+- **Tailwind CSS v4 only.** No CSS modules, no styled-components, no inline style objects.
+- **No `tailwind.config.ts`** — Tailwind v4 configures everything in CSS via `globals.css`:
+  - `@import "tailwindcss"` replaces `@tailwind base/components/utilities`
+  - `@plugin` directives replace the `plugins: []` array
+  - `@theme inline` maps CSS custom properties to Tailwind utility classes
+- **`@tailwindcss/postcss`** is the PostCSS plugin (in `postcss.config.mjs`). Autoprefixer is included — do not add it separately.
 - Use the `cn()` utility (from `lib/utils.ts`) for conditional classes.
 - Stick to shadcn/ui's design tokens and default theme.
 - Dark mode: use `class` strategy with shadcn's built-in dark mode support.

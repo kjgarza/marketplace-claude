@@ -1,4 +1,4 @@
-# Google Auth Patterns — NextAuth.js v4
+# Google Auth Patterns — Auth.js v5 (next-auth)
 
 Install:
 
@@ -226,4 +226,4 @@ export function UserAvatar() {
 - `NEXTAUTH_URL` must match the exact origin in production — do not include a trailing slash.
 - The `(public)` route group in `app/(public)/login/` is a Next.js route group (no URL segment) — it just organises files outside of middleware protection.
 - If running behind a reverse proxy, set `NEXTAUTH_URL` to the public URL, not `localhost`.
-- `NEXTAUTH_SECRET` must be set in production — NextAuth v4 will error without it.
+- `NEXTAUTH_SECRET` must be set in production — Auth.js v5 will error without it.

@@ -53,9 +53,9 @@ Create the project directory with the monorepo structure from the shared-package
 
 9. `packages/ui/` — shadcn/ui component library with tsup, Radix UI, CVA
 10. `packages/eslint-config/` — ESLint config for Next.js
-11. `apps/<project-name>/` — Next.js 15 app with:
-   - `next.config.js` (static export, basePath/assetPrefix for GitHub Pages, transpiling monorepo packages)
-   - `postcss.config.js` (Tailwind CSS v4 via `@tailwindcss/postcss` — no autoprefixer needed)
+11. `apps/<project-name>/` — Next.js 16 app with:
+   - `next.config.ts` (static export, basePath/assetPrefix for GitHub Pages, transpiling monorepo packages)
+   - `postcss.config.mjs` (Tailwind CSS v4 via `@tailwindcss/postcss` — no autoprefixer needed)
    - `tsconfig.json` extending `@repo/tsconfig/app.json`
    - `src/app/layout.tsx` with ThemeProvider, Inter + Space Grotesk fonts, Open Graph metadata, metadataBase for GitHub Pages
    - `src/app/page.tsx` with landing page skeleton
@@ -70,7 +70,7 @@ Create the project directory with the monorepo structure from the shared-package
 
 Do NOT create a `tailwind.config.ts` file — Tailwind CSS v4 configures everything in CSS via `globals.css`.
 
-The `package.json` dev script must be `"dev": "next dev"` (no `--webpack` flag — Turbopack is the default in Next.js 15.5+, and next-pwa is disabled during dev).
+The `package.json` dev script must be `"dev": "next dev"` (no `--webpack` or `--turbopack` flag — Turbopack is the default bundler in Next.js 16, and next-pwa is disabled during dev).
 
 ### For 11ty stack, additionally generate:
 

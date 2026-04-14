@@ -1,6 +1,6 @@
 {
   "name": "prototyping-skills",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Skills for rapid prototype development with a standardized Bun monorepo stack (core, types, api, ui, mcp). Encodes team conventions (Biome, bun:test, JSON:API, Actor Pattern, design tokens), deviation protocol, per-package patterns, test scaffolding, and development workflow chaining.",
   "author": {
     "name": "Kristian Garza"

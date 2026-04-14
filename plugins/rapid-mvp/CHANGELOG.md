@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.3.0 — Next.js 16 migration (2026-04-14)
+
+### Changed
+
+- **Next.js 15 → 16**: Updated version table, dependency references, and all patterns to target Next.js 16.x
+- **`next.config.js` → `next.config.ts`**: Config template converted from CommonJS to ESM/TypeScript. Uses `import type { NextConfig }` and `export default`. CJS interop for `next-pwa` handled by Next.js 16's TS config loader.
+- **`postcss.config.js` → `postcss.config.mjs`**: PostCSS config converted from CommonJS to ESM (`export default`).
+- **Turbopack is default**: Removed `--webpack` anti-pattern note (already gone in 15.5+). Added `--turbopack` flag anti-pattern — the flag is unnecessary in Next.js 16 as Turbopack is the default bundler.
+- **ESLint config packages**: Bumped `@next/eslint-plugin-next` and `eslint-config-next` from `^15.0.0` to `^16.0.0`.
+
+---
+
 ## v0.2.0 — Lessons from explinearoja (2026-03-21)
 
 Changes based on real-world usage of the plugin in the explinearoja project.

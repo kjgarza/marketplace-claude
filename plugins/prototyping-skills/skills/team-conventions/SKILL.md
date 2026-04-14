@@ -47,7 +47,7 @@ across prototypes and requires the team to context-switch.
 - **CI**: GitHub Actions (`.github/workflows/ci.yml`)
 - **Task runner**: justfile (not Makefile, not npm scripts for complex tasks)
 - **API**: Hono + @hono/zod-openapi. Routes use `createRoute()` + `app.openapi()`. Paths follow JSON:API spec.
-- **UI**: Next.js 15+ App Router + shadcn/ui + Lucide icons. Server Components by default. Server Actions for mutations. Design tokens over hard-coded styles.
+- **UI**: Next.js 16+ App Router + shadcn/ui + Lucide icons. Server Components by default. Server Actions for mutations. Design tokens over hard-coded styles.
 - **MCP**: @modelcontextprotocol/sdk with stdio transport. Actor pattern when using domain entities.
 - **Database**: `bun:sqlite` when persistence is needed. Not better-sqlite3, Prisma, or Drizzle unless deviation approved.
 - **Types**: Shared `@repo/types` package. Types and Zod schemas defined once.

@@ -17,7 +17,7 @@ Default tech stack and patterns for Next.js-based rapid MVPs. These are opiniona
 
 | Layer | Technology | Version | Notes |
 |-------|-----------|---------|-------|
-| Framework | Next.js | 15.x | App Router only, no Pages Router |
+| Framework | Next.js | 16.x | App Router only, no Pages Router |
 | React | React | 19.x | Server Components by default |
 | Runtime | Bun | 1.1+ | Package manager AND runtime |
 | Monorepo | Bun workspaces | — | Workspace management via `bun run --filter` |
@@ -105,7 +105,7 @@ Tailwind CSS v4 is a major change from v3. These rules are non-negotiable:
 
 Default deployment target is GitHub Pages via static export:
 
-- `next.config.js` uses `output: "export"`, `basePath`, and `assetPrefix` driven by `NEXT_PUBLIC_REPO_NAME`
+- `next.config.ts` uses `output: "export"`, `basePath`, and `assetPrefix` driven by `NEXT_PUBLIC_REPO_NAME`
 - GitHub Actions workflow builds with Bun and deploys to Pages
 - All image paths in components must use the basePath helper pattern
 - Use static `public/opengraph.png` (1200x630) for OG images — no dynamic generation (incompatible with static export)
@@ -129,7 +129,8 @@ Every project must include Open Graph metadata in the root layout:
 - Never hardcode colors — use CSS custom properties via Tailwind theme
 - Never hardcode image paths without basePath — use the `basePath` helper for GitHub Pages compatibility
 - Never create `tailwind.config.ts` — Tailwind v4 configures everything in CSS
-- Never use `--webpack` flag in dev script — Turbopack is the default in Next.js 15.5+
+- Never use `--webpack` flag in dev script — Turbopack is the default bundler in Next.js 16
+- Never pass `--turbopack` flag in dev script — it is the default in Next.js 16 and the flag is unnecessary
 - Never use dynamic OG image routes with `output: "export"` — use static images
 - Never put business logic in page.tsx files — extract to components
 - Never hardcode content in page.tsx or components — extract to `src/content/`

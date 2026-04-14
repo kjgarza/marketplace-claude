@@ -233,9 +233,9 @@ Then add the export to `src/index.ts`.
   "private": true,
   "main": "next.js",
   "dependencies": {
-    "@next/eslint-plugin-next": "^15.0.0",
+    "@next/eslint-plugin-next": "^16.0.0",
     "eslint-config-prettier": "^9.0.0",
-    "eslint-config-next": "^15.0.0"
+    "eslint-config-next": "^16.0.0"
   }
 }
 ```
