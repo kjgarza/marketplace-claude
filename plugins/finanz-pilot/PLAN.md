@@ -58,13 +58,70 @@ Pick only one small increment next, not a broad rewrite.
 2. Extend `skr04-accounts.json` with a handful of common equity and close-relevant accounts already needed by the fixtures.
 3. Add one compact validation-oriented checklist or example output contract for `trial-balance-to-statements` if prompt consistency starts drifting.
 
-## Stop conditions
+## Stop conditions (HGB domain)
 
 Pause before expanding into:
 
 - full VAT automation
 - giant SKR04 coverage work
 - bookkeeping ingestion/parsing pipelines
-- broad personal-finance refactors unrelated to HGB close flows
 
 The goal remains: small, coherent increments that improve HGB statement usefulness without turning the plugin into a full accounting system.
+
+---
+
+## Personal finance advisory layer (v1.5.0)
+
+### What was added
+
+A complete personal finance advisory domain alongside the existing HGB accounting domain:
+
+**New skills:**
+- `retirement-readiness` — three-pillar pension projection (GRV + bAV + private), Versorgungslücke analysis, Wohn-Riester modeling, capital redirection scenarios
+- `capital-allocation` — orchestrator skill that reads reports from `evaluate-pension`, `real-estate-readiness`, and `retirement-readiness` to produce integrated pension-vs-property recommendations with four scenarios (pension priority, property priority, balanced, Wohn-Riester hybrid), scoring matrix, and sensitivity analysis
+
+**New agent:**
+- `finanzberater` — conversational personal finance advisor that triages questions, delegates to appropriate skills, fills data gaps interactively, and reviews generated reports
+
+**New commands:**
+- `/evaluate-pension` (alias: `/rente-pruefen`) — entry point for pension evaluation or retirement readiness
+- `/real-estate-check` (alias: `/immobilien-check`) — entry point for property purchase assessment
+- `/financial-plan` (alias: `/finanzplan`) — entry point for integrated capital allocation
+
+**New data templates** (in `templates/`):
+- `pension-data-template.md`, `employment-data-template.md`, `bank-accounts-data-template.md`, `monthly-budget-data-template.md`, `property-goals-data-template.md`
+
+**Extended existing skill:**
+- `real-estate-readiness` — added house support (Einfamilienhaus, Doppelhaushälfte, Reihenhaus), Neubau vs. Bestand analysis, Sanierungskosten modeling, house-specific running costs. New reference: `references/house-vs-apartment.md`.
+
+### Interaction model
+
+```
+/financial-plan → capital-allocation skill
+  ├── reads finance/reports/pension-evaluation-*.md (from evaluate-pension)
+  ├── reads finance/reports/real-estate-readiness-*.md (from real-estate-readiness)
+  ├── reads finance/reports/retirement-readiness-*.md (from retirement-readiness)
+  └── reads finance/data/* directly
+
+finanzberater agent → triages to appropriate skill(s)
+```
+
+### What is intentionally not done yet (personal finance)
+
+- No automated data ingestion from bank exports or DATEV
+- No portfolio rebalancing or ETF selection skill
+- No cross-border tax analysis (Progressionsvorbehalt, DBA)
+- No insurance review skill (BU, Haftpflicht, PKV vs. GKV)
+- No inheritance or estate planning
+
+### Stop conditions (personal finance domain)
+
+Pause before expanding into:
+
+- automated bank statement parsing or CSV import
+- real-time portfolio tracking or market data feeds
+- insurance product comparison or selection
+- cross-border or multi-jurisdiction tax planning
+- estate or inheritance planning
+
+The goal: enable informed pension-vs-property capital allocation decisions using user-provided data, not build a full robo-advisor.

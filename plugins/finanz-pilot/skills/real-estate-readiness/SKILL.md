@@ -1,6 +1,6 @@
 ---
 name: real-estate-readiness
-description: This skill should be used when the user asks to "check real estate readiness", "assess property purchase", "can I afford to buy", "Eigenkapital check", "mortgage readiness", "buy apartment Berlin", "Kaufnebenkosten calculation", "rent or buy", or "rent vs buy". Assesses financial readiness to purchase property in Berlin/Brandenburg with German-specific buying costs.
+description: This skill should be used when the user asks to "check real estate readiness", "assess property purchase", "can I afford to buy", "Eigenkapital check", "mortgage readiness", "buy apartment Berlin", "Kaufnebenkosten calculation", "rent or buy", "rent vs buy", "buy a house", "Haus kaufen", "Einfamilienhaus", "Neubau vs Bestand", "house vs apartment", "Doppelhaushälfte", or "Reihenhaus". Assesses financial readiness to purchase property in Berlin/Brandenburg — apartments and houses — with German-specific buying costs.
 argument-hint: "[optional: property price or area to focus on, e.g., '€350,000', 'Neukölln', 'buy-to-let']"
 allowed-tools: ["Read", "Write", "Edit", "WebSearch", "Bash", "Glob", "Grep"]
 ---
@@ -44,6 +44,22 @@ Perform web searches to gather up-to-date figures. Execute the following searche
 
 Record the source and date for each data point. If a web search fails or returns outdated results, fall back to the expected values noted above and flag them as unverified.
 
+## Step 3.5: Research House-Specific Cost Factors
+
+If the user's `property-goals.md` mentions a house (Einfamilienhaus, Doppelhaushälfte, Reihenhaus) or the command argument specifies a house type, perform additional research. Skip this step for apartment (Eigentumswohnung) purchases.
+
+For the full cost structure comparison, Sanierung categories, Neubau vs. Bestand framework, and Speckgürtel market context, load `references/house-vs-apartment.md`.
+
+1. **House prices**: Search for current house prices in Berlin/Brandenburg separately from apartment Quadratmeterpreise. Search for "Einfamilienhaus Preise Berlin Brandenburg aktuell" and "Haus kaufen Speckgürtel Preise". House prices follow different dynamics than apartment prices, especially in Brandenburg commuter areas.
+
+2. **Land value (Grundstückswert)**: For houses, land typically represents 40–60% of total value (vs. 20–40% for apartments). This matters for AfA calculations in buy-to-let scenarios, since only the building portion is depreciable. Estimate the land-to-building ratio for the target area.
+
+3. **Neubau vs. Bestand**:
+   - **Neubau**: No Makler commission (developer sells directly), but higher base price. May qualify for KfW energy-efficiency subsidies. Include Erschließungskosten (utility connection costs) if the plot is previously undeveloped — typically EUR 10,000–30,000.
+   - **Bestand**: Potentially lower base price but may require Sanierung (renovation). Estimate renovation costs based on condition: cosmetic (EUR 200–500/m²), moderate (EUR 500–1,000/m²), structural (EUR 1,000–1,500/m²). Search for "Sanierungskosten Haus pro Quadratmeter" for current benchmarks.
+
+4. **No Hausgeld**: Detached and semi-detached houses do not have Hausgeld (that applies to Wohnungseigentümergemeinschaften). Instead, the owner bears all costs directly: Wohngebäudeversicherung, Grundsteuer, maintenance, and repairs. Estimate a self-managed maintenance reserve of 1–2% of property value per year.
+
 ## Step 4: Model Total Purchase Costs (Kaufnebenkosten)
 
 Calculate the full Kaufnebenkosten for the reference property price. Break down each component:
@@ -53,6 +69,7 @@ Calculate the full Kaufnebenkosten for the reference property price. Break down 
 | Grunderwerbsteuer (land transfer tax) | 6.0% | 6.5% | Verify via Step 3 search results |
 | Notar + Grundbuch (notary and land registry) | ~1.5-2.0% | ~1.5-2.0% | Legally required, non-negotiable |
 | Makler (broker commission) | ~3.57% | ~3.57% | Including VAT; sometimes split buyer/seller or avoidable for direct purchases |
+| Sanierungskosten (renovation reserve) | Variable | Variable | For Bestand properties only; EUR 200–1,500/m² depending on condition. Estimate from property inspection or listing details. |
 
 Calculate the total Kaufnebenkosten as both a percentage and an absolute EUR amount. Emphasize that these costs are non-recoverable sunk costs — they do not contribute to equity in the property. Present both a "with Makler" and "without Makler" scenario, since the user may find direct-sale listings.
 
@@ -93,6 +110,8 @@ Present a table showing the maximum affordable price under each combination of e
 Compare owning vs. continuing to rent over 10, 20, and 30-year horizons. For the full monthly cost breakdown, opportunity cost calculation, and break-even methodology, load `references/rent-vs-buy-model.md`.
 
 Key inputs: mortgage Annuität, Hausgeld (EUR 2.50–4.50/m²), current rent from `monthly-budget.md`, Berlin rent increase trend (~2–3%/year), ETF opportunity cost at 6–7% net of 26.375% Kapitalertragsteuer, and Berlin appreciation assumption (1–3%/year).
+
+**House-specific adjustments**: For houses (Einfamilienhaus, Doppelhaushälfte, Reihenhaus), replace the Hausgeld line item with direct costs: Wohngebäudeversicherung (typically EUR 150–500/year), Grundsteuer (varies by municipality; search for current rates), and a self-managed maintenance reserve (1–2% of property value per year). Include Sanierung costs as an upfront addition to the purchase price if the property is Bestand requiring renovation.
 
 ## Step 7: Model Buy-to-Let Scenario (Kapitalanlage)
 
