@@ -26,7 +26,7 @@ claude --plugin-dir /path/to/prototyping-skills
 |-------|--------------|---------|
 | **init-prototype** | `/prototyping-skills:init-prototype` | Bootstrap a new monorepo with all packages wired up, per-package CLAUDE.md signposts, and project CLAUDE.md committed to git |
 | **generate-api** | `/prototyping-skills:generate-api` | Generate Hono + @hono/zod-openapi routes and handlers |
-| **generate-ui** | `/prototyping-skills:generate-ui` | Generate Next.js 15 + shadcn/ui dashboard pages and components |
+| **generate-ui** | `/prototyping-skills:generate-ui` | Generate Next.js 16 + shadcn/ui dashboard pages and components |
 | **generate-mcp** | `/prototyping-skills:generate-mcp` | Generate MCP server tools using the official SDK |
 | **generate-tests** | `/prototyping-skills:generate-tests` | Scaffold test infrastructure per package (Hono test client, MCP mock transport, bun:test patterns) |
 | **generate-infra** | `/prototyping-skills:generate-infra` | Generate SST v3 infrastructure for AWS deployment |
@@ -65,7 +65,7 @@ Approved deviations are documented in the project's CLAUDE.md.
 | **core** | Variable per prototype | All business logic |
 | **types** | TypeScript + Zod | Shared types, single source of truth |
 | **api** | Hono + @hono/zod-openapi | Thin HTTP wrapper around core (JSON:API paths) |
-| **ui** | Next.js 15 + shadcn/ui + Lucide | Dashboard visualisation (design tokens, mandatory about page) |
+| **ui** | Next.js 16 + shadcn/ui + Lucide | Dashboard visualisation (design tokens, mandatory about page) |
 | **mcp** | @modelcontextprotocol/sdk | Thin MCP wrapper around core (Actor Pattern support) |
 
 Runtime: **Bun** everywhere. Monorepo: **Bun workspaces**. Linting: **Biome**. Testing: **bun:test**. CI: **GitHub Actions**. Tasks: **justfile**. Database: **bun:sqlite**.

@@ -2,13 +2,24 @@
 
 Detailed file templates and configuration patterns for Next.js MVP projects.
 
-## next.config.js Template
+## next.config.ts Template
 
-```js
+```ts
+import type { NextConfig } from "next"
+import withPWA from "next-pwa"
+
 const repoName = process.env.NEXT_PUBLIC_REPO_NAME
 const isGitHubPages = !!repoName
 
-const withPWA = require("next-pwa")({
+const nextConfig: NextConfig = {
+  output: isGitHubPages ? "export" : undefined,
+  images: isGitHubPages ? { unoptimized: true } : undefined,
+  basePath: isGitHubPages ? `/${repoName}` : "",
+  assetPrefix: isGitHubPages ? `/${repoName}/` : undefined,
+  transpilePackages: ["@repo/utils", "@repo/ui"],
+}
+
+export default withPWA({
   dest: "public",
   disable: process.env.NODE_ENV === "development",
   register: true,
@@ -18,18 +29,7 @@ const withPWA = require("next-pwa")({
     { urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/, handler: "CacheFirst", options: { cacheName: "images", expiration: { maxEntries: 64, maxAgeSeconds: 86400 } } },
     { urlPattern: /\/api\//, handler: "NetworkFirst", options: { cacheName: "api", networkTimeoutSeconds: 10 } }
   ]
-})
-
-/** @type {import("next").NextConfig} */
-const nextConfig = {
-  output: isGitHubPages ? "export" : undefined,
-  images: isGitHubPages ? { unoptimized: true } : undefined,
-  basePath: isGitHubPages ? `/${repoName}` : "",
-  assetPrefix: isGitHubPages ? `/${repoName}/` : undefined,
-  transpilePackages: ["@repo/utils", "@repo/ui"],
-}
-
-module.exports = withPWA(nextConfig)
+})(nextConfig)
 ```
 
 Key points:
@@ -37,12 +37,13 @@ Key points:
 - `images: { unoptimized: true }` is required for static export (no image optimization server)
 - `basePath` and `assetPrefix` prefix all routes and assets with the repo name
 - `NEXT_PUBLIC_REPO_NAME` is set by the GitHub Actions workflow at build time
-- next-pwa is disabled during development, so Turbopack (the default dev server) works fine — no `--webpack` flag needed
+- next-pwa is disabled during development, so Turbopack (the default dev server) works fine — no `--turbopack` or `--webpack` flag needed
+- Next.js 16 uses `next.config.ts` by default — CJS interop for plugins like `next-pwa` is handled automatically
 
-## postcss.config.js Template (Tailwind CSS v4)
+## postcss.config.mjs Template (Tailwind CSS v4)
 
 ```js
-module.exports = {
+export default {
   plugins: {
     "@tailwindcss/postcss": {},
   },
@@ -275,7 +276,7 @@ const basePath = process.env.NEXT_PUBLIC_REPO_NAME
 <Image src={`${basePath}/logos/logo.svg`} alt="Logo" width={120} height={40} />
 ```
 
-For Next.js `<Image>` component: always use unoptimized mode when targeting GitHub Pages (`images: { unoptimized: true }` in next.config.js).
+For Next.js `<Image>` component: always use unoptimized mode when targeting GitHub Pages (`images: { unoptimized: true }` in next.config.ts).
 
 For `<a>` tags instead of `<Link>`: when basePath is set, Next.js `<Link>` automatically prepends it. But if you use plain `<a>` tags (e.g., for external links or anchors), you must manually prepend basePath.
 
@@ -435,7 +436,7 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-Replace `<app-name>` with the actual app directory name at scaffold time. The `NEXT_PUBLIC_REPO_NAME` env var is automatically set from the GitHub repo name and consumed by `next.config.js` for basePath/assetPrefix.
+Replace `<app-name>` with the actual app directory name at scaffold time. The `NEXT_PUBLIC_REPO_NAME` env var is automatically set from the GitHub repo name and consumed by `next.config.ts` for basePath/assetPrefix.
 
 To enable: go to repo Settings > Pages > Source > "GitHub Actions".
 
