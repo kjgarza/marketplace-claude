@@ -164,6 +164,17 @@ All document templates: [references/document-templates.md](references/document-t
 
 ## Web Scraping
 
+**Before using WebFetch on any book URL**, check qurl first:
+```bash
+qurl get "<url>"
+```
+- Exit 0: content is cached — use it directly, skip WebFetch.
+- Exit 1: not cached — proceed with WebFetch, then index:
+```bash
+echo "<fetched_content>" | qurl add "<url>" --source bookclub --tags "<genre>,<language>"
+```
+Use `--source bookclub` on all adds; enables `qurl search "query" --source bookclub` for lookups across past picks.
+
 When the user provides a book URL or DOM snapshot:
 1. Use WebFetch to retrieve the page (or parse provided DOM directly)
 2. Look for JSON-LD structured data and schema.org Book markup first
