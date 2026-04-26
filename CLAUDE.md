@@ -41,9 +41,9 @@ plugins/<name>/                   ← Individual plugins
 | readitlater-digest | productivity | Skills + scripts (Obsidian bookmark digests with SQLite) |
 | prototyping-skills | development | Skills + hooks (Bun monorepo stack: Hono API, Next.js UI, MCP) |
 
-## Validation
+## Rules
 
-No build system, linter, or test suite. Validate changes by:
-1. Checking `marketplace.json` is valid JSON with correct source paths
-2. Ensuring `plugin.json` (if present) references existing files
-3. Verifying SKILL.md files have valid YAML frontmatter with `name` and `description`
+Avoid multiline `python -c`, `node -e`, `ruby -e`, or shell commands with quoted newlines and `#` comments.
+When code is more than one line, write it to a temporary script or a file under scripts/ and run that file instead.
+
+Plugin development rules and validation steps live in `.claude/rules/plugin-development.md`.

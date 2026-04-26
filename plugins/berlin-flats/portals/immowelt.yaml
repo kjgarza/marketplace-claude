@@ -1,0 +1,339 @@
+schema_version: 1
+portal: immowelt
+display_name: Immowelt
+base_url: https://www.immowelt.de
+last_verified: 2026-04-26
+revisions: 1
+
+legal:
+  robots_allows_listings: true
+  tos_automation: forbidden
+  preferred_access: [scrape]
+  ban_risk: medium
+  notes: >
+    ToS §9.3 forbids downloading or reproducing platform content without permission.
+    robots.txt allows /expose/* paths for all user-agents. BFF API paths (*/bff/*,
+    */classified-search*) are disallowed. DataDome anti-bot is active. Personal-use
+    scraping at low rate is tolerated in practice; aggressive crawling risks IP block.
+
+discovery:
+  rss: null
+  api: null
+  email_alerts:
+    available: true
+    signup_url: https://www.immowelt.de/
+    frequency_options: [instant, daily]
+    notes: "Login-gated; cannot be automated without an account session"
+  sitemap:
+    index: https://www.immowelt.de/sitemaps/sitemap_index.xml
+    rental_apartment_sitemaps:
+      - https://www.immowelt.de/sitemaps/RENT_APARTMENT_FULL_FLATSHARING-NEW-BUILD-STOCK-SWAP-APARTMENT/rent_apartment_full_flatsharing-new-build-stock-swap-apartment_1.xml
+    notes: "Sitemap exists and covers rental listings; usable for full crawls but not real-time"
+  newest_first_param: "sort=createdate_desc"
+  posted_after_filter: false
+  update_frequency: continuous
+  poll_interval_s: 300
+  poll_interval_confidence: low
+
+rendering:
+  search_page: hybrid_ssr
+  detail_page: hybrid_ssr
+  hydration_blob:
+    selector: "script#__UFRN_FETCHER__"
+    notes: >
+      Search page: __UFRN_FETCHER__ contains page metadata only, NOT listing cards.
+      Listing cards are fully SSR-rendered in the root div via SERP MFE.
+      Detail page: __UFRN_FETCHER__ is always empty; all listing data is SSR DOM.
+    field_completeness: 0.0
+  jsonld_present: true
+  jsonld_notes: >
+    RealEstateListing JSON-LD present on detail pages. datePosted is always empty.
+    description is a compact summary string, not the full description.
+    Full fields available in SSR DOM only.
+  opengraph_completeness: 0.5
+  ajax_endpoints:
+    - path: /expose/{uuid}/classified-search
+      method: GET
+      auth: datadome_cookie
+      returns: html
+      stability: unstable
+      notes: "Blocked (403) without valid DataDome cookie; not viable for scraping"
+
+anti_bot:
+  provider: datadome
+  implementation: custom_domain
+  datadome_domain: dd.immowelt.de
+  cold_request_works: true
+  warm_session_required: false
+  rate_limit_estimate_rpm: 10
+  rate_limit_confidence: low
+  challenges_seen:
+    - type: behavioral
+      trigger: "Rapid sequential requests (>3 in <10s to same or similar paths)"
+      response: "HTTP 403 with x-datadome: protected header"
+  user_agent_sensitivity: moderate
+  geo_sensitivity: low
+  notes: >
+    DataDome via custom subdomain dd.immowelt.de. Cold single requests with browser UA
+    succeed reliably. Rate limit triggers on aggressive crawling. 2-3 second cooldown
+    between requests is sufficient. No JS challenge observed for single requests.
+    The /expose/ path is whitelisted in robots.txt but DataDome remains active.
+
+strategy:
+  recommended_order: [readability, playwright_stealth, chrome]
+  tier_confidence:
+    readability: 0.80
+    hydration_blob: 0.0
+    jina: 0.30
+    playwright_stealth: 0.90
+    chrome: 0.99
+  per_tier_cooldown_s:
+    readability: 3
+    playwright_stealth: 5
+    chrome: 15
+  notes: >
+    Tier 0 (readability/direct curl): Works reliably for search page and detail page
+    at low rate. Primary strategy for polling. Use browser UA.
+    Tier 2 (Jina): Returns 403 for detail pages (DataDome blocks Jina's IPs).
+    Tier 3 (playwright_stealth): High confidence, handles DataDome JS challenges.
+    Tier 4 (chrome): Fallback for captcha challenges.
+
+query_grammar:
+  search_url_template: "https://www.immowelt.de/suche/mieten/wohnung/{filter_segments}/berlin/berlin-10115/ad08de8634?sort=createdate_desc&page={page}"
+  search_url_berlin_all: "https://www.immowelt.de/suche/mieten/wohnung/berlin/berlin-10115/ad08de8634?sort=createdate_desc"
+  search_url_district: "https://www.immowelt.de/suche/mieten/wohnung/berlin-10115/{district_slug}/{district_geo_id}?sort=createdate_desc"
+  district_encoding: neighborhood_slug_with_geo_id
+  geo_id_berlin: ad08de8634
+  district_map:
+    "Berlin (all)":      {slug: "berlin/berlin-10115", geo_id: "ad08de8634"}
+    "Kreuzberg":         {slug: "kreuzberg-10969",     geo_id: "nbh2de91302090"}
+    "Friedrichshain":    {slug: "friedrichshain-10247", geo_id: "nbh2de91302026"}
+    "Prenzlauer Berg":   {slug: "prenzlauer-berg-10407", geo_id: "nbh2de91302099"}
+    "Charlottenburg":    {slug: "charlottenburg-13627", geo_id: "nbh2de91302007"}
+    "Schöneberg":        {slug: "schoneberg-12103",    geo_id: "nbh2de91302112"}
+    "Moabit":            {slug: "moabit-10557",        geo_id: "nbh2de91302083"}
+    "Wedding":           {slug: "wedding-13347",       geo_id: "nbh2de91302124"}
+    "Wilmersdorf":       {slug: "wilmersdorf-14197",   geo_id: "nbh2de91302130"}
+    "Gesundbrunnen":     {slug: "gesundbrunnen-13347", geo_id: "nbh2de91302030"}
+    "Neukölln":          {slug: "neukolln-12049",      geo_id: "nbh2de91302063"}
+    "Tiergarten":        {slug: "tiergarten-10785",    geo_id: "nbh2de91302119"}
+    "Steglitz":          {slug: "steglitz-12169",      geo_id: "nbh2de91302116"}
+    "Tempelhof":         {slug: "tempelhof-12105",     geo_id: "nbh2de91302118"}
+    "Weissensee":        {slug: "weissensee-13088",    geo_id: "nbh2de91302125"}
+    "Tegel":             {slug: "tegel-13509",         geo_id: "nbh2de91302117"}
+  filter_segments:
+    rooms_min: "zimmer-{N}"
+    price_max: "preis--{N}"
+    no_ground_floor: "kein-erdgeschoss"
+    ground_floor_only: "erdgeschoss"
+    balcony: "balkon-terrasse"
+    built_in_kitchen: "einbaukueche"
+    furnished: "moebliert"
+    altbau: "jahr--1949"
+    top_floor: "dachgeschoss"
+  sort_param: "sort"
+  sort_values:
+    newest_first: "createdate_desc"
+    price_asc: "price_asc"
+    price_desc: "price_desc"
+    relevance: "relevance"
+  newest_first: "sort=createdate_desc"
+  pagination:
+    style: query_param
+    param: "page"
+    first_page: 1
+    results_per_page: 30
+    max_reachable: unknown
+  filters_supported_in_url:
+    - rooms_min: "zimmer-{N} path segment"
+    - price_max: "preis--{N} path segment"
+    - no_ground_floor: "kein-erdgeschoss path segment"
+    - altbau: "jahr--1949 path segment"
+    - balcony: "balkon-terrasse path segment"
+    - furnished: "moebliert path segment"
+  filters_client_side:
+    - price_min (no path segment for minimum price found)
+    - rooms_max (only min available in path)
+    - sqm_min / sqm_max
+
+extraction:
+  search_results:
+    listing_card_selector: "[data-testid^='serp-core-classified-card-testid']"
+    fields:
+      url: "a[data-testid='card-mfe-covering-link-testid'][href]"
+      title: "a[data-testid='card-mfe-covering-link-testid'][title]"
+      cold_rent: "[data-testid='cardmfe-price-testid'] div:first-child"
+      price_type: "[data-testid='cardmfe-price-testid'] span"
+      keyfacts: "[data-testid='cardmfe-keyfacts-testid']"
+      address: "[data-testid='cardmfe-description-box-address']"
+      description_excerpt: "[data-testid='cardmfe-description-text-test-id']"
+    expose_id_from_url: "regex: /expose/([a-f0-9-]{36})"
+  detail:
+    primary_source: dom
+    fallback_sources: [jsonld]
+    fields:
+      cold_rent:
+        path: "[data-testid='rent-price-value-active']"
+        format: eur_de
+        required: true
+        presence_rate: 0.95
+      warm_rent:
+        path: "[data-testid='rent-price-value-inactive']"
+        format: eur_de
+        required: false
+        presence_rate: 0.80
+      keyfacts_raw:
+        path: "[data-testid='cdp-hardfacts-keyfacts'] div:first-child"
+        format: string
+        required: false
+        presence_rate: 0.90
+        notes: "Format: 'N Zimmer • X,X m² • Y. Geschoss'. Split on '•' to get rooms, sqm, floor."
+      rooms:
+        path: "[data-testid='cdp-hardfacts-keyfacts'] div:first-child"
+        format: float_de
+        required: false
+        presence_rate: 0.90
+        notes: "Extract via regex: r'(\\d+(?:,\\d+)?)\\s*Zimmer'"
+      sqm:
+        path: "[data-testid='cdp-hardfacts-keyfacts'] div:first-child"
+        format: sqm_de
+        required: false
+        presence_rate: 0.90
+        notes: "Extract via regex: r'(\\d+(?:,\\d+)?)\\s*m²'"
+      floor:
+        path: "[data-testid='cdp-hardfacts-keyfacts'] div:first-child"
+        format: string
+        required: false
+        presence_rate: 0.70
+        notes: "Extract: 'EG' (Erdgeschoss) or 'N. Geschoss' pattern"
+      address:
+        path: "[data-testid='cdp-location-address'] span"
+        format: string
+        required: false
+        presence_rate: 0.90
+        notes: "Format: 'Streetname N, District, Berlin (PLZ)'. Full address often shown."
+      district:
+        path: "[data-testid='cdp-location-address'] span"
+        format: string
+        required: true
+        presence_rate: 0.92
+        notes: "Extract district from address: second comma-separated part before 'Berlin (PLZ)'"
+      listing_id:
+        path: "[data-testid='cdp-classified-keys'] b:contains('Online-ID') + text"
+        format: string
+        required: true
+        presence_rate: 0.98
+        notes: "Alphanumeric Online-ID (e.g. '2623ZFI3RQS6'). Also available as UUID in URL."
+      expose_uuid:
+        path: "URL segment /expose/{uuid}"
+        format: string
+        required: true
+        presence_rate: 1.0
+        notes: "Full UUID (e.g. '1970c7ae-3f1f-4e2f-9d76-5fcbb4fb0127')"
+      description:
+        path: "[data-testid='cdp-main-description-expandable-text']"
+        format: string
+        required: false
+        presence_rate: 0.88
+      nebenkosten:
+        path: "[data-testid='cdp-price'] — span containing 'Nebenkosten' sibling value div"
+        format: eur_de
+        required: false
+        presence_rate: 0.70
+      heizkosten:
+        path: "[data-testid='cdp-price'] — span containing 'Heizkosten' sibling value div"
+        format: eur_de
+        required: false
+        presence_rate: 0.60
+      kaution:
+        path: "[data-testid='cdp-price'] — div after 'Kaution' label"
+        format: string
+        required: false
+        presence_rate: 0.65
+        notes: "Often '3 Nettokaltmieten' (3x cold rent) rather than a fixed EUR amount"
+      contact_name:
+        path: "[data-testid='aviv.CDP.Contacting.ProviderSection.ContactCard.Title']"
+        format: string
+        required: false
+        presence_rate: 0.80
+      contact_type:
+        path: "[data-testid='aviv.CDP.Contacting.ProviderSection.IntermediaryCard']"
+        format: string
+        required: false
+        presence_rate: 0.70
+        notes: "Agency listings have IntermediaryCard; private landlords have ContactCard only"
+      image_urls:
+        path: "link[rel='preload'][as='image'][href*='mms.immowelt.de']"
+        format: url_list
+        required: false
+        presence_rate: 0.85
+      posted_at:
+        path: null
+        format: null
+        required: false
+        presence_rate: 0.0
+        notes: "NOT available in SSR HTML. JSON-LD datePosted is always empty. Only via JS/AJAX."
+    expected_field_count: 9
+
+quirks:
+  - description: >
+      URL format changed in 2025-2026 from /liste/berlin/wohnungen/mieten?params to
+      /suche/mieten/wohnung/{filters}/berlin/berlin-10115/ad08de8634?sort=...
+      Old URLs redirect via HTTP 301. Query params for price/rooms no longer work —
+      use path segments instead.
+    impact: blocking
+    workaround: "Use new path-segment URL grammar. Old param-style URLs redirect and drop params."
+
+  - description: >
+      Expose IDs exist in two forms: full UUID (in href attributes and canonical URLs)
+      and short 8-hex-char version (in old/redirect URLs). Only full UUID URLs return 200.
+      Short IDs redirect to 404. Use full UUID from search card href as listing_id.
+    impact: annoying
+    workaround: "Always use full UUID from href, not short hex from redirect target"
+
+  - description: >
+      posted_at is not available in SSR HTML. JSON-LD datePosted is always an empty string.
+      The insertion date is only loaded via client-side AJAX after JS execution.
+    impact: annoying
+    workaround: >
+      Use search sort=createdate_desc position as recency proxy. For exact date,
+      use playwright_stealth tier and wait for cdp-hardfacts-title or similar element
+      that may load after JS execution.
+
+  - description: >
+      Keyfacts (rooms, sqm, floor) are combined in one element with &nbsp; separator:
+      '4 Zimmer  •  104,2 m²  •  EG'.
+      Requires regex split to extract individual values.
+    impact: annoying
+    workaround: "Split on '•', strip whitespace and &nbsp; from each part"
+
+  - description: >
+      DataDome triggers 403 on rapid sequential requests. After 3+ requests within
+      5-10 seconds without real browser behavior, responses become 403.
+    impact: blocking
+    workaround: "Add 3-second minimum delay between requests. Use browser UA always."
+
+  - description: >
+      CSS class names (e.g., css-1jkrg83) are generated and will change with builds.
+      Use data-testid selectors exclusively — these are stable across builds.
+    impact: blocking
+    workaround: "Never use .css-* selectors. Always use [data-testid='...'] paths."
+
+  - description: >
+      Kaution is usually expressed as 'N Nettokaltmieten' (N times cold rent), not a
+      fixed EUR value. Requires calculation from cold_rent to get the EUR amount.
+    impact: informational
+    workaround: "Parse 'N Nettokaltmieten' and multiply by cold_rent to get EUR amount"
+
+scam_signals:
+  - pattern: "Preis weit unter Markt (>50% Abschlag)"
+    notes: "Immowelt is a commercial platform with paid listings; extreme underpricing is rare and suspect"
+  - pattern: "Privatanbieter mit Kaution-vor-Besichtigung Hinweis"
+    notes: "Platform usually doesn't allow explicit fraud, but description text may contain it"
+  - pattern: "Kontakt nur WhatsApp"
+    notes: "Contact form is standard; WhatsApp-only in description is unusual for this platform"
+
+evidence:
+  directory: recon/immowelt/2026-04-26/
+  files:
+    - notes.md
