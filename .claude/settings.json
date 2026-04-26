@@ -1,5 +1,6 @@
 {
   "enabledPlugins": {
-    "kjgarza-base@marketplace-claude": true
+    "kjgarza-base@marketplace-claude": true,
+    "chrome-devtools-mcp@claude-plugins-official": true
   }
 }

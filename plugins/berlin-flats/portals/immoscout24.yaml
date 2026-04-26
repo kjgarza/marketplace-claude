@@ -1,0 +1,184 @@
+schema_version: 1
+portal: immoscout24
+display_name: ImmobilienScout24
+base_url: https://www.immobilienscout24.de
+last_verified: 2026-04-26
+revisions: 1
+
+legal:
+  robots_allows_listings: conditional
+  tos_automation: forbidden
+  preferred_access: [scrape]
+  ban_risk: medium
+  notes: "ToS forbids automated access. Personal use at low rate is tolerated in practice. IP/account ban is the real risk. Tier 4 (Chrome) uses your logged-in session — ban risk is real."
+
+discovery:
+  rss: null
+  api:
+    url: https://rest.immobilienscout24.de/restapi/api/
+    auth: oauth2
+    docs: https://api.immobilienscout24.de/
+  email_alerts:
+    available: true
+    signup_url: https://www.immobilienscout24.de/Suche/
+    frequency_options: [instant, daily]
+  sitemap: null
+  newest_first_param: "sorting=2"
+  posted_after_filter: false
+  update_frequency: continuous
+  poll_interval_s: 90
+  poll_interval_confidence: medium
+
+rendering:
+  search_page: csr
+  detail_page: hybrid_ssr
+  hydration_blob:
+    selector: "script#__NEXT_DATA__"
+    json_path_to_listing: ".props.pageProps.searchResponse.resultlist.resultlistEntries[0].resultlistEntry"
+    field_completeness: 0.85
+  jsonld_present: false
+  opengraph_completeness: 0.5
+  ajax_endpoints:
+    - path: /Suche/de/wohnung-mieten
+      method: GET
+      auth: none
+      returns: html
+      stability: unstable
+      notes: "Uses Next.js; __NEXT_DATA__ blob contains full result set as JSON"
+
+anti_bot:
+  provider: datadome
+  cold_request_works: true
+  warm_session_required: false
+  rate_limit_estimate_rpm: 15
+  rate_limit_confidence: low
+  challenges_seen:
+    - type: behavioral
+      trigger: "High request rate or bot-like request patterns"
+  user_agent_sensitivity: moderate
+  geo_sensitivity: low
+  notes: "DataDome triggers on aggressive scraping. Single requests with browser UA usually work. Tier 2 (Jina) bypasses most challenges."
+
+strategy:
+  recommended_order: [hydration_blob, jina, playwright_stealth, chrome]
+  tier_confidence:
+    readability: 0.25
+    hydration_blob: 0.80
+    jina: 0.65
+    playwright_stealth: 0.85
+    chrome: 0.99
+  per_tier_cooldown_s:
+    chrome: 30
+    playwright_stealth: 10
+
+query_grammar:
+  search_url_template: "https://www.immobilienscout24.de/Suche/de/wohnung-mieten?geocodes={geocode}&price=-{max_cold_rent}&numberofrooms={min_rooms}.0-&livingspace={min_sqm}.0-&sorting=2&pricetype=rentpermonth&realestatetype=apartment"
+  district_encoding: hierarchical_slug
+  district_map:
+    "Mitte":           "1276003001011"
+    "Prenzlauer Berg": "1276003001023"
+    "Friedrichshain":  "1276003001008"
+    "Kreuzberg":       "1276003001012"
+    "Neukölln":        "1276003001018"
+    "Charlottenburg":  "1276003001004"
+    "Berlin (all)":    "1276003001"
+  rent_param: "price"
+  rent_format: "-max (dash prefix, e.g. -1300)"
+  sqm_param: "livingspace"
+  sqm_format: "min.0- (trailing dash, e.g. 55.0-)"
+  rooms_param: "numberofrooms"
+  rooms_format: "float_dot with trailing dash (e.g. 2.0-)"
+  newest_first: "sorting=2"
+  pagination:
+    style: page_number
+    param: "pagenumber"
+    max_reachable: 20
+  filters_supported_in_url:
+    - altbau: "constructionyear=-1949"
+    - balkon: "features=BALCONY"
+    - ebk: "features=BUILT_IN_KITCHEN"
+    - aufzug: "features=LIFT"
+  filters_client_side:
+    - genossenschaft_only
+    - private_landlord_only
+
+extraction:
+  search_results:
+    listing_card_selector: "__NEXT_DATA__ JSON or [data-id] elements"
+    fields:
+      url: "https://www.immobilienscout24.de/expose/{id}"
+      title: ".resultlist-realEstate--title or JSON .title"
+      cold_rent: "JSON .price.value"
+      warm_rent: "JSON .calculatedTotalRent.totalRent.value"
+      sqm: "JSON .livingSpace"
+      rooms: "JSON .numberOfRooms"
+      district: "JSON .address.quarter"
+      posted_at: "JSON .creationDate"
+  detail:
+    primary_source: hydration_blob
+    fallback_sources: [dom]
+    fields:
+      cold_rent:
+        path: "JSON .price.value or [data-qa='is24qa-kaltmiete'] dd"
+        format: eur_de
+        required: true
+        presence_rate: 0.92
+      warm_rent:
+        path: "JSON .totalRent.value or [data-qa='is24qa-warmmiete'] dd"
+        format: eur_de
+        required: false
+        presence_rate: 0.75
+      sqm:
+        path: "JSON .livingSpace or [data-qa='is24qa-wohnflaeche'] dd"
+        format: float_de
+        required: true
+        presence_rate: 0.95
+      rooms:
+        path: "JSON .numberOfRooms or [data-qa='is24qa-zimmer'] dd"
+        format: float_de
+        required: true
+        presence_rate: 0.97
+      district:
+        path: "JSON .address.quarter or [data-qa='is24qa-ort'] span"
+        format: string
+        required: true
+        presence_rate: 0.90
+      description:
+        path: "JSON .descriptionNote or .is24qa-objektbeschreibung"
+        format: string
+        required: false
+        presence_rate: 0.88
+      listing_id:
+        path: "URL segment /expose/{id}"
+        format: string
+        required: true
+        presence_rate: 1.0
+      address:
+        path: "JSON .address.street (often missing for privacy)"
+        format: string
+        required: false
+        presence_rate: 0.40
+      address_visibility: district
+    expected_field_count: 8
+
+quirks:
+  - description: "Premium-contact wall for some agency listings — detect .premiumcontact-form class"
+    impact: annoying
+    workaround: "Log listing as 'contact_walled', surface to user for manual outreach"
+  - description: "Listings older than 14 days return 410 instead of 404"
+    impact: informational
+    workaround: "Treat 410 as 'expired' — mark listing as filtered"
+  - description: "Address hidden until contact request — only district guaranteed"
+    impact: informational
+    workaround: "Use district for scam scoring; do not require street address"
+  - description: "__NEXT_DATA__ JSON structure changes every 2-4 months"
+    impact: blocking
+    workaround: "Fall back to DOM selectors when JSON path fails. Re-recon when field count drops."
+
+scam_signals:
+  - pattern: "Premium-only contact form for private listings"
+    notes: "Legitimate listings don't usually need premium contact — flag for review"
+
+evidence:
+  directory: recon/immoscout24/2026-04-26/
+  files: []
