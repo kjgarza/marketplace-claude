@@ -150,6 +150,34 @@
       "strict": true
     },
     {
+      "name": "vhs-berlin-agent",
+      "source": "./plugins/vhs-berlin-agent",
+      "description": "Personal navigation and monitoring layer for VHS Berlin courses — natural language search, watchlists with change detection, and awareness digests via Browser and SQLite MCP.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["vhs", "berlin", "courses", "education", "monitoring", "watchlist", "sqlite", "scraping"],
+      "strict": true
+    },
+    {
+      "name": "berlin-flats",
+      "source": "./plugins/berlin-flats",
+      "description": "Berlin flat hunter — searches Kleinanzeigen and ImmoScout24 for rentals, detects scams, queues listings for triage, and drafts contact messages.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["berlin", "flats", "rental", "housing", "immo", "kleinanzeigen", "immoscout", "scam-detection"],
+      "strict": true
+    },
+    {
       "name": "finanz-pilot",
       "source": "./plugins/finanz-pilot",
       "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, financial statements, tax checks, pension evaluation, real estate readiness, retirement projections, capital allocation, and integrated personal finance advisory.",

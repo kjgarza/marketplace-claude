@@ -1,0 +1,160 @@
+schema_version: 1
+portal: kleinanzeigen
+display_name: Kleinanzeigen
+base_url: https://www.kleinanzeigen.de
+last_verified: 2026-04-26
+revisions: 1
+
+legal:
+  robots_allows_listings: true
+  tos_automation: silent
+  preferred_access: [scrape]
+  ban_risk: low
+  notes: "Personal use scraping at low rate is tacitly accepted. No explicit API or RSS."
+
+discovery:
+  rss: null
+  api: null
+  email_alerts:
+    available: true
+    signup_url: https://www.kleinanzeigen.de/m-meine-anzeigen.html
+    frequency_options: [instant, daily]
+  sitemap: null
+  newest_first_param: "sortingField=SORTING_DATE&sortingOrder=DESCENDING"
+  posted_after_filter: false
+  update_frequency: continuous
+  poll_interval_s: 120
+  poll_interval_confidence: medium
+
+rendering:
+  search_page: ssr
+  detail_page: ssr
+  hydration_blob:
+    selector: null
+  jsonld_present: false
+  opengraph_completeness: 0.4
+  ajax_endpoints: []
+
+anti_bot:
+  provider: none
+  cold_request_works: true
+  warm_session_required: false
+  rate_limit_estimate_rpm: 20
+  rate_limit_confidence: low
+  challenges_seen: []
+  user_agent_sensitivity: permissive
+  geo_sensitivity: low
+  notes: "Very permissive. Browser UA recommended. Phone numbers in listings are normal for private landlords."
+
+strategy:
+  recommended_order: [readability, jina]
+  tier_confidence:
+    readability: 0.85
+    jina: 0.70
+    playwright_stealth: 0.95
+    chrome: 0.99
+  per_tier_cooldown_s:
+    chrome: 10
+    playwright_stealth: 5
+
+query_grammar:
+  search_url_template: "https://www.kleinanzeigen.de/s-wohnung-mieten/berlin/c203l{location_id}r{radius}+anzeige:angebote+preis::{max_rent}+zimmer:{min_rooms}:{max_rooms}/k0?sortingField=SORTING_DATE&sortingOrder=DESCENDING"
+  district_encoding: city_location_id
+  district_map:
+    "Berlin": "3331"
+  location_map:
+    "Berlin": "3331"
+  rent_param: "preis"
+  rent_format: "::max (no min needed)"
+  rooms_param: "zimmer"
+  rooms_format: "min:max"
+  newest_first: "sortingField=SORTING_DATE&sortingOrder=DESCENDING"
+  pagination:
+    style: page_number
+    param: "pageNum"
+    max_reachable: 50
+  filters_supported_in_url:
+    - rooms: "zimmer:{min}:{max}"
+    - price: "preis:{min}:{max}"
+    - sqm: "wohnflaeche:{min}:{max}"
+  filters_client_side:
+    - altbau
+    - balkon
+    - district_within_berlin
+
+extraction:
+  search_results:
+    listing_card_selector: "article.aditem"
+    fields:
+      url: "a.ellipsis[href]"
+      title: "a.ellipsis"
+      cold_rent: ".aditem-main--middle--price-shipping--price"
+      district: ".aditem-main--top--left"
+      posted_at: ".aditem-main--top--right"
+  detail:
+    primary_source: dom
+    fields:
+      title:
+        path: "h1#viewad-title"
+        format: string
+        required: true
+        presence_rate: 1.0
+      cold_rent:
+        path: "h2#viewad-price"
+        format: eur_de
+        required: true
+        presence_rate: 0.90
+      sqm:
+        path: ".addetailslist--detail:contains('Wohnfläche') .addetailslist--detail--value"
+        format: sqm_de
+        required: false
+        presence_rate: 0.70
+      rooms:
+        path: ".addetailslist--detail:contains('Zimmer') .addetailslist--detail--value"
+        format: float_de
+        required: false
+        presence_rate: 0.75
+      district:
+        path: "#viewad-locality"
+        format: string
+        required: true
+        presence_rate: 0.95
+      description:
+        path: "#viewad-description-text"
+        format: string
+        required: true
+        presence_rate: 1.0
+      listing_id:
+        path: "meta[property='og:url']"
+        format: url_last_segment
+        required: true
+        presence_rate: 0.95
+      posted_at:
+        path: "#viewad-extra-info span:first-child"
+        format: de_date_relative
+        required: false
+        presence_rate: 0.80
+    expected_field_count: 7
+
+quirks:
+  - description: "Price field shows 'VB' (verhandelbar) or 'Zu verschenken' instead of a number"
+    impact: annoying
+    workaround: "Treat non-numeric price as null; fall back to description-based price extraction"
+  - description: "District in search results includes postal code prefix (e.g. '10115 Berlin Mitte')"
+    impact: informational
+    workaround: "Strip leading 5-digit postal code with regex before storing"
+  - description: "Phone numbers in description are normal for private landlords — do not inflate scam score"
+    impact: informational
+    workaround: "Set EXTERNAL_CONTACT weight to 0.15 for this portal specifically"
+
+scam_signals:
+  - pattern: "western union|moneygram"
+    notes: "Immediate block"
+  - pattern: "im ausland|im urlaub|verreist"
+    notes: "Landlord-abroad framing"
+  - pattern: "kaution.*überweisung.*besichtigung"
+    notes: "Deposit before viewing"
+
+evidence:
+  directory: recon/kleinanzeigen/2026-04-26/
+  files: []
