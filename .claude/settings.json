@@ -1,6 +1,24 @@
 {
+  "permissions": {
+    "allow": [
+      "mcp__qmd__query",
+      "mcp__qmd__get",
+      "mcp__claude-in-chrome__get_page_text",
+      "mcp__plugin_context7_context7__query-docs",
+      "Bash(curl https://r.jina.ai/*)",
+      "Bash(curl https://www.immowelt.de*)",
+      "Bash(curl https://www.kleinanzeigen.de*)",
+      "Bash(curl https://www.immoscout24.de*)",
+      "Bash(qmd search *)",
+      "Bash(qmd query *)",
+      "Bash(qmd get *)",
+      "Bash(qmd vsearch *)",
+      "Bash(qmd multi-get *)"
+    ]
+  },
   "enabledPlugins": {
     "kjgarza-base@marketplace-claude": true,
-    "chrome-devtools-mcp@claude-plugins-official": true
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true
   }
 }
