@@ -21,6 +21,7 @@ _space.md   .md       _solutions concepts solution_
 Read **`.claude/ideation.local.md`** in the project root if it exists. Parse the YAML frontmatter for settings. If missing, use defaults.
 
 **Template**: [settings-template.md](../../settings-template.md) — copy to `.claude/ideation.local.md`.
+You can also generate it with `/ideation:init`.
 
 | Field | Default | Description |
 |-------|---------|-------------|

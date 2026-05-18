@@ -34,6 +34,12 @@ Run manually:
 /readitlater-digest:digest
 ```
 
+Initialize settings first (recommended):
+
+```
+/readitlater-digest:init vault_path=/path/to/your/obsidian/vault
+```
+
 Dry run (scan only, no digest generated):
 
 ```

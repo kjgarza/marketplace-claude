@@ -6,6 +6,7 @@ allowed-tools: Bash, Read
 ---
 
 Run the berlin-flats hunt script to search for flats matching config/config.toml criteria.
+If you have not configured `config/config.toml` yet, run `/berlin-flats:init` first.
 
 First, check that dependencies are installed:
 

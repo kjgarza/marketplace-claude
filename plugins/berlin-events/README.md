@@ -53,6 +53,7 @@ See `skills/find-events/references/settings-template.md` for all options.
 /berlin-events:find-events              # Events for next 2 weeks
 /berlin-events:find-events 7            # Events for next 7 days
 /berlin-events:find-events this weekend # This weekend only
+/berlin-events:init neighborhood=Kreuzberg interests=art,food lookahead_days=10
 ```
 
 Or just ask naturally:
