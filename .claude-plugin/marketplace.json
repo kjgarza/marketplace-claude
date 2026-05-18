@@ -178,6 +178,20 @@
       "strict": true
     },
     {
+      "name": "bulletjournal",
+      "source": "./plugins/bulletjournal",
+      "description": "Bullet journal workflow automation — daily migration, inbox triage, weekly/monthly reviews, and journal synthesis from daily notes and session memory.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["bulletjournal", "journaling", "daily-notes", "review", "PARA", "inbox-triage", "weekly-review", "monthly-review"],
+      "strict": true
+    },
+    {
       "name": "finanz-pilot",
       "source": "./plugins/finanz-pilot",
       "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, financial statements, tax checks, pension evaluation, real estate readiness, retirement projections, capital allocation, and integrated personal finance advisory.",

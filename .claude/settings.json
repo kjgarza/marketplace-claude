@@ -1,4 +1,5 @@
 {
+  "plansDirectory": ".claude/plans",
   "permissions": {
     "allow": [
       "mcp__qmd__query",
@@ -17,8 +18,9 @@
     ]
   },
   "enabledPlugins": {
-    "kjgarza-base@marketplace-claude": true,
     "chrome-devtools-mcp@claude-plugins-official": true,
-    "plugin-dev@claude-plugins-official": true
+    "plugin-dev@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
   }
 }

@@ -1,0 +1,11 @@
+{
+  "name": "bulletjournal",
+  "version": "0.1.0",
+  "description": "Bullet journal workflow automation — daily migration, inbox triage, weekly/monthly reviews, and journal synthesis.",
+  "author": {
+    "name": "Kristian Garza",
+    "email": "kj.garza@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": ["bulletjournal", "journaling", "productivity", "daily-notes", "review", "PARA"]
+}
