@@ -195,7 +195,7 @@
       "name": "taskwarrior",
       "source": "./plugins/taskwarrior",
       "description": "Taskwarrior task management with AI agent workflows — canonical add→start→update→close lifecycle, best practices, multiline notes via annotations, and /init setup command.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
