@@ -228,6 +228,11 @@ task <id> modify depends:<dep>
 task <id> modify "Updated description"
 ```
 
+## Calendar Integration
+
+To schedule work blocks or check availability before setting `due:`, use the `task-calendar` skill.
+It bridges tasks with Google Calendar without modifying this workflow.
+
 ## Additional Resources
 
 - **`references/best-practices.md`** — Taskwarrior best practices: project hierarchy, tagging, urgency, capture habits
