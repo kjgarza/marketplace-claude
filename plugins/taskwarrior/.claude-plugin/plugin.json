@@ -1,0 +1,11 @@
+{
+  "name": "taskwarrior",
+  "version": "0.2.0",
+  "description": "Taskwarrior task management plugin with AI agent workflows for adding, updating, and closing tasks. Follows Taskwarrior best practices.",
+  "author": {
+    "name": "Kristian Garza",
+    "email": "kj.garza@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": ["taskwarrior", "task-management", "productivity", "workflow", "ai-agent"]
+}

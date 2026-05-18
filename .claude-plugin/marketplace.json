@@ -192,6 +192,20 @@
       "strict": true
     },
     {
+      "name": "taskwarrior",
+      "source": "./plugins/taskwarrior",
+      "description": "Taskwarrior task management with AI agent workflows — canonical add→start→update→close lifecycle, best practices, multiline notes via annotations, and /init setup command.",
+      "version": "0.2.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["taskwarrior", "task-management", "productivity", "ai-agent", "workflow", "annotations", "obsidian"],
+      "strict": true
+    },
+    {
       "name": "finanz-pilot",
       "source": "./plugins/finanz-pilot",
       "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, financial statements, tax checks, pension evaluation, real estate readiness, retirement projections, capital allocation, and integrated personal finance advisory.",
