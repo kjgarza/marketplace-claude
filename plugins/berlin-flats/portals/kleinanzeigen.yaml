@@ -58,7 +58,8 @@ strategy:
     playwright_stealth: 5
 
 query_grammar:
-  search_url_template: "https://www.kleinanzeigen.de/s-wohnung-mieten/berlin/c203l{location_id}r{radius}+anzeige:angebote+preis::{max_rent}+zimmer:{min_rooms}:{max_rooms}/k0?sortingField=SORTING_DATE&sortingOrder=DESCENDING"
+  search_url_template: "https://www.kleinanzeigen.de/s-wohnungen/k0?locationId={location_id}&categoryId=203&sortingField=SORTING_DATE&sortingOrder=DESCENDING&maxPrice={max_rent}&minRooms={min_rooms}"
+  search_url_template_broken: "https://www.kleinanzeigen.de/s-wohnung-mieten/berlin/c203l{location_id}r{radius}+anzeige:angebote+preis::{max_rent}+zimmer:{min_rooms}:{max_rooms}/k0 (path-based filters now treated as search terms — returns 0 results)"
   district_encoding: city_location_id
   district_map:
     "Berlin": "3331"

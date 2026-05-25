@@ -9,12 +9,13 @@ wbs               = false
 employer          = "Digital Science"
 
 [search]
-districts         = ["Mitte", "Prenzlauer Berg", "Friedrichshain", "Kreuzberg"]
+districts         = ["Schöneberg"]
 min_rooms         = 2
-max_rooms         = 3.5
-min_sqm           = 55
-max_warm_rent_eur = 2000
-max_cold_rent_eur = 1600
+max_rooms         = 4
+min_sqm           = 100
+max_warm_rent_eur = 2200
+max_cold_rent_eur = 2000
+keywords_required = ["Altbau"]
 deal_breakers     = ["WG", "Tausch", "Souterrain"]
 
 [portals]

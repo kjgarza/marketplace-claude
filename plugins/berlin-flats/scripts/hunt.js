@@ -6,17 +6,22 @@ import { scamScore } from './scam-score.js';
 import { upsertListing, isSeen } from './db.js';
 import { loadConfig } from './config.js';
 
-// District → Kleinanzeigen location IDs (Berlin = 3331)
+// Kleinanzeigen: all Berlin (district filtering is client-side only per portal YAML)
 const KA_LOCATION_ID = '3331';
 
-// ImmoScout24 geocodes for Berlin districts
-const IS24_GEOCODES = {
-  'Mitte':           '1276003001011',
-  'Prenzlauer Berg': '1276003001023',
-  'Friedrichshain':  '1276003001008',
-  'Kreuzberg':       '1276003001012',
-  'Neukölln':        '1276003001018',
-  'default':         '1276003001', // all Berlin
+// ImmoScout24: district slug for path-based URL (more reliable than geocodes for sub-districts)
+const IS24_DISTRICT_SLUGS = {
+  'Mitte':           'mitte',
+  'Prenzlauer Berg': 'prenzlauer-berg',
+  'Friedrichshain':  'friedrichshain',
+  'Kreuzberg':       'kreuzberg',
+  'Neukölln':        'neukoelln',
+  'Schöneberg':      'schoeneberg',
+  'Charlottenburg':  'charlottenburg',
+  'Wilmersdorf':     'wilmersdorf',
+  'Steglitz':        'steglitz',
+  'Tempelhof':       'tempelhof',
+  'default':         null, // null = search all Berlin
 };
 
 export function buildSearchUrl(portal, criteria) {
@@ -25,12 +30,11 @@ export function buildSearchUrl(portal, criteria) {
     max_warm_rent_eur = 2000,
     max_cold_rent_eur = 1600,
     min_rooms = 2,
-    max_rooms = 4,
     min_sqm = 55,
   } = criteria;
 
   if (portal === 'kleinanzeigen') {
-    // Category 203 = Wohnungen mieten on Kleinanzeigen; locationId 3331 = Berlin
+    // Query-param format (path-based format is broken; wohnflaeche is post-filtered via scoreAgainstPrefs)
     const params = new URLSearchParams({
       locationId: KA_LOCATION_ID,
       categoryId: '203',
@@ -43,10 +47,10 @@ export function buildSearchUrl(portal, criteria) {
   }
 
   if (portal === 'immoscout24') {
-    const district = districts[0] || 'Mitte';
-    const geocode = IS24_GEOCODES[district] || IS24_GEOCODES.default;
+    const district = districts[0] || null;
+    const slug = IS24_DISTRICT_SLUGS[district] ?? IS24_DISTRICT_SLUGS.default;
+    const locationPath = slug ? `berlin/${slug}` : 'berlin';
     const params = new URLSearchParams({
-      geocodes: geocode,
       price: `-${max_cold_rent_eur}`,
       numberofrooms: `${min_rooms}.0-`,
       livingspace: `${min_sqm}.0-`,
@@ -54,7 +58,7 @@ export function buildSearchUrl(portal, criteria) {
       pricetype: 'rentpermonth',
       realestatetype: 'apartment',
     });
-    return `https://www.immobilienscout24.de/Suche/de/wohnung-mieten?${params}`;
+    return `https://www.immobilienscout24.de/Suche/de/${locationPath}/wohnung-mieten?${params}`;
   }
 
   throw new Error(`Unknown portal: ${portal}`);
@@ -68,8 +72,21 @@ export function scoreAgainstPrefs(listing, prefs) {
   if (listing.sqm != null && listing.sqm < prefs.min_sqm) return -1;
 
   const text = `${listing.title || ''} ${listing.description || ''}`.toLowerCase();
+
   for (const breaker of (prefs.deal_breakers || [])) {
     if (text.includes(breaker.toLowerCase())) return -1;
+  }
+
+  // District post-filter: applies after detail fetch when listing.district is known
+  if (prefs.districts?.length && listing.district) {
+    const d = listing.district.toLowerCase();
+    const match = prefs.districts.some(district => d.includes(district.toLowerCase()));
+    if (!match) return -1;
+  }
+
+  // keywords_required: all listed keywords must appear somewhere in title+description
+  for (const kw of (prefs.keywords_required || [])) {
+    if (!text.includes(kw.toLowerCase())) return -1;
   }
 
   return 100;
