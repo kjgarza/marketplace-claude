@@ -1,4 +1,6 @@
 scripts/node_modules/
 scripts/bun.lock
+scripts/.playwright/
+scripts/playwright-report/
 .DS_Store
 .claude/*.local.md

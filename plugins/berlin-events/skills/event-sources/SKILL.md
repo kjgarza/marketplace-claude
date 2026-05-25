@@ -5,16 +5,25 @@ description: This skill should be used when the user asks about "Berlin event we
 
 # Berlin Event Sources
 
-A curated directory of Berlin event sources with validated Readability status and qurl ingestion commands. Full source details (URLs, RSS, API docs, language notes) are in `references/sources.md`.
+A curated directory of Berlin event sources with validated Readability status and qurl ingestion commands.
+
+- **Machine-readable registry** (authoritative for routing): `scripts/sources.ts` — typed `SourceConfig[]` with extraction strategy per source.
+- **Human-readable directory** (URLs, RSS, API docs, language notes): `references/sources.md`.
 
 ## qurl Ingestion
 
-The standard ingestion command for any source:
+The standard ingestion command for any registered source — pass a slug or URL from `sources.ts` and the dispatcher picks the right strategy:
 
 ```bash
-bun run ${CLAUDE_PLUGIN_ROOT}/scripts/extract-content.js "<url>" \
+BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
+$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/extract-events.ts "<slug-or-url>" \
   | qurl add "<url>" --source berlin-events --tags <art|food>
 ```
+
+Strategies (declared in `sources.ts`):
+- `readability` — fetch + Mozilla Readability (fast, used for working sources below).
+- `playwright` — chromium + Readability for JS-rendered pages.
+- `source-extractor` — chromium + per-source `extract(page)` returning typed `Event[]` JSON (used for tip-berlin, gropius-bau, mitvergnuegen).
 
 After ingesting all sources, embed and search:
 
@@ -48,14 +57,19 @@ A vsearch result is relevant if its snippet contains any of:
 - **DE events**: `ausstellung`, `veranstaltung`, `führung`, `kalender`, `programm`
 - **Date patterns**: `2026`, `.04.26`, `.05.26`
 
-## Sources to Avoid
+## JS-Rendered Sources (Playwright source-extractors)
 
-| Source | Reason |
-|--------|--------|
-| `mitvergnuegen.com` | Cookie-consent wall — Readability returns only consent text |
-| `berlinerfestspiele.de/gropius-bau` | JS-rendered — returns only venue address |
-| `tip-berlin.de/event/` | JS-rendered — extraction fails entirely |
+These three sources used to fail under Readability; they now have typed extractors that render the page with chromium and emit `Event[]` JSON:
+
+| Source | Slug | Extractor |
+|--------|------|-----------|
+| Tip Berlin | `tip-berlin` | `scripts/extractors/tip-berlin.ts` |
+| Gropius Bau | `gropius-bau` | `scripts/extractors/gropius-bau.ts` |
+| Mit Vergnügen | `mitvergnuegen` | `scripts/extractors/mitvergnuegen.ts` |
+
+If extraction returns `[]` (no datable cards), the agent falls back to `WebFetch`/`WebSearch`.
 
 ## Reference Files
 
-- **`references/sources.md`** — Full source directory with URLs, RSS, API docs, Readability status, and ingestion notes for each source
+- **`../../scripts/sources.ts`** — Authoritative routing/extraction registry
+- **`references/sources.md`** — Full human-readable source directory with URLs, RSS, API docs, and language notes

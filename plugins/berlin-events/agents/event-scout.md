@@ -1,6 +1,6 @@
 ---
 name: event-scout
-description: Use this agent when searching Berlin event websites for upcoming art and food events. This agent autonomously scrapes event sources, extracts content using Readability, and returns structured event data. Examples:
+description: Use this agent when searching Berlin event websites for upcoming art and food events. This agent autonomously scrapes event sources via the typed dispatcher in scripts/extract-events.ts (Readability for static sources, Playwright for JS-rendered ones, source-specific extractors for known-bad sources), and returns structured event data. Examples:
 
   <example>
   Context: User wants to find events in Berlin for the upcoming week
@@ -43,15 +43,27 @@ You are an event research agent specializing in discovering art and food events 
 
 **Research Process:**
 
-1. Receive a list of source URLs or a search query
-2. For each source:
-   - If given a URL, extract content using the Readability script:
-     ```bash
-     bun run ${CLAUDE_PLUGIN_ROOT}/scripts/extract-content.js "<url>"
-     ```
-   - If the script fails, fall back to WebFetch or WebSearch
-   - If given a search query, use WebSearch
-3. Parse extracted content to identify individual events
+1. Receive a list of source URLs (or slugs from `scripts/sources.ts`) or a search query.
+2. For each source, run the dispatcher — it picks the right strategy from `sources.ts`:
+   ```bash
+   BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
+   $BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/extract-events.ts "<url-or-slug>"
+   ```
+   - `readability` sources → fetch + Mozilla Readability (fast)
+   - `playwright` sources → chromium + Readability (JS-rendered fallback)
+   - `source-extractor` sources → chromium + per-source extractor returning a typed `Event[]` JSON array
+3. If the output looks bad (too short, consent-only, no date keywords) — see heuristic — re-run with `--force-playwright`:
+   ```bash
+   $BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/extract-events.ts "<url-or-slug>" --force-playwright
+   ```
+4. If still empty after the Playwright fallback, use `WebFetch` then `WebSearch`.
+5. If given a free-form query (no URL), use `WebSearch` directly.
+
+**Bad-extraction heuristic** (apply to text-shaped output, not JSON):
+- Length < 800 chars, OR
+- Contains "cookie" + "consent" with none of: `2026`, `2027`, `ausstellung`, `vernissage`, `opening`, `exhibition`, `event`, `veranstaltung`, `kalender`, `programm`.
+
+6. Parse extracted content to identify individual events
 4. Filter for:
    - Art events: exhibitions, openings, gallery walks, art talks, performances, installations
    - Food events: markets, pop-ups, festivals, tastings, food tours, cooking workshops
