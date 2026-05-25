@@ -101,7 +101,11 @@ If `--dry-run`, print the scan results and stop here.
    - **Resolvable**: file body has ≥50 words of content (excluding frontmatter), or has a fetchable URL that returns content.
    - **Unresolvable**: fewer than 50 words of body content AND the URL is a short-link, mobile redirect, or returns no extractable content (e.g., TikTok, Reddit mobile, Google share links). Mark these for the appendix (see Step 4).
 
-4. **Content enrichment** — for resolvable bookmarks that are thin (<200 words), fetch the original URL with `WebFetch`. Run fetches concurrently where possible. If the fetch fails or returns little content, treat as unresolvable.
+4. **Content enrichment** — for resolvable bookmarks that are thin (<200 words), enrich using this sequence:
+   a. **Check qurl first**: `qurl get "<url>"` — if exit 0, use the returned content directly and skip `WebFetch`.
+   b. **Fetch if not cached**: fetch with `WebFetch`. If the fetch fails or returns little content, treat as unresolvable.
+   c. **Index after fetch**: `echo "<fetched_content>" | qurl add "<url>" --source readitlater --tags "<inferred_topic>"`.
+   Run fetches and qurl checks concurrently where possible.
 
 5. Extract **substantially more content** per bookmark than a bare summary — capture key arguments, notable quotes, specific data points, and the author's main thesis. The goal is enough material to write informed editorial commentary, not just a blurb.
 
