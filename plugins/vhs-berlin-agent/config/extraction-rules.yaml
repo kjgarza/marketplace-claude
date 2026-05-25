@@ -1,0 +1,219 @@
+# VHS Berlin Extraction Rules
+# Special registration rules, booking constraints, and classification patterns
+# Updated: 2026-04-18
+
+# ─────────────────────────────────────────────────────────────────────
+# Special Registration Rules
+# Surface these BEFORE the user tries to book
+# ─────────────────────────────────────────────────────────────────────
+registration_rules:
+
+  consultation_required:
+    description: "Courses requiring mandatory consultation before registration"
+    triggers:
+      category_keywords:
+        - "Integrationskurs"
+        - "Integration course"
+        - "DaF Intensiv"
+        - "Alphabetisierung"
+      title_keywords:
+        - "Integrationskurs"
+        - "Beratung erforderlich"
+        - "nur nach Beratung"
+      booking_status_keywords:
+        - "Beratung"
+        - "Anmeldung nur nach"
+    message: |
+      ⚠️ **Consultation Required**
+      This course type requires a mandatory consultation before registration.
+      Online self-registration is NOT available.
+      You must contact the VHS office first for an assessment.
+    source: "Berlin official VHS documentation"
+    confidence: verified
+
+  placement_test:
+    description: "Language courses that may require a placement test"
+    triggers:
+      category_keywords:
+        - "Deutsch als Fremdsprache"
+        - "DaF"
+        - "Sprachkurs"
+      level_patterns:
+        - "A1"
+        - "A2"
+        - "B1"
+        - "B2"
+    message: |
+      ℹ️ **Placement Test May Be Required**
+      Some German language courses require a placement test to confirm your level.
+      Check the course detail page for specific requirements.
+    confidence: likely
+
+  limited_eligibility:
+    description: "Courses with eligibility restrictions"
+    triggers:
+      title_keywords:
+        - "Seniorenkurs"
+        - "Frauen"
+        - "für Frauen"
+        - "Senior"
+        - "65+"
+    message: |
+      ℹ️ **Eligibility Restriction**
+      This course may have eligibility requirements (age, gender, etc.).
+      Check the course description for details.
+    confidence: observed
+
+# ─────────────────────────────────────────────────────────────────────
+# Booking Status Normalization
+# Map German booking status strings to normalized values
+# ─────────────────────────────────────────────────────────────────────
+booking_status:
+  open:
+    german_patterns:
+      - "Anmeldung möglich"
+      - "Freie Plätze"
+      - "Jetzt anmelden"
+      - "Buchen"
+      - "buchbar"
+    normalized: "open"
+    emoji: "✅"
+
+  waitlist:
+    german_patterns:
+      - "Warteliste"
+      - "auf die Warteliste"
+      - "Wartelistenplatz"
+    normalized: "waitlist"
+    emoji: "⏳"
+
+  full:
+    german_patterns:
+      - "Ausgebucht"
+      - "Kurs voll"
+      - "ausgebucht"
+      - "keine freien Plätze"
+    normalized: "full"
+    emoji: "🔴"
+
+  consultation_required:
+    german_patterns:
+      - "Anmeldung nur nach Beratung"
+      - "Beratung erforderlich"
+      - "persönliche Beratung"
+    normalized: "consultation_required"
+    emoji: "📞"
+
+  not_yet_open:
+    german_patterns:
+      - "Anmeldung ab"
+      - "noch nicht buchbar"
+      - "Voranmeldung"
+    normalized: "not_yet_open"
+    emoji: "🕐"
+
+  cancelled:
+    german_patterns:
+      - "Abgesagt"
+      - "Storniert"
+      - "Kurs entfällt"
+    normalized: "cancelled"
+    emoji: "❌"
+
+# ─────────────────────────────────────────────────────────────────────
+# Price Normalization
+# Extract numeric price from German price strings
+# ─────────────────────────────────────────────────────────────────────
+price_extraction:
+  patterns:
+    - regex: "(\\d+[,.]\\d+)\\s*€"
+      format: "number_then_currency"
+    - regex: "€\\s*(\\d+[,.]\\d+)"
+      format: "currency_then_number"
+    - regex: "(\\d+)\\s*€"
+      format: "integer_then_currency"
+    - regex: "€\\s*(\\d+)"
+      format: "currency_then_integer"
+  free_keywords:
+    - "kostenlos"
+    - "kostenfrei"
+    - "gratis"
+    - "kostenfreie"
+  normalization: "Replace German decimal comma with period; parse as float"
+
+# ─────────────────────────────────────────────────────────────────────
+# Date/Schedule Extraction
+# Parse German date and schedule patterns
+# ─────────────────────────────────────────────────────────────────────
+schedule_patterns:
+  date_formats:
+    - "DD.MM.YYYY"
+    - "DD. Month YYYY"
+    - "Month YYYY"
+  german_months:
+    Januar: "01"
+    Februar: "02"
+    März: "03"
+    April: "04"
+    Mai: "05"
+    Juni: "06"
+    Juli: "07"
+    August: "08"
+    September: "09"
+    Oktober: "10"
+    November: "11"
+    Dezember: "12"
+  day_abbreviations:
+    Mo: "Monday"
+    Di: "Tuesday"
+    Mi: "Wednesday"
+    Do: "Thursday"
+    Fr: "Friday"
+    Sa: "Saturday"
+    So: "Sunday"
+  schedule_patterns:
+    - regex: "(Mo|Di|Mi|Do|Fr|Sa|So)(\\+(Mo|Di|Mi|Do|Fr|Sa|So))*\\s*(\\d{2}:\\d{2})-(\\d{2}:\\d{2})"
+      description: "e.g., Mo+Mi 18:00-20:15"
+    - regex: "(\\d{2}\\.\\d{2}\\.\\d{4})\\s*-\\s*(\\d{2}\\.\\d{2}\\.\\d{4})"
+      description: "Date range: 15.05.2026 - 20.07.2026"
+
+# ─────────────────────────────────────────────────────────────────────
+# Course Level Detection
+# Detect language course levels from title/description
+# ─────────────────────────────────────────────────────────────────────
+level_detection:
+  patterns:
+    - regex: "\\b(A1|A2|B1|B2|C1|C2)\\b"
+      source: "Standard CEFR levels"
+    - regex: "\\b(Anfänger|Beginner|Grundstufe|Grundkurs)\\b"
+      normalized: "beginner"
+    - regex: "\\b(Fortgeschrittene|Advanced|Aufbaukurs)\\b"
+      normalized: "advanced"
+  notes: "Always prefer explicit CEFR level if present"
+
+# ─────────────────────────────────────────────────────────────────────
+# Format Detection (Online vs In-Person)
+# ─────────────────────────────────────────────────────────────────────
+format_detection:
+  online:
+    keywords:
+      - "Online"
+      - "online"
+      - "Webinar"
+      - "Zoom"
+      - "Digital"
+      - "E-Learning"
+    normalized: "online"
+  in_person:
+    keywords:
+      - "Präsenz"
+      - "vor Ort"
+      - "in der VHS"
+    normalized: "in_person"
+  hybrid:
+    keywords:
+      - "Hybrid"
+      - "Blended"
+      - "teilweise online"
+    normalized: "hybrid"
+  default: "in_person"

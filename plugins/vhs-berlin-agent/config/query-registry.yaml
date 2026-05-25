@@ -1,0 +1,128 @@
+# VHS Berlin Query Registry
+# URL patterns and parameters for VHS Berlin search
+
+base_url: https://vhsit.berlin.de
+
+patterns:
+  direct_course:
+    template: "{{base_url}}/VHSKURSE/BusinessPages/CourseDetail.aspx?id={{course_id}}"
+    confidence: verified
+    tested_at: "2026-04-18"
+    note: "Direct course ID links appear in public Berlin pages"
+  
+  district_location:
+    template: "{{base_url}}/VHSKURSE/BusinessPages/CourseList.aspx?direkt=1&bezirk={{district_code}}&lehrstaette={{location_code}}"
+    confidence: likely
+    tested_at: "2026-04-18"
+    note: "District and location parameters found in public pages"
+  
+  keyword_search:
+    template: "{{base_url}}/VHSKURSE/BusinessPages/CourseList.aspx?stichw={{keyword}}"
+    confidence: observed
+    tested_at: null
+    note: "Seen in social/search snippets, not yet fully validated"
+  
+  date_range:
+    template: "{{base_url}}/VHSKURSE/BusinessPages/CourseList.aspx?begonnen={{start_date}}&beendet={{end_date}}"
+    confidence: observed
+    tested_at: null
+    note: "Date parameters observed but not validated"
+
+# Berlin district codes
+districts:
+  mitte:
+    code: "01"
+    variants: ["Mitte", "Berlin-Mitte"]
+  
+  friedrichshain-kreuzberg:
+    code: "02"
+    variants: ["Friedrichshain-Kreuzberg", "Friedrichshain", "Kreuzberg", "F-K"]
+  
+  pankow:
+    code: "03"
+    variants: ["Pankow"]
+  
+  charlottenburg-wilmersdorf:
+    code: "04"
+    variants: ["Charlottenburg-Wilmersdorf", "Charlottenburg", "Wilmersdorf", "C-W"]
+  
+  spandau:
+    code: "05"
+    variants: ["Spandau"]
+  
+  steglitz-zehlendorf:
+    code: "06"
+    variants: ["Steglitz-Zehlendorf", "Steglitz", "Zehlendorf", "S-Z"]
+  
+  tempelhof-schoeneberg:
+    code: "07"
+    variants: ["Tempelhof-Schöneberg", "Tempelhof", "Schöneberg", "T-S"]
+  
+  neukoelln:
+    code: "08"
+    variants: ["Neukölln", "Neukoelln"]
+  
+  treptow-koepenick:
+    code: "09"
+    variants: ["Treptow-Köpenick", "Treptow", "Köpenick", "T-K"]
+  
+  marzahn-hellersdorf:
+    code: "10"
+    variants: ["Marzahn-Hellersdorf", "Marzahn", "Hellersdorf", "M-H"]
+  
+  lichtenberg:
+    code: "11"
+    variants: ["Lichtenberg"]
+  
+  reinickendorf:
+    code: "12"
+    variants: ["Reinickendorf"]
+
+# Common search categories
+categories:
+  german:
+    keywords: ["Deutsch", "German", "DaF", "Deutsch als Fremdsprache"]
+    special_rules: "Some courses require consultation and placement test"
+  
+  integration:
+    keywords: ["Integrationskurs", "Integration course"]
+    special_rules: "Registration only after mandatory consultation"
+  
+  languages:
+    keywords: ["Sprachen", "Languages", "Englisch", "Spanisch", "Französisch"]
+  
+  art:
+    keywords: ["Kunst", "Art", "Malen", "Zeichnen"]
+  
+  pottery:
+    keywords: ["Töpfern", "Keramik", "Pottery"]
+  
+  cooking:
+    keywords: ["Kochen", "Cooking", "Küche"]
+  
+  health:
+    keywords: ["Gesundheit", "Health", "Fitness", "Yoga"]
+  
+  career:
+    keywords: ["Beruf", "Career", "EDV", "Computer"]
+  
+  digital:
+    keywords: ["Computer", "Digital", "IT", "Software"]
+
+# Day of week mappings
+days:
+  monday: ["Mo", "Montag", "Monday"]
+  tuesday: ["Di", "Dienstag", "Tuesday"]
+  wednesday: ["Mi", "Mittwoch", "Wednesday"]
+  thursday: ["Do", "Donnerstag", "Thursday"]
+  friday: ["Fr", "Freitag", "Friday"]
+  saturday: ["Sa", "Samstag", "Saturday"]
+  sunday: ["So", "Sonntag", "Sunday"]
+
+# Time of day patterns
+times:
+  morning: "06:00-12:00"
+  afternoon: "12:00-18:00"
+  evening: "18:00-22:00"
+  weekend: ["Saturday", "Sunday"]
+  weekday: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]

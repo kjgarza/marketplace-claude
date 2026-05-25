@@ -1,0 +1,186 @@
+# VHS Berlin Page Map
+# Structured registry of page types, selectors, and extraction rules
+# Updated: 2026-04-18
+# Strategy: Update verified_at after each manual validation run
+
+pages:
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Search form page
+  # ─────────────────────────────────────────────────────────────────────
+  search_form:
+    description: "Main VHS search page with keyword, district, and category filters"
+    url_pattern: "vhsit.berlin.de/VHSKURSE"
+    identifier_selectors:
+      primary: "form"
+      secondary: "[name='stichw'], [name='bezirk']"
+    fields:
+      keyword:
+        selectors: ["input[name='stichw']", "input[id*='stichw']", "input[placeholder*='Suche']"]
+        type: text_input
+      district:
+        selectors: ["select[name='bezirk']", "select[id*='bezirk']"]
+        type: select
+      category:
+        selectors: ["select[name='kategorie']", "select[id*='kategorie']"]
+        type: select
+      start_date:
+        selectors: ["input[name='begonnen']", "input[id*='begonnen']"]
+        type: date_input
+    submit:
+      selectors: ["button[type='submit']", "input[type='submit']", "a.search-submit"]
+    verified_at: null
+    confidence: unverified
+    notes: "Selectors are estimates; must be validated against live page"
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Search results list page
+  # ─────────────────────────────────────────────────────────────────────
+  results_list:
+    description: "Course search results listing with multiple course entries"
+    url_pattern: "vhsit.berlin.de/VHSKURSE.*CourseList"
+    identifier_selectors:
+      primary: ".course-list, .ergebnisliste, table.results"
+      secondary: "a[href*='CourseDetail']"
+    fields:
+      course_container:
+        selectors: [".course-item", "tr.course-row", ".kurs-eintrag", "li.result-item"]
+        type: container
+        children:
+          title:
+            selectors: ["h3", "h2", ".kurs-titel", ".course-title", "td.titel"]
+            type: text
+          course_id:
+            selectors: ["a[href*='id=']"]
+            type: href_param
+            param: "id"
+          district:
+            selectors: [".bezirk", ".district", "td.bezirk"]
+            type: text
+          location:
+            selectors: [".lehrstaette", ".location", "td.lehrstaette"]
+            type: text
+          dates:
+            selectors: [".termin", ".dates", "td.termin", ".kurs-termin"]
+            type: text
+          price:
+            selectors: [".preis", ".price", "td.preis", ".kurs-preis"]
+            type: text
+          booking_status:
+            selectors: [".status", ".anmeldestatus", "td.status", ".buchungsstatus"]
+            type: text
+          detail_link:
+            selectors: ["a[href*='CourseDetail']", "a.detail-link", "a.kurs-link"]
+            type: href
+    pagination:
+      next_page: ["a.next", "a[rel='next']", ".pagination a:last-child"]
+      page_count: [".pagination .count", ".treffer-anzahl"]
+    verified_at: null
+    confidence: unverified
+    notes: "Selector names are educated guesses from typical ASP.NET VHS patterns"
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Course detail page
+  # ─────────────────────────────────────────────────────────────────────
+  course_detail:
+    description: "Individual course detail page with full course information"
+    url_pattern: "vhsit.berlin.de/VHSKURSE.*CourseDetail.*id="
+    identifier_selectors:
+      primary: ".course-detail, .kurs-detail, #courseDetail"
+      secondary: "h1.kurs-titel, h1.course-title"
+    fields:
+      title:
+        selectors: ["h1.kurs-titel", "h1.course-title", "h1", ".detail-titel"]
+        type: text
+      course_number:
+        selectors: [".kursnummer", ".course-number", "[class*='kursnr']"]
+        type: text
+      description:
+        selectors: [".beschreibung", ".description", ".kurs-text", ".course-description"]
+        type: html
+      district:
+        selectors: [".bezirk-detail", ".district", ".kurs-bezirk"]
+        type: text
+      location:
+        selectors: [".lehrstaette-detail", ".location-detail", ".kurs-ort"]
+        type: text
+      schedule:
+        selectors: [".termin-detail", ".schedule", ".kurs-termine", "table.termine"]
+        type: text
+      price:
+        selectors: [".preis-detail", ".price-detail", ".kurs-preis"]
+        type: text
+      booking_status:
+        selectors: [".anmeldestatus", ".booking-status", ".status-detail"]
+        type: text
+      booking_button:
+        selectors: ["a.anmelden", "a.buchen", "a[href*='anmeld']", "button.register"]
+        type: href
+      contact:
+        selectors: [".kontakt", ".contact-info", ".ansprechpartner"]
+        type: text
+      special_rules:
+        selectors: [".hinweis", ".special-notice", ".beratung-hinweis", ".consultation-note"]
+        type: text
+    verified_at: null
+    confidence: unverified
+    notes: "Highly uncertain; must verify selector names against live page before using"
+
+  # ─────────────────────────────────────────────────────────────────────
+  # District overview page (berlin.de)
+  # ─────────────────────────────────────────────────────────────────────
+  district_overview:
+    description: "VHS district landing page on berlin.de (newer interface)"
+    url_pattern: "berlin.de.*vhs.*"
+    identifier_selectors:
+      primary: "[class*='vhs'], main"
+    fields:
+      news_items:
+        selectors: [".aktuelles li", ".news-item", "article.news"]
+        type: container
+        children:
+          headline:
+            selectors: ["h2", "h3", ".headline"]
+            type: text
+          date:
+            selectors: [".date", "time", ".datum"]
+            type: text
+          link:
+            selectors: ["a"]
+            type: href
+    verified_at: null
+    confidence: unverified
+
+# ─────────────────────────────────────────────────────────────────────
+# Fallback strategy
+# ─────────────────────────────────────────────────────────────────────
+fallback:
+  description: "When primary selectors fail, try these strategies"
+  strategies:
+    - name: "text_search"
+      description: "Search page text for known patterns (course IDs, prices, dates)"
+    - name: "link_extraction"
+      description: "Extract all href links containing 'id=' for course detection"
+    - name: "table_extraction"
+      description: "Try generic table row extraction if list selectors fail"
+    - name: "browser_fallback"
+      description: "Open live page for manual inspection if all extraction fails"
+
+# ─────────────────────────────────────────────────────────────────────
+# Verification notes
+# ─────────────────────────────────────────────────────────────────────
+verification:
+  status: "unverified"
+  last_verified: null
+  notes: |
+    All selectors in this file are UNVERIFIED estimates based on:
+    - Common ASP.NET VHS system patterns
+    - Public VHS Berlin URL snippets
+    - Similar German municipality education site patterns
+
+    Before relying on these selectors, run a verification pass:
+    1. Navigate to each page type with Browser MCP
+    2. Inspect the actual HTML structure
+    3. Update selectors to match real DOM
+    4. Set verified_at and confidence fields
+    5. Run vhs-check to confirm all selectors work
