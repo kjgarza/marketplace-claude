@@ -29,19 +29,25 @@ Include location preferences if specified. Default to Berlin or remote positions
 
 ### 1.5. qurl Gate — Skip Already-Known Jobs
 
-Before scoring, check each job URL against the qurl decision ledger:
+Before scoring, check each job URL against the qurl decision ledger. `qurl get`
+exits 1 only when the URL is not cached; when cached (exit 0) it prints the
+stored tag on the `Tags:` line of stdout. Pass `--no-body` so the gate check
+doesn't dump the whole stored document, and branch on the parsed tag — not the
+exit code, which can't distinguish `found` from `applied`/`skipped`/`rejected`:
 
 ```bash
-qurl get "<job_url>"
+state="$(qurl get "<job_url>" --no-body 2>/dev/null | sed -n 's/^.*Tags: //p')"
 ```
 
-| Result | Action |
-|--------|--------|
+An empty `$state` means the URL isn't cached (exit 1) — treat it as a new job.
+
+| `qurl get` result | Action |
+|-------------------|--------|
 | Exit 1 (not cached) | New job — continue to Step 2 |
-| Exit 0, tag `found` | Pending review — count in digest, skip reprocessing |
-| Exit 0, tag `applied` | Already applied — skip |
-| Exit 0, tag `skipped` | Passed on this — skip |
-| Exit 0, tag `rejected` | Rejected or expired — skip |
+| `Tags:` contains `found` | Pending review — count in digest, skip reprocessing |
+| `Tags:` contains `applied` | Already applied — skip |
+| `Tags:` contains `skipped` | Passed on this — skip |
+| `Tags:` contains `rejected` | Rejected or expired — skip |
 
 ### 2. Analyze Job Match
 
@@ -66,9 +72,15 @@ For each job found, read the posting and score against Claudia's profile in `ref
 For each new job that scores strong or good match, record it in qurl and create
 a Taskwarrior review task:
 
+`qurl add` is a content indexer — it reads the body from stdin or `--file` and
+aborts with `No content provided` if neither is given. Always pipe a content
+line; re-adding the same URL replaces its tag set (this is how state
+transitions `found`→`applied`).
+
 ```bash
 # Tag the URL as found — gates future runs from reprocessing
-qurl add "<job_url>" --source jobs --tags "found"
+echo "Job: [Company] [Role] | score [score]% | $(date +%F)" \
+  | qurl add "<job_url>" --source jobs --tags "found"
 
 # Create a review task in the job pipeline
 task add "Review: [Company] — [Role] ([score]%)" project:JobSearch +review
@@ -78,13 +90,15 @@ task <new-id> annotate "<job_url>"
 For weak matches (<60%): tag as `skipped` in qurl, no Taskwarrior task.
 
 ```bash
-qurl add "<job_url>" --source jobs --tags "skipped"
+echo "Job: [Company] [Role] | score [score]% | $(date +%F)" \
+  | qurl add "<job_url>" --source jobs --tags "skipped"
 ```
 
 When Claudia submits an application, update both stores:
 ```bash
 task <id> done
-qurl add "<job_url>" --source jobs --tags "applied"
+echo "Job: [Company] [Role] | applied | $(date +%F)" \
+  | qurl add "<job_url>" --source jobs --tags "applied"
 ```
 
 ### 3. Prepare Application Materials

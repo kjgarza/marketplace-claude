@@ -89,15 +89,18 @@ If vsearch returns fewer than 5 relevant results, fall back to web search (Step 
 
 ### Step 5.5: Dedup Gate
 
-Filter candidates against previously decided events. For each URL in the vsearch results:
+Filter candidates against previously decided events. `qurl get` prints the
+stored tags on the `Tags:` line of stdout (exit 1 only when the URL is not
+cached); pass `--no-body` so the gate doesn't dump the full document. For each
+URL in the vsearch results:
 
 ```bash
-qurl get "<event_url>"
+tags="$(qurl get "<event_url>" --no-body 2>/dev/null | sed -n 's/^.*Tags: //p')"
 ```
 
-- Exit 0 and tags include `calendar-added` → drop (already on calendar)
-- Exit 0 and tags include `reviewed` → drop (explicitly skipped before)
-- Any other case → keep as candidate
+- `Tags:` contains `calendar-added` → drop (already on calendar)
+- `Tags:` contains `reviewed` → drop (explicitly skipped before)
+- Not cached (exit 1) or any other tag → keep as candidate
 
 This ensures every run surfaces only new, undecided events.
 
@@ -170,12 +173,18 @@ Include a summary at the top: "Found X events (Y art, Z food) for [date range]. 
 After the user selects which events to add or skip, record each decision in qurl
 so future runs don't re-surface them:
 
+`qurl add` requires content from stdin or `--file` (it aborts with `No content
+provided` otherwise); re-adding the same URL replaces its tag set, so pipe a
+short content line to record the decision:
+
 ```bash
 # for each event the user adds to calendar
-qurl add "<event_url>" --source berlin-events --tags "calendar-added"
+echo "Event: <title> | calendar-added | $(date +%F)" \
+  | qurl add "<event_url>" --source berlin-events --tags "calendar-added"
 
 # for each event the user explicitly skips
-qurl add "<event_url>" --source berlin-events --tags "reviewed"
+echo "Event: <title> | reviewed | $(date +%F)" \
+  | qurl add "<event_url>" --source berlin-events --tags "reviewed"
 ```
 
 Events with no decision (user closed without acting) are left untagged and will
@@ -203,9 +212,11 @@ happen unconditionally via gogcli.
      --from "<YYYY-MM-DDTHH:MM:SS+02:00>" \
      --to   "<YYYY-MM-DDTHH:MM:SS+02:00>"
    ```
-6. Tag each added event in qurl:
+6. Tag each added event in qurl (pipe a content line — `qurl add` aborts
+   without stdin/`--file` content):
    ```bash
-   qurl add "<event_url>" --source berlin-events --tags "calendar-added"
+   echo "Event: <title> | calendar-added | $(date +%F)" \
+     | qurl add "<event_url>" --source berlin-events --tags "calendar-added"
    ```
 7. Print a one-line digest to stdout:
    ```
