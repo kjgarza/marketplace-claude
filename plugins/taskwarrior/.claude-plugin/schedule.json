@@ -1,0 +1,8 @@
+{
+  "schedule": {
+    "frequency": "daily",
+    "time": "08:00",
+    "timezone": "Europe/Berlin",
+    "skill": "morning-briefing"
+  }
+}

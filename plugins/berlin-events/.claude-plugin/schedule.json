@@ -1,0 +1,10 @@
+{
+  "schedule": {
+    "frequency": "biweekly",
+    "days": [1, 15],
+    "time": "10:00",
+    "timezone": "Europe/Berlin",
+    "skill": "find-events",
+    "args": "--auto"
+  }
+}

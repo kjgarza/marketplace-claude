@@ -27,6 +27,22 @@ Target roles based on Claudia's background:
 
 Include location preferences if specified. Default to Berlin or remote positions.
 
+### 1.5. qurl Gate — Skip Already-Known Jobs
+
+Before scoring, check each job URL against the qurl decision ledger:
+
+```bash
+qurl get "<job_url>"
+```
+
+| Result | Action |
+|--------|--------|
+| Exit 1 (not cached) | New job — continue to Step 2 |
+| Exit 0, tag `found` | Pending review — count in digest, skip reprocessing |
+| Exit 0, tag `applied` | Already applied — skip |
+| Exit 0, tag `skipped` | Passed on this — skip |
+| Exit 0, tag `rejected` | Rejected or expired — skip |
+
 ### 2. Analyze Job Match
 
 For each job found, read the posting and score against Claudia's profile in `references/claudia-profile.md`.
@@ -44,6 +60,32 @@ For each job found, read the posting and score against Claudia's profile in `ref
 - **Strong match (80%+)**: Core CS role, SaaS/tech, requires Braze or similar
 - **Good match (60-79%)**: Adjacent role, transferable skills apply
 - **Weak match (<60%)**: Missing key requirements or domain mismatch
+
+### 2.5. Record New Findings
+
+For each new job that scores strong or good match, record it in qurl and create
+a Taskwarrior review task:
+
+```bash
+# Tag the URL as found — gates future runs from reprocessing
+qurl add "<job_url>" --source jobs --tags "found"
+
+# Create a review task in the job pipeline
+task add "Review: [Company] — [Role] ([score]%)" project:JobSearch +review
+task <new-id> annotate "<job_url>"
+```
+
+For weak matches (<60%): tag as `skipped` in qurl, no Taskwarrior task.
+
+```bash
+qurl add "<job_url>" --source jobs --tags "skipped"
+```
+
+When Claudia submits an application, update both stores:
+```bash
+task <id> done
+qurl add "<job_url>" --source jobs --tags "applied"
+```
 
 ### 3. Prepare Application Materials
 
@@ -69,6 +111,23 @@ Key achievements to emphasize based on job requirements:
 - Customer engagement (EBRs, workshops, champion programs)
 - Retention/growth metrics (80% YoY revenue, 50% opt-in increase)
 - A/B testing and data-driven optimization
+
+## Auto Mode (--auto)
+
+Headless execution for cron. Invoked as `find-jobs --auto`. Runs Steps 1, 1.5,
+2, and 2.5 only — no cover letter generation, no interactive output.
+
+1. Search job boards (Step 1)
+2. Gate against qurl ledger (Step 1.5)
+3. Score new matches (Step 2)
+4. Record findings in qurl + Taskwarrior (Step 2.5)
+5. Print digest to stdout:
+   ```
+   Job scan complete (YYYY-MM-DD): N new tasks created, M pending review, P applications open.
+   ```
+
+Cover letter prep (Step 3) remains manual — start the Taskwarrior review task
+interactively when ready to apply.
 
 ## Quick Commands
 

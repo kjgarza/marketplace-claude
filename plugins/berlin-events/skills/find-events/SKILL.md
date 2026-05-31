@@ -1,7 +1,7 @@
 ---
 name: find-events
 description: "Find interesting art and food events in Berlin. Use when the user asks 'What events are happening in Berlin this week?' or 'Find me art exhibitions and food festivals in Berlin next weekend.' Ingest event sources into qurl, run semantic search, check against Google Calendar for conflicts, and produce a curated list of relevant events with location context."
-argument-hint: "[days ahead, e.g. '7' or 'this weekend']"
+argument-hint: "[days ahead, e.g. '7' or 'this weekend' | --auto for headless cron mode]"
 allowed-tools: ["Read", "Bash", "WebSearch", "WebFetch", "Grep", "Glob", "Agent", "mcp__claude-in-chrome__navigate", "mcp__claude-in-chrome__read_page", "mcp__claude-in-chrome__get_page_text", "mcp__claude-in-chrome__tabs_create_mcp", "mcp__claude-in-chrome__tabs_context_mcp"]
 ---
 
@@ -87,6 +87,20 @@ qurl vsearch "$QUERY" \
 
 If vsearch returns fewer than 5 relevant results, fall back to web search (Step 5b).
 
+### Step 5.5: Dedup Gate
+
+Filter candidates against previously decided events. For each URL in the vsearch results:
+
+```bash
+qurl get "<event_url>"
+```
+
+- Exit 0 and tags include `calendar-added` → drop (already on calendar)
+- Exit 0 and tags include `reviewed` → drop (explicitly skipped before)
+- Any other case → keep as candidate
+
+This ensures every run surfaces only new, undecided events.
+
 ### Step 5b: Web Search Fallback (only if vsearch < 5 results)
 
 ```
@@ -150,6 +164,56 @@ https://calendar.google.com/calendar/render?action=TEMPLATE&text=[title]&dates=2
 ```
 
 Include a summary at the top: "Found X events (Y art, Z food) for [date range]. N conflicts with your calendar."
+
+### Step 9.5: Commit Decisions (interactive mode only)
+
+After the user selects which events to add or skip, record each decision in qurl
+so future runs don't re-surface them:
+
+```bash
+# for each event the user adds to calendar
+qurl add "<event_url>" --source berlin-events --tags "calendar-added"
+
+# for each event the user explicitly skips
+qurl add "<event_url>" --source berlin-events --tags "reviewed"
+```
+
+Events with no decision (user closed without acting) are left untagged and will
+reappear on the next run.
+
+## Auto Mode (--auto)
+
+Headless execution for cron. Invoked as `find-events --auto`. Skips Steps 7–9
+(location prose, interactive presentation, user confirmation). Calendar writes
+happen unconditionally via gogcli.
+
+**Execution path:**
+
+1. Run Steps 1–5 (load settings, date range, ingest, embed, vsearch)
+2. Run Step 5.5 dedup gate — drop already-tagged URLs
+3. Check conflicts across the full lookahead window:
+   ```bash
+   gog calendar events --from "$(date +%Y-%m-%d)" --to "$(date -d '+14 days' +%Y-%m-%d)"
+   ```
+4. From the ranked candidates, select the top 3 with no calendar conflict
+5. For each selected event, create the calendar entry:
+   ```bash
+   gog calendar create \
+     --summary "<event title>" \
+     --from "<YYYY-MM-DDTHH:MM:SS+02:00>" \
+     --to   "<YYYY-MM-DDTHH:MM:SS+02:00>"
+   ```
+6. Tag each added event in qurl:
+   ```bash
+   qurl add "<event_url>" --source berlin-events --tags "calendar-added"
+   ```
+7. Print a one-line digest to stdout:
+   ```
+   Auto-added N events to calendar (YYYY-MM-DD). M candidates skipped (conflicts or low rank).
+   ```
+
+If fewer than 3 non-conflicting candidates exist, add what's available — do not
+force-schedule conflicting events.
 
 ## Tips
 

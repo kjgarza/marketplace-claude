@@ -1,0 +1,10 @@
+{
+  "schedule": {
+    "frequency": "weekly",
+    "day": "Monday",
+    "time": "09:00",
+    "timezone": "Europe/Berlin",
+    "skill": "find-jobs",
+    "args": "--auto"
+  }
+}
