@@ -1,13 +1,21 @@
-#!/usr/bin/env node
-// queue.js — print listings from the state DB as JSON for the triage command.
+#!/usr/bin/env bun
+// queue.ts — print listings from the state DB as JSON for the triage command.
 //
 // Usage:
-//   node --experimental-sqlite scripts/queue.js review     # only review-band listings
-//   node --experimental-sqlite scripts/queue.js pending    # only pending listings
-//   node --experimental-sqlite scripts/queue.js triage     # pending + review (default)
-import { getQueue } from './db.js';
+//   bun scripts/queue.ts review     # only review-band listings
+//   bun scripts/queue.ts pending    # only pending listings
+//   bun scripts/queue.ts triage     # pending + review (default)
+//   bun scripts/queue.ts qualifying # print the DOD qualifying_count (number)
+import { getQueue, countQualifying } from './db.ts';
 
 const arg = process.argv[2] || 'triage';
+
+// DOD measurement: emit just the qualifying_count so the Definition of Done is
+// machine-checkable (PASS if >= 1). See DOD.md.
+if (arg === 'qualifying') {
+  process.stdout.write(countQualifying() + '\n');
+  process.exit(0);
+}
 
 let rows;
 if (arg === 'triage') {

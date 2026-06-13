@@ -22,8 +22,12 @@ Then review the queue any time with `/berlin-flats:triage`. The job logs to `~/L
 To run one hunt right now:
 
 ```bash
-NODE="$(command -v node || echo /opt/homebrew/bin/node)"
-cd $CLAUDE_PLUGIN_ROOT && "$NODE" --experimental-sqlite scripts/hunt.js 2>&1
+BUN_BIN="$(command -v bun 2>/dev/null || true)"
+for c in "${HOME:-}/.bun/bin/bun" /opt/homebrew/bin/bun /usr/local/bin/bun; do
+  [ -n "$BUN_BIN" ] && break; [ -x "$c" ] && BUN_BIN="$c"
+done
+: "${BUN_BIN:=bun}"
+cd $CLAUDE_PLUGIN_ROOT && "$BUN_BIN" scripts/hunt.ts 2>&1
 ```
 
 New listings are saved to the SQLite DB with their verdict. Run `/berlin-flats:triage` to act on them.

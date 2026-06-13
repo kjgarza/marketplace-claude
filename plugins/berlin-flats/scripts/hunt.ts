@@ -1,10 +1,11 @@
-#!/usr/bin/env node
-import { fileURLToPath } from 'url';
-import { scrapeUrl } from './scrape.js';
-import { parseSearchResults, parseDetail } from './parse-listing.js';
-import { scamScore } from './scam-score.js';
-import { upsertListing, isSeen } from './db.js';
-import { loadConfig } from './config.js';
+#!/usr/bin/env bun
+import { fileURLToPath } from "node:url";
+import { scrapeUrl } from './scrape.ts';
+import { parseSearchResults, parseDetail } from './parse-listing.ts';
+import { scamScore } from './scam-score.ts';
+import { upsertListing, isSeen } from './db.ts';
+import { loadConfig } from './config.ts';
+import type { Listing, SearchCriteria } from "./types.ts";
 
 const JSON_MODE = process.argv.includes('--json');
 
@@ -12,7 +13,7 @@ const JSON_MODE = process.argv.includes('--json');
 const KA_LOCATION_ID = '3331';
 
 // ImmoScout24: district slug for path-based URL (more reliable than geocodes for sub-districts)
-const IS24_DISTRICT_SLUGS = {
+const IS24_DISTRICT_SLUGS: Record<string, string | null> = {
   'Mitte':           'mitte',
   'Prenzlauer Berg': 'prenzlauer-berg',
   'Friedrichshain':  'friedrichshain',
@@ -26,7 +27,7 @@ const IS24_DISTRICT_SLUGS = {
   'default':         null, // null = search all Berlin
 };
 
-export function buildSearchUrl(portal, criteria) {
+export function buildSearchUrl(portal: string, criteria: SearchCriteria): string {
   const {
     districts = ['Mitte'],
     max_warm_rent_eur = 2000,
@@ -49,7 +50,7 @@ export function buildSearchUrl(portal, criteria) {
   }
 
   if (portal === 'immoscout24') {
-    const district = districts[0] || null;
+    const district = districts[0] || "default";
     const slug = IS24_DISTRICT_SLUGS[district] ?? IS24_DISTRICT_SLUGS.default;
     const locationPath = slug ? `berlin/${slug}` : 'berlin';
     const params = new URLSearchParams({
@@ -66,11 +67,11 @@ export function buildSearchUrl(portal, criteria) {
   throw new Error(`Unknown portal: ${portal}`);
 }
 
-export function scoreAgainstPrefs(listing, prefs) {
+export function scoreAgainstPrefs(listing: Listing, prefs: SearchCriteria): number {
   if (listing.warm_rent && listing.warm_rent > prefs.max_warm_rent_eur) return -1;
   if (listing.cold_rent && prefs.max_cold_rent_eur && listing.cold_rent > prefs.max_cold_rent_eur) return -1;
   if (listing.rooms != null && listing.rooms < prefs.min_rooms) return -1;
-  if (listing.rooms != null && listing.rooms > prefs.max_rooms) return -1;
+  if (prefs.max_rooms != null && listing.rooms != null && listing.rooms > prefs.max_rooms) return -1;
   if (listing.sqm != null && listing.sqm < prefs.min_sqm) return -1;
 
   const text = `${listing.title || ''} ${listing.description || ''}`.toLowerCase();
@@ -94,16 +95,21 @@ export function scoreAgainstPrefs(listing, prefs) {
   return 100;
 }
 
-export async function hunt(options = {}) {
+interface HuntOptions {
+  portals?: string[];
+  jsonMode?: boolean;
+}
+
+export async function hunt(options: HuntOptions = {}): Promise<Listing[]> {
   const cfg = loadConfig();
   const portals = options.portals || cfg.portals.enabled;
   const jsonMode = options.jsonMode ?? JSON_MODE;
 
   // results = listings surfaced to triage (pending + review), newListings = newly upserted this run
-  const results = [];
-  const newListings = [];
-  const errors = [];
-  const counts = { pending: 0, review: 0, block: 0, filtered: 0 };
+  const results: Listing[] = [];
+  const newListings: Array<Record<string, unknown>> = [];
+  const errors: Array<{ portal?: string; message: string }> = [];
+  const counts: Record<string, number> = { pending: 0, review: 0, block: 0, filtered: 0 };
 
   for (const portal of portals) {
     if (!jsonMode) console.log(`\n[hunt] Searching ${portal}...`);
@@ -111,8 +117,9 @@ export async function hunt(options = {}) {
     try {
       searchUrl = buildSearchUrl(portal, cfg.search);
     } catch (e) {
-      if (!jsonMode) console.error(`[hunt] Skipping ${portal}: ${e.message}`);
-      errors.push({ portal, message: e.message });
+      const message = e instanceof Error ? e.message : String(e);
+      if (!jsonMode) console.error(`[hunt] Skipping ${portal}: ${message}`);
+      errors.push({ portal, message });
       continue;
     }
     if (!jsonMode) console.log(`[hunt] URL: ${searchUrl}`);
@@ -212,7 +219,7 @@ export async function hunt(options = {}) {
         }
       } else {
         if (!jsonMode) {
-          console.log(`\n[hunt] ✗ ${listing.verdict.toUpperCase()}: ${listing.title || card.url} (scam=${scam})`);
+          console.log(`\n[hunt] ✗ ${listing.verdict?.toUpperCase()}: ${listing.title || card.url} (scam=${scam})`);
         }
       }
     }

@@ -80,7 +80,7 @@
       "name": "bookclub",
       "source": "./plugins/bookclub",
       "description": "Book club management plugin for generating Slack communications, discussion materials, and reading schedules",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -189,7 +189,7 @@
       "name": "ideation",
       "source": "./plugins/ideation",
       "description": "5-stage ideation pipeline: problem intake, solution generation, review, ASCII UI concepts, and interactive HTML prototypes",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -232,7 +232,7 @@
       "name": "berlin-flats",
       "source": "./plugins/berlin-flats",
       "description": "Berlin flat hunter — searches Kleinanzeigen and ImmoScout24 for rentals, detects scams, queues listings for triage, and drafts contact messages.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"

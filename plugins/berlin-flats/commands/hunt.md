@@ -11,13 +11,13 @@ If you have not configured `config/config.toml` yet, run `/berlin-flats:init` fi
 First, check that dependencies are installed:
 
 ```bash
-cd $CLAUDE_PLUGIN_ROOT && ls node_modules 2>/dev/null || npm install
+cd $CLAUDE_PLUGIN_ROOT && ls node_modules 2>/dev/null || bun install
 ```
 
 Then run the hunt:
 
 ```bash
-cd $CLAUDE_PLUGIN_ROOT && node scripts/hunt.js 2>&1
+cd $CLAUDE_PLUGIN_ROOT && bun scripts/hunt.ts 2>&1
 ```
 
 After the hunt completes, present results in a table:
@@ -26,7 +26,7 @@ After the hunt completes, present results in a table:
 |---|-------|----------|-----------|-------|-----|------------|-----|
 
 If no results were found:
-1. Check if the scraper returned HTML by running: `node -e "import('./scripts/scrape.js').then(async ({scrapeUrl}) => { const r = await scrapeUrl('https://www.kleinanzeigen.de/s-wohnung-mieten/berlin/c203l3331r15+anzeige:angebote+preis::2000+zimmer:2:4/k0'); console.log('tier:', r.tier, 'len:', r.html.length, 'snippet:', r.html.slice(0,300)); })" 2>&1`
+1. Check if the scraper returned HTML with a focused `bun test` case or a temporary Bun smoke script that imports `./scripts/scrape.ts`.
 2. Report the tier used and HTML length
 3. Suggest running /triage if listings are pending in the queue
 

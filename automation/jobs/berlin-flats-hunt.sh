@@ -1,24 +1,30 @@
 #!/usr/bin/env bash
-# berlin-flats-hunt — single hunt, notify on new pending/review listings. Pure node, no LLM.
+# berlin-flats-hunt — single hunt, notify on new pending/review listings. Pure Bun, no LLM.
 set -uo pipefail
 source "$(dirname "$0")/../lib/headless-claude.sh"
 
 JOB="berlin-flats-hunt"
 PLUGIN="$PLUGIN_CACHE/plugins/berlin-flats"
-require_paths "$PLUGIN/scripts/hunt.js"
+SUMMARY_TS="$(dirname "$0")/../lib/berlin-flats-summary.ts"
+require_paths "$PLUGIN/scripts/hunt.ts" "$SUMMARY_TS"
 
 # Quiet hours: skip the run entirely (no scraping, no notify) 22:00–07:00 Berlin.
 if berlin_quiet_hours; then echo "$JOB: quiet hours, skipping"; exit 0; fi
 
-NODE="$(command -v node 2>/dev/null || echo /opt/homebrew/bin/node)"
+# Resolve Bun across PATH and the common install dirs (Apple Silicon + Intel
+# Homebrew, ~/.bun), since scheduled launchd jobs may run with a bare PATH.
+BUN_BIN="$(command -v bun 2>/dev/null || true)"
+for c in "${HOME:-}/.bun/bin/bun" /opt/homebrew/bin/bun /usr/local/bin/bun; do
+  [ -n "$BUN_BIN" ] && break
+  [ -x "$c" ] && BUN_BIN="$c"
+done
+: "${BUN_BIN:=bun}"
 LD="$(log_dir "$JOB")"; LOG="$LD/$(date +%Y-%m-%d_%H%M%S).log"
 
-OUT="$(cd "$PLUGIN" && "$NODE" --experimental-sqlite scripts/hunt.js --json 2>>"$LOG")"
+OUT="$(cd "$PLUGIN" && "$BUN_BIN" scripts/hunt.ts --json 2>>"$LOG")"
 echo "$OUT" >> "$LOG"
 
-# Count new pending/review listings and build a notification (parser kept in a
-# helper script per the repo's no-multiline-python-c rule).
-SUMMARY="$(printf '%s' "$OUT" | /usr/bin/python3 "$(dirname "$0")/berlin-flats-summary.py")"
+SUMMARY="$(printf '%s' "$OUT" | "$BUN_BIN" "$SUMMARY_TS")"
 
 if [ -n "$SUMMARY" ]; then
   printf '%s' "$SUMMARY" | "$NOTIFY" --silent-fail --title "Berlin Flats"
