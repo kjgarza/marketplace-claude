@@ -157,6 +157,13 @@ cp "$AUTOMATION_DIR/lib/headless-claude.sh" "$DEST/lib/"
 for job in "${JOBS[@]}"; do
   cp "$AUTOMATION_DIR/jobs/$job.sh" "$DEST/"
 done
+
+# Copy helper scripts used by the job wrappers (parsers, etc.).
+if compgen -G "$AUTOMATION_DIR/jobs/*.py" > /dev/null; then
+  cp "$AUTOMATION_DIR/jobs/"*.py "$DEST/"
+  chmod +x "$DEST"/*.py
+fi
+
 chmod +x "$DEST"/*.sh "$DEST"/lib/*.sh
 
 # Old readitlater agent cleanup (different script path, same label).
