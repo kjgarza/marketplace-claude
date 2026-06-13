@@ -21,7 +21,14 @@
       },
       "license": "MIT",
       "category": "utilities",
-      "keywords": ["mcp", "puppeteer", "fetch", "sequential-thinking", "context7", "documentation"],
+      "keywords": [
+        "mcp",
+        "puppeteer",
+        "fetch",
+        "sequential-thinking",
+        "context7",
+        "documentation"
+      ],
       "strict": true
     },
     {
@@ -35,7 +42,15 @@
       },
       "license": "MIT",
       "category": "documentation",
-      "keywords": ["scholarly-communication", "academic-research", "dimensions", "research-infrastructure", "bibliometrics", "open-access", "publishing"],
+      "keywords": [
+        "scholarly-communication",
+        "academic-research",
+        "dimensions",
+        "research-infrastructure",
+        "bibliometrics",
+        "open-access",
+        "publishing"
+      ],
       "strict": true
     },
     {
@@ -49,21 +64,36 @@
       },
       "license": "MIT",
       "category": "productivity",
-      "keywords": ["product-management", "document-processing", "integrations", "research", "pdf", "docx", "xlsx", "pptx"],
+      "keywords": [
+        "product-management",
+        "document-processing",
+        "integrations",
+        "research",
+        "pdf",
+        "docx",
+        "xlsx",
+        "pptx"
+      ],
       "strict": true
     },
     {
       "name": "bookclub",
       "source": "./plugins/bookclub",
       "description": "Book club management plugin for generating Slack communications, discussion materials, and reading schedules",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
       },
       "license": "MIT",
       "category": "productivity",
-      "keywords": ["book-club", "slack", "reading-group", "discussion-guide", "communications"],
+      "keywords": [
+        "book-club",
+        "slack",
+        "reading-group",
+        "discussion-guide",
+        "communications"
+      ],
       "strict": true
     },
     {
@@ -77,27 +107,20 @@
       },
       "license": "MIT",
       "category": "development",
-      "keywords": ["mvp", "monorepo", "nextjs", "eleventy", "scaffolding", "static-site"],
+      "keywords": [
+        "mvp",
+        "monorepo",
+        "nextjs",
+        "eleventy",
+        "scaffolding",
+        "static-site"
+      ],
       "strict": true
     },
     {
       "name": "berlin-events",
       "source": "./plugins/berlin-events",
       "description": "Discover interesting art and food events in Berlin, check against your Google Calendar, and get a curated list with travel context from your neighborhood.",
-      "version": "0.1.0",
-      "author": {
-        "name": "Kristian Garza",
-        "email": "kj.garza@gmail.com"
-      },
-      "license": "MIT",
-      "category": "productivity",
-      "keywords": ["berlin", "events", "art", "food", "calendar", "discovery"],
-      "strict": true
-    },
-    {
-      "name": "readitlater-digest",
-      "source": "./plugins/readitlater-digest",
-      "description": "Generate themed weekly digests from Obsidian ReadItLater bookmarks with SQLite state tracking and automated cleanup",
       "version": "0.2.0",
       "author": {
         "name": "Kristian Garza",
@@ -105,7 +128,35 @@
       },
       "license": "MIT",
       "category": "productivity",
-      "keywords": ["obsidian", "readitlater", "bookmarks", "digest", "reading-list", "sqlite"],
+      "keywords": [
+        "berlin",
+        "events",
+        "art",
+        "food",
+        "calendar",
+        "discovery"
+      ],
+      "strict": true
+    },
+    {
+      "name": "readitlater-digest",
+      "source": "./plugins/readitlater-digest",
+      "description": "Generate themed weekly digests from Obsidian ReadItLater bookmarks with SQLite state tracking and automated cleanup",
+      "version": "0.3.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": [
+        "obsidian",
+        "readitlater",
+        "bookmarks",
+        "digest",
+        "reading-list",
+        "sqlite"
+      ],
       "strict": true
     },
     {
@@ -119,49 +170,85 @@
       },
       "license": "MIT",
       "category": "development",
-      "keywords": ["prototyping", "monorepo", "bun", "hono", "nextjs", "mcp", "team-conventions", "biome", "jsonapi", "actor-pattern", "bun-sqlite"],
+      "keywords": [
+        "prototyping",
+        "monorepo",
+        "bun",
+        "hono",
+        "nextjs",
+        "mcp",
+        "team-conventions",
+        "biome",
+        "jsonapi",
+        "actor-pattern",
+        "bun-sqlite"
+      ],
       "strict": true
     },
     {
       "name": "ideation",
       "source": "./plugins/ideation",
       "description": "5-stage ideation pipeline: problem intake, solution generation, review, ASCII UI concepts, and interactive HTML prototypes",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
       },
       "license": "MIT",
       "category": "productivity",
-      "keywords": ["ideation", "brainstorming", "prototyping", "product", "design-thinking"],
+      "keywords": [
+        "ideation",
+        "brainstorming",
+        "prototyping",
+        "product",
+        "design-thinking"
+      ],
       "strict": true
     },
     {
       "name": "vhs-berlin-agent",
       "source": "./plugins/vhs-berlin-agent",
-      "description": "Personal navigation and monitoring layer for VHS Berlin courses — natural language search, watchlists with change detection, and awareness digests via Browser and SQLite MCP.",
-      "version": "0.1.0",
+      "description": "Personal navigation and monitoring layer for VHS Berlin courses — natural language search, watchlists with change detection, and awareness digests via deterministic bun scripts (no MCP).",
+      "version": "0.2.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
       },
       "license": "MIT",
       "category": "productivity",
-      "keywords": ["vhs", "berlin", "courses", "education", "monitoring", "watchlist", "sqlite", "scraping"],
+      "keywords": [
+        "vhs",
+        "berlin",
+        "courses",
+        "education",
+        "monitoring",
+        "watchlist",
+        "sqlite",
+        "scraping"
+      ],
       "strict": true
     },
     {
       "name": "berlin-flats",
       "source": "./plugins/berlin-flats",
       "description": "Berlin flat hunter — searches Kleinanzeigen and ImmoScout24 for rentals, detects scams, queues listings for triage, and drafts contact messages.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
       },
       "license": "MIT",
       "category": "productivity",
-      "keywords": ["berlin", "flats", "rental", "housing", "immo", "kleinanzeigen", "immoscout", "scam-detection"],
+      "keywords": [
+        "berlin",
+        "flats",
+        "rental",
+        "housing",
+        "immo",
+        "kleinanzeigen",
+        "immoscout",
+        "scam-detection"
+      ],
       "strict": true
     },
     {
@@ -175,7 +262,16 @@
       },
       "license": "MIT",
       "category": "productivity",
-      "keywords": ["bulletjournal", "journaling", "daily-notes", "review", "PARA", "inbox-triage", "weekly-review", "monthly-review"],
+      "keywords": [
+        "bulletjournal",
+        "journaling",
+        "daily-notes",
+        "review",
+        "PARA",
+        "inbox-triage",
+        "weekly-review",
+        "monthly-review"
+      ],
       "strict": true
     },
     {
@@ -189,21 +285,45 @@
       },
       "license": "MIT",
       "category": "productivity",
-      "keywords": ["taskwarrior", "task-management", "productivity", "ai-agent", "workflow", "annotations", "obsidian"],
+      "keywords": [
+        "taskwarrior",
+        "task-management",
+        "productivity",
+        "ai-agent",
+        "workflow",
+        "annotations",
+        "obsidian"
+      ],
       "strict": true
     },
     {
       "name": "finanz-pilot",
       "source": "./plugins/finanz-pilot",
       "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, financial statements, tax checks, pension evaluation, real estate readiness, retirement projections, capital allocation, and integrated personal finance advisory.",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
       },
       "license": "MIT",
       "category": "productivity",
-      "keywords": ["finance", "germany", "hgb", "skr04", "journal-entry", "balance-sheet", "income-statement", "trial-balance", "tax", "berlin", "pension", "real-estate", "capital-allocation", "personal-finance", "retirement"],
+      "keywords": [
+        "finance",
+        "germany",
+        "hgb",
+        "skr04",
+        "journal-entry",
+        "balance-sheet",
+        "income-statement",
+        "trial-balance",
+        "tax",
+        "berlin",
+        "pension",
+        "real-estate",
+        "capital-allocation",
+        "personal-finance",
+        "retirement"
+      ],
       "strict": true
     }
   ]

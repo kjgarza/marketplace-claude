@@ -1,6 +1,6 @@
 {
   "name": "finanz-pilot",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, balance sheets, income statements, VAT treatment, tax checks, pensions, real estate readiness, retirement projections, capital allocation, and integrated personal finance advisory.",
   "author": {
     "name": "Kristian Garza",
@@ -28,9 +28,15 @@
     "personal-finance",
     "retirement"
   ],
-  "skills": ["./skills/"],
-  "commands": ["./commands/"],
-  "agents": ["./agents/"],
+  "skills": [
+    "./skills/"
+  ],
+  "commands": [
+    "./commands/"
+  ],
+  "agents": [
+    "./agents/"
+  ],
   "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/finanz-pilot",
   "repository": "https://github.com/kjgarza/marketplace-claude"
 }

@@ -1,6 +1,6 @@
 {
   "name": "ideation",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "5-stage ideation pipeline: intake, generate, review, UI concepts, prototypes",
   "author": {
     "name": "Kristian Garza",
@@ -16,6 +16,10 @@
   ],
   "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/ideation",
   "repository": "https://github.com/kjgarza/marketplace-claude",
-  "agents": ["./agents/ideation-pipeline.md"],
-  "skills": ["./skills/"]
+  "agents": [
+    "./agents/ideation-pipeline.md"
+  ],
+  "skills": [
+    "./skills/"
+  ]
 }
