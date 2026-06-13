@@ -6,6 +6,8 @@ import { scamScore } from './scam-score.js';
 import { upsertListing, isSeen } from './db.js';
 import { loadConfig } from './config.js';
 
+const JSON_MODE = process.argv.includes('--json');
+
 // Kleinanzeigen: all Berlin (district filtering is client-side only per portal YAML)
 const KA_LOCATION_ID = '3331';
 
@@ -95,38 +97,49 @@ export function scoreAgainstPrefs(listing, prefs) {
 export async function hunt(options = {}) {
   const cfg = loadConfig();
   const portals = options.portals || cfg.portals.enabled;
+  const jsonMode = options.jsonMode ?? JSON_MODE;
+
+  // results = listings surfaced to triage (pending + review), newListings = newly upserted this run
   const results = [];
+  const newListings = [];
+  const errors = [];
+  const counts = { pending: 0, review: 0, block: 0, filtered: 0 };
 
   for (const portal of portals) {
-    console.log(`\n[hunt] Searching ${portal}...`);
+    if (!jsonMode) console.log(`\n[hunt] Searching ${portal}...`);
     let searchUrl;
     try {
       searchUrl = buildSearchUrl(portal, cfg.search);
     } catch (e) {
-      console.error(`[hunt] Skipping ${portal}: ${e.message}`);
+      if (!jsonMode) console.error(`[hunt] Skipping ${portal}: ${e.message}`);
+      errors.push({ portal, message: e.message });
       continue;
     }
-    console.log(`[hunt] URL: ${searchUrl}`);
+    if (!jsonMode) console.log(`[hunt] URL: ${searchUrl}`);
 
     const { html, tier, error } = await scrapeUrl(searchUrl);
     if (error || !html) {
-      console.error(`[hunt] Failed to fetch search page: ${error}`);
+      if (!jsonMode) console.error(`[hunt] Failed to fetch search page: ${error}`);
+      errors.push({ portal, message: error || 'empty html' });
       continue;
     }
-    console.log(`[hunt] Fetched via tier ${tier}, ${html.length} chars`);
+    if (!jsonMode) console.log(`[hunt] Fetched via tier ${tier}, ${html.length} chars`);
 
     const cards = parseSearchResults(html, portal);
-    console.log(`[hunt] Found ${cards.length} listing cards`);
+    if (!jsonMode) console.log(`[hunt] Found ${cards.length} listing cards`);
 
-    if (cards.length === 0) {
+    if (cards.length === 0 && !jsonMode) {
       console.log(`[hunt] No cards found — HTML snippet:`);
       console.log(html.substring(0, 800));
     }
 
     let newCount = 0;
     for (const card of cards.slice(0, 20)) {
-      if (!card.external_id || isSeen(card.portal, card.external_id)) {
-        process.stdout.write('.');
+      if (!card.external_id) continue;
+
+      const alreadySeen = isSeen(card.portal, card.external_id);
+      if (alreadySeen) {
+        if (!jsonMode) process.stdout.write('.');
         continue;
       }
 
@@ -138,12 +151,21 @@ export async function hunt(options = {}) {
         listing = { ...card, ...parsed };
       }
 
-      const { score: scam, verdict, reasons } = scamScore(listing);
+      const { score: scam, verdict: scamVerdict, reasons } = scamScore(listing);
       listing.scam_score = scam;
-      listing.verdict = verdict === 'block' ? 'block' : 'pending';
 
+      // Map scam verdicts: block→block, review→review, ok→pending
+      if (scamVerdict === 'block') {
+        listing.verdict = 'block';
+      } else if (scamVerdict === 'review') {
+        listing.verdict = 'review';
+      } else {
+        listing.verdict = 'pending';
+      }
+
+      // Pref filtering overrides to 'filtered' (but not block)
       const prefScore = scoreAgainstPrefs(listing, cfg.search);
-      if (prefScore < 0) listing.verdict = 'filtered';
+      if (prefScore < 0 && listing.verdict !== 'block') listing.verdict = 'filtered';
 
       listing.raw_json = JSON.stringify({ ...listing, raw_json: undefined });
       upsertListing({
@@ -163,32 +185,59 @@ export async function hunt(options = {}) {
       });
 
       newCount++;
-      if (listing.verdict === 'pending') {
+      counts[listing.verdict] = (counts[listing.verdict] || 0) + 1;
+
+      // Track new listings for --json output
+      newListings.push({
+        title:      listing.title || null,
+        district:   listing.district || null,
+        cold_rent:  listing.cold_rent || null,
+        rooms:      listing.rooms || null,
+        sqm:        listing.sqm || null,
+        scam_score: listing.scam_score,
+        verdict:    listing.verdict,
+        url:        listing.url || card.url,
+      });
+
+      if (listing.verdict === 'pending' || listing.verdict === 'review') {
         results.push(listing);
-        console.log(`\n[hunt] ✓ ${listing.title || card.url}`);
-        console.log(`       District : ${listing.district || '?'}`);
-        console.log(`       Cold rent: €${listing.cold_rent || '?'} | Warm rent: €${listing.warm_rent || '?'}`);
-        console.log(`       Rooms    : ${listing.rooms || '?'} | sqm: ${listing.sqm || '?'}`);
-        console.log(`       Scam     : ${scam} (${verdict}) | Reasons: ${reasons.map(r => r.code).join(', ') || 'none'}`);
-        console.log(`       URL      : ${card.url}`);
+        if (!jsonMode) {
+          const marker = listing.verdict === 'review' ? '?' : '✓';
+          console.log(`\n[hunt] ${marker} [${listing.verdict.toUpperCase()}] ${listing.title || card.url}`);
+          console.log(`       District : ${listing.district || '?'}`);
+          console.log(`       Cold rent: €${listing.cold_rent || '?'} | Warm rent: €${listing.warm_rent || '?'}`);
+          console.log(`       Rooms    : ${listing.rooms || '?'} | sqm: ${listing.sqm || '?'}`);
+          console.log(`       Scam     : ${scam} (${scamVerdict}) | Reasons: ${reasons.map(r => r.code).join(', ') || 'none'}`);
+          console.log(`       URL      : ${card.url}`);
+        }
       } else {
-        console.log(`\n[hunt] ✗ ${listing.verdict.toUpperCase()}: ${listing.title || card.url} (scam=${scam})`);
+        if (!jsonMode) {
+          console.log(`\n[hunt] ✗ ${listing.verdict.toUpperCase()}: ${listing.title || card.url} (scam=${scam})`);
+        }
       }
     }
 
-    if (newCount === 0 && cards.length > 0) {
+    if (!jsonMode && newCount === 0 && cards.length > 0) {
       console.log(`\n[hunt] All ${cards.length} listings already seen.`);
     }
   }
 
-  console.log(`\n[hunt] Done. ${results.length} new listings queued for triage.`);
+  if (jsonMode) {
+    process.stdout.write(JSON.stringify({ new: newListings, counts, errors }, null, 2) + '\n');
+  } else {
+    const surfaced = results.filter(r => r.verdict === 'pending').length;
+    const inReview = results.filter(r => r.verdict === 'review').length;
+    console.log(`\n[hunt] Done. ${surfaced} pending + ${inReview} review listings queued for triage.`);
+  }
+
   return results;
 }
 
 // CLI entry point
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   hunt().catch(err => {
-    console.error('[hunt] Fatal:', err.message);
+    if (!JSON_MODE) console.error('[hunt] Fatal:', err.message);
+    else process.stdout.write(JSON.stringify({ new: [], counts: {}, errors: [{ message: err.message }] }) + '\n');
     process.exit(1);
   });
 }

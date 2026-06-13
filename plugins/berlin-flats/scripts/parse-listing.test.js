@@ -3,13 +3,13 @@ import { parseSearchResults, parseDetail } from './parse-listing.js';
 const mockSearchHtml = `
 <html><body>
 <article class="aditem" data-adid="123">
-  <a class="ellipsis" href="/s-anzeige/wohnung-mitte/123-456">Schöne Altbauwohnung Mitte</a>
+  <a class="ellipsis" href="/s-anzeige/wohnung-mitte/2912345678-203-456">Schöne Altbauwohnung Mitte</a>
   <p class="aditem-main--middle--price-shipping--price">1.800 €</p>
   <p class="aditem-main--top--left">10115 Berlin Mitte</p>
   <p class="aditem-main--top--right">Heute</p>
 </article>
 <article class="aditem" data-adid="456">
-  <a class="ellipsis" href="/s-anzeige/wg-zimmer/456-789">WG Zimmer Kreuzberg</a>
+  <a class="ellipsis" href="/s-anzeige/wg-zimmer/2987654321-203-789">WG Zimmer Kreuzberg</a>
   <p class="aditem-main--middle--price-shipping--price">500 €</p>
   <p class="aditem-main--top--left">10961 Berlin Kreuzberg</p>
 </article>

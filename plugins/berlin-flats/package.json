@@ -1,10 +1,11 @@
 {
   "name": "berlin-flats",
   "type": "module",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
     "hunt": "node --experimental-sqlite scripts/hunt.js",
-    "test": "node scripts/config.test.js && node scripts/parse-listing.test.js && node scripts/scam-score.test.js && node scripts/hunt.smoke.js"
+    "calibrate": "node --experimental-sqlite scripts/calibrate.js",
+    "test": "node scripts/config.test.js && node scripts/parse-listing.test.js && node scripts/scam-score.test.js && node --experimental-sqlite scripts/db.test.js && node --experimental-sqlite scripts/prefs.test.js && node --experimental-sqlite scripts/calibrate.smoke.js && node scripts/hunt.smoke.js"
   },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
