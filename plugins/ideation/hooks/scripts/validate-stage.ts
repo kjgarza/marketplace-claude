@@ -26,7 +26,14 @@ if (!stageFiles.has(base)) process.exit(0);
 
 let content = toolInput.content ?? "";
 if (!content && path && existsSync(path)) {
-  content = readFileSync(path, "utf8");
+  // Read failures (permissions, transient FS) are unrelated to stage-file
+  // validity — stay fail-open (exit 0) like the JSON-parse guard above rather
+  // than crashing and blocking the pipeline.
+  try {
+    content = readFileSync(path, "utf8");
+  } catch {
+    process.exit(0);
+  }
 }
 if (!content) process.exit(0);
 

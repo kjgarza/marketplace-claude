@@ -6,8 +6,9 @@
 //   bun scripts/set-verdict.ts --id 12 --verdict accepted
 import { setVerdict } from './db.ts';
 
-// Verdicts a human may set via this CLI (system-assigned states like `review`
-// and `filtered` are excluded). Keep in sync with the usage string below.
+// Verdicts a human may set via this CLI. `review`/`filtered` are intentionally
+// omitted — they're transient scoring buckets the scraper assigns, not manual
+// decisions. Keep in sync with the usage string below.
 const ALLOWED_VERDICTS = ['accepted', 'rejected', 'snoozed', 'contacted', 'pending', 'block'] as const;
 const USAGE = `Usage: set-verdict.ts --id <n> --verdict <${ALLOWED_VERDICTS.join('|')}> [--reason "..."]`;
 
