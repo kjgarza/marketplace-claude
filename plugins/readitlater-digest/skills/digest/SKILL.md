@@ -56,7 +56,7 @@ sqlite3 "<db_path>" \
   "SELECT id, file_path FROM digests WHERE week_start = '<week_start>' AND week_end = '<week_end>'"
 ```
 
-If a row is returned, **abort immediately** and report: "A digest already exists for <week_start> to <week_end>: <file_path>. Pass --force to regenerate." Do not proceed unless the user explicitly confirms.
+If a row is returned, **abort immediately** and report: "A digest already exists for <week_start> to <week_end>: <file_path>. Pass --force to regenerate." Do not proceed unless the user explicitly confirms. When the user passes `--force`, proceed and pass `--force` to `update-db.ts` in Step 6 (the script otherwise exits non-zero on a duplicate week — this guard is now enforced in code, not just prose).
 
 ### Step 1: Initialize database and validate paths
 
@@ -111,6 +111,14 @@ If `--dry-run`, print the scan results and stop here.
 
 ### Step 4: Cluster by theme and find the narrative
 
+**First, read recent feedback** to bias theme selection toward what the reader actually engages with:
+
+```bash
+$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/record-feedback.ts --db-path "<db_path>" --recent --limit 5
+```
+
+If feedback rows are returned, weight recurring `themes_liked` up (favor and foreground them when present this week) and themes repeatedly noted as skipped/disliked down (still include if strongly represented, but don't lead with them). If there is no feedback yet, proceed normally.
+
 1. Analyze all **resolvable** bookmarks together and identify **3-7 natural themes**:
    - Themes should be specific and descriptive (e.g., "Agentic Engineering Patterns & Multi-Agent Architectures" not "AI")
    - A bookmark can appear in multiple themes if it genuinely spans topics
@@ -119,6 +127,14 @@ If `--dry-run`, print the scan results and stop here.
 3. **Find the throughline.** Identify the overarching narrative that connects the week's themes — a single sentence or idea that ties the reading together. This becomes the digest title and opening paragraph.
 
 ### Step 5: Generate the digest note
+
+**Backlog catch-up.** Inspect the `date_saved` span of the unprocessed bookmarks. If they span **more than one ISO week** (e.g. after a multi-week gap):
+- Group bookmarks by their ISO week (Monday–Sunday of `date_saved`).
+- Generate **one digest per week, newest first, for at most the 3 most recent weeks** — each is a normal themed digest scoped to that week's bookmarks, written to its own `Digest — <week_start> to <week_end>.md` and committed to the DB (Step 6) before moving to the next.
+- Roll any remaining older bookmarks into a single **"Backlog"** digest titled by its date range, covering everything older than those 3 weeks.
+- Run Step 0's existing-digest check per target week; skip weeks already digested (unless `--force`).
+
+When the unprocessed bookmarks fall within a single week, generate one digest as usual.
 
 Determine week boundaries (default: Monday-Sunday of the current week, or use `--week YYYY-MM-DD` to specify the Monday).
 

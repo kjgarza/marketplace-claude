@@ -18,21 +18,23 @@ export function updateAfterDigest(
   weekStart: string,
   weekEnd: string,
   themes?: { name: string; count: number }[],
+  force = false,
 ): UpdateResult {
   const db = new Database(dbPath);
   const now = new Date().toISOString().replace("T", " ").slice(0, 19);
 
-  // Check for existing digest covering same period
+  // Idempotency guard: refuse to create a duplicate digest for the same week unless --force.
   const existing = db
     .query<{ id: number }, [string, string]>(
       "SELECT id FROM digests WHERE week_start = ? AND week_end = ?",
     )
     .get(weekStart, weekEnd);
 
-  if (existing) {
-    console.warn(
-      `Warning: A digest already exists for ${weekStart} to ${weekEnd} ` +
-        `(digest_id=${existing.id}). Creating a new one anyway.`,
+  if (existing && !force) {
+    db.close();
+    throw new Error(
+      `A digest already exists for ${weekStart} to ${weekEnd} (digest_id=${existing.id}). ` +
+        `Re-run with --force to regenerate.`,
     );
   }
 
@@ -93,6 +95,7 @@ if (import.meta.main) {
       "week-start": { type: "string" },
       "week-end": { type: "string" },
       "themes-json": { type: "string" },
+      "force": { type: "boolean" },
     },
     strict: true,
     allowPositionals: false,
@@ -118,14 +121,19 @@ if (import.meta.main) {
     ? JSON.parse(values["themes-json"])
     : undefined;
 
-  const result = updateAfterDigest(
-    values["db-path"]!,
-    values["digest-file"]!,
-    bookmarkFiles,
-    values["week-start"]!,
-    values["week-end"]!,
-    themes,
-  );
-
-  console.log(JSON.stringify(result, null, 2));
+  try {
+    const result = updateAfterDigest(
+      values["db-path"]!,
+      values["digest-file"]!,
+      bookmarkFiles,
+      values["week-start"]!,
+      values["week-end"]!,
+      themes,
+      values["force"] ?? false,
+    );
+    console.log(JSON.stringify(result, null, 2));
+  } catch (e) {
+    console.error(String(e instanceof Error ? e.message : e));
+    process.exit(2);
+  }
 }

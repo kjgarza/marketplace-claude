@@ -41,10 +41,21 @@ CREATE TABLE IF NOT EXISTS themes (
     FOREIGN KEY (digest_id) REFERENCES digests(id)
 );
 
+CREATE TABLE IF NOT EXISTS feedback (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    digest_id INTEGER NOT NULL,
+    rating INTEGER,
+    notes TEXT,
+    themes_liked TEXT,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (digest_id) REFERENCES digests(id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_bookmarks_status ON bookmarks(status);
 CREATE INDEX IF NOT EXISTS idx_bookmarks_url ON bookmarks(url);
 CREATE INDEX IF NOT EXISTS idx_bookmarks_digest ON bookmarks(digest_id);
 CREATE INDEX IF NOT EXISTS idx_themes_digest ON themes(digest_id);
+CREATE INDEX IF NOT EXISTS idx_feedback_digest ON feedback(digest_id);
 `;
 
 export function initDb(dbPath: string): void {
