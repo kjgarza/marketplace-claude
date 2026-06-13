@@ -35,22 +35,33 @@ function buildSearchUrl(params, registry) {
   if (keyword) return base + "/VHSKURSE/BusinessPages/CourseList.aspx?stichw=" + encodeURIComponent(keyword);
   return base + "/VHSKURSE/BusinessPages/CourseList.aspx";
 }
-async function fetchHtml(url) {
+async function fetchDirect(url) {
   try {
     const res = await fetch(url, {
       headers: { "User-Agent": BROWSER_UA, "Accept-Language": "de-DE,de;q=0.9,en;q=0.8", Accept: "text/html,application/xhtml+xml,*/*;q=0.8" },
       redirect: "follow", signal: AbortSignal.timeout(15000),
     });
-    if (res.ok) { const html = await res.text(); if (html.length > 500) return { html, tier: 1 }; }
+    if (res.ok) { const html = await res.text(); if (html.length > 500) return html; }
   } catch (_) {}
+  return null;
+}
+// Jina reader executes client-side JS and returns the rendered HTML — needed because
+// the VHS course list is hydrated by JavaScript and a raw fetch yields 0 course links.
+async function fetchJina(url) {
   try {
-    const jinaUrl = "https://r.jina.ai/" + url;
-    const res = await fetch(jinaUrl, {
+    const res = await fetch("https://r.jina.ai/" + url, {
       headers: { "User-Agent": BROWSER_UA, Accept: "text/html,text/plain", "X-Return-Format": "html" },
       signal: AbortSignal.timeout(25000),
     });
-    if (res.ok) { const html = await res.text(); return { html, tier: 2, via: "jina" }; }
+    if (res.ok) return await res.text();
   } catch (_) {}
+  return null;
+}
+async function fetchHtml(url) {
+  const direct = await fetchDirect(url);
+  if (direct) return { html: direct, tier: 1 };
+  const jina = await fetchJina(url);
+  if (jina) return { html: jina, tier: 2, via: "jina" };
   return { html: "", tier: 0, error: "all tiers failed" };
 }
 
@@ -126,12 +137,21 @@ if (import.meta.main) {
   const limit = values["limit"] ? parseInt(values["limit"]) : 50;
   const registry = loadConfig("query-registry.yaml");
   const url = buildSearchUrl(params, registry);
-  const { html, tier, via, error } = await fetchHtml(url);
+  let { html, tier, via, error } = await fetchHtml(url);
   if (!html) {
     console.log(JSON.stringify({ courses: [], url, tier, verification: { ok: false, reason: error ?? "empty response" } }, null, 2));
     process.exit(0);
   }
-  const courses = parseCourseList(html, url).slice(0, limit);
+  let courses = parseCourseList(html, url).slice(0, limit);
+  // The VHS course list is JS-rendered; a direct fetch returns HTML with 0 course
+  // links. If tier-1 parsed nothing, retry through Jina (which renders JS) and re-parse.
+  if (courses.length === 0 && tier === 1) {
+    const jina = await fetchJina(url);
+    if (jina) {
+      const jinaCourses = parseCourseList(jina, url).slice(0, limit);
+      if (jinaCourses.length > 0) { courses = jinaCourses; html = jina; tier = 2; via = "jina-rerender"; }
+    }
+  }
   const verification = courses.length === 0
     ? { ok: false, reason: "HTML received (" + html.length + " bytes) but 0 courses parsed — selectors may need updating or page requires JS rendering" }
     : { ok: true };

@@ -49,6 +49,21 @@ scripts/
 
 All scripts accept `--db-path` and output JSON to stdout.
 
+## Known limitation — live course extraction
+
+The VHS course list (`CourseList.aspx`) is an **ASP.NET WebForms** page whose results are
+hydrated by JavaScript / postback after the initial load. A raw HTTP fetch (and the Jina
+reader fallback) returns the page shell with **0 parseable course rows**. `search.ts` detects
+this and returns `verification.ok = false` with an explicit reason — it never fabricates data.
+
+The DB layer, snapshot diffing, watch/digest logic, and URL building are all functional. To
+make live extraction work, a follow-up needs **one** of:
+- recon of the AJAX/postback endpoint that returns the course rows (capture it via the
+  browser network tab, then have `search.ts` POST to it with the right `__VIEWSTATE`), or
+- an in-session browser fetch (e.g. `claude-in-chrome`) feeding rendered HTML to the parser.
+
+Until then, treat `vhs-search` / `vhs-watch` as wired-but-pending-recon rather than autonomous.
+
 ## Requirements
 
 - **bun** (≥1.0) — `curl -fsSL https://bun.sh/install | bash`
