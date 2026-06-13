@@ -1,4 +1,6 @@
-export type Portal = "kleinanzeigen" | "immoscout24" | string;
+// `string & {}` keeps the known-portal literals (narrowing + autocomplete)
+// while still allowing any custom portal string, instead of collapsing to `string`.
+export type Portal = "kleinanzeigen" | "immoscout24" | (string & {});
 
 export interface SearchCriteria {
   districts?: string[];

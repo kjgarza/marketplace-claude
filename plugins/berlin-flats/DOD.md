@@ -33,8 +33,11 @@ FAIL if qualifying_count == 0
 
 ```bash
 cd plugins/berlin-flats
-bun scripts/queue.ts pending
+# Prints qualifying_count (an integer). PASS if >= 1, FAIL if 0.
+bun scripts/queue.ts qualifying
 ```
+
+To inspect the listings behind the count, use `bun scripts/queue.ts pending`.
 
 ## Baseline
 

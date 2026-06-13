@@ -7,7 +7,11 @@ allowed-tools: Bash, Read, Agent
 Resolve Bun once:
 
 ```bash
-BUN_BIN="$(command -v bun || echo /opt/homebrew/bin/bun)"
+BUN_BIN="$(command -v bun 2>/dev/null || true)"
+for c in "$HOME/.bun/bin/bun" /opt/homebrew/bin/bun /usr/local/bin/bun; do
+  [ -n "$BUN_BIN" ] && break; [ -x "$c" ] && BUN_BIN="$c"
+done
+: "${BUN_BIN:=bun}"
 ```
 
 ## Step 1 — Adjudicate the review band with scam-judge

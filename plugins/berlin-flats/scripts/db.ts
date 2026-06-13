@@ -124,6 +124,27 @@ export function getQueue(verdict = 'pending'): Listing[] {
   ).all({ $verdict: verdict }) as Listing[];
 }
 
+// Count listings that satisfy the DOD pass condition (see DOD.md): pending,
+// in a target Berlin district, within the rent ceiling, and a real listing URL.
+export function countQualifying(): number {
+  const districts = [
+    'Mitte', 'Prenzlauer Berg', 'Friedrichshain', 'Kreuzberg', 'Neukölln',
+    'Charlottenburg', 'Schöneberg', 'Wilmersdorf', 'Pankow', 'Berlin',
+  ];
+  const districtClause = districts.map((_, i) => `district LIKE $d${i}`).join(' OR ');
+  const params: Record<string, string> = {};
+  districts.forEach((d, i) => { params[`$d${i}`] = `%${d}%`; });
+  const row = getDb().query(
+    `SELECT COUNT(*) AS n FROM listings
+     WHERE verdict = 'pending'
+       AND (${districtClause})
+       AND ((warm_rent IS NOT NULL AND warm_rent <= 2000)
+            OR (cold_rent IS NOT NULL AND cold_rent <= 1600))
+       AND (url LIKE '%/s-anzeige/%' OR url LIKE '%/expose/%')`
+  ).get(params) as { n: number };
+  return row.n;
+}
+
 export function setVerdict(id: number, verdict: string, reason: string | null = null): void {
   getDb().query(
     'UPDATE listings SET verdict=$verdict, reject_reason=$reason WHERE id=$id'

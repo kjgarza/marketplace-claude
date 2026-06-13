@@ -11,7 +11,14 @@ require_paths "$PLUGIN/scripts/hunt.ts" "$SUMMARY_TS"
 # Quiet hours: skip the run entirely (no scraping, no notify) 22:00–07:00 Berlin.
 if berlin_quiet_hours; then echo "$JOB: quiet hours, skipping"; exit 0; fi
 
-BUN_BIN="$(command -v bun 2>/dev/null || echo /opt/homebrew/bin/bun)"
+# Resolve Bun across PATH and the common install dirs (Apple Silicon + Intel
+# Homebrew, ~/.bun), since scheduled launchd jobs may run with a bare PATH.
+BUN_BIN="$(command -v bun 2>/dev/null || true)"
+for c in "$HOME/.bun/bin/bun" /opt/homebrew/bin/bun /usr/local/bin/bun; do
+  [ -n "$BUN_BIN" ] && break
+  [ -x "$c" ] && BUN_BIN="$c"
+done
+: "${BUN_BIN:=bun}"
 LD="$(log_dir "$JOB")"; LOG="$LD/$(date +%Y-%m-%d_%H%M%S).log"
 
 OUT="$(cd "$PLUGIN" && "$BUN_BIN" scripts/hunt.ts --json 2>>"$LOG")"
