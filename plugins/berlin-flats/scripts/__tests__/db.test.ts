@@ -3,7 +3,7 @@ import { Database } from "bun:sqlite";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { ensureColumn, getDb, getQueue, isSeen, resetDbForTests, setVerdict, upsertListing } from "../db.ts";
+import { countQualifying, ensureColumn, getDb, getQueue, isSeen, resetDbForTests, setVerdict, upsertListing } from "../db.ts";
 
 let tempDir: string | undefined;
 
@@ -75,5 +75,71 @@ describe("listing persistence", () => {
     setVerdict(row.id!, "rejected", "too far");
     const [rejected] = getQueue("rejected");
     expect(rejected.reject_reason).toBe("too far");
+  });
+});
+
+describe("countQualifying (DOD pass condition)", () => {
+  // One fully-qualifying listing plus one of each disqualifying variant, so the
+  // count must be exactly 1. This pins the DOD qualifying_count contract:
+  // pending verdict + target district + rent ceiling + real listing URL.
+  test("counts only listings meeting every DOD criterion", () => {
+    useTempDb();
+    // Qualifying: pending, Mitte, warm_rent within ceiling, real s-anzeige URL.
+    upsertListing({
+      portal: "kleinanzeigen",
+      external_id: "q1",
+      url: "https://www.kleinanzeigen.de/s-anzeige/2-zimmer/123",
+      district: "Mitte",
+      warm_rent: 1800,
+      verdict: "pending",
+    });
+    // Qualifying via cold_rent proxy + expose URL.
+    upsertListing({
+      portal: "immoscout24",
+      external_id: "q2",
+      url: "https://www.immobilienscout24.de/expose/456",
+      district: "Prenzlauer Berg",
+      cold_rent: 1500,
+      verdict: "pending",
+    });
+    // Disqualified: wrong verdict.
+    upsertListing({
+      portal: "kleinanzeigen",
+      external_id: "x_verdict",
+      url: "https://www.kleinanzeigen.de/s-anzeige/x/1",
+      district: "Mitte",
+      warm_rent: 1800,
+      verdict: "rejected",
+    });
+    // Disqualified: district not in the target set.
+    upsertListing({
+      portal: "kleinanzeigen",
+      external_id: "x_district",
+      url: "https://www.kleinanzeigen.de/s-anzeige/x/2",
+      district: "Spandau",
+      warm_rent: 1800,
+      verdict: "pending",
+    });
+    // Disqualified: over the rent ceiling (warm > 2000, cold > 1600).
+    upsertListing({
+      portal: "kleinanzeigen",
+      external_id: "x_rent",
+      url: "https://www.kleinanzeigen.de/s-anzeige/x/3",
+      district: "Mitte",
+      warm_rent: 2500,
+      cold_rent: 2100,
+      verdict: "pending",
+    });
+    // Disqualified: not a real listing URL.
+    upsertListing({
+      portal: "kleinanzeigen",
+      external_id: "x_url",
+      url: "https://www.kleinanzeigen.de/s-suche/preview",
+      district: "Mitte",
+      warm_rent: 1800,
+      verdict: "pending",
+    });
+
+    expect(countQualifying()).toBe(2);
   });
 });
