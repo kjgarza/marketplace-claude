@@ -13,9 +13,9 @@
 
 ## Current Runtime Snapshot
 
-- Language: JavaScript (ESM)
+- Language: TypeScript (ESM)
 - Runtime: Bun + TypeScript
-- Database API: `node:sqlite`
+- Database API: `bun:sqlite`
 - HTML parsing: `cheerio`
 - Config parsing: `@iarna/toml`
 - Network fetch: built-in `fetch` with Jina fallback

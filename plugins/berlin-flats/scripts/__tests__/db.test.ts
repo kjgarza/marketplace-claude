@@ -31,6 +31,14 @@ describe("ensureColumn", () => {
     expect(cols.filter((c) => c.name === "b")).toHaveLength(1);
     db.close();
   });
+
+  test("rejects unsanitized column types and identifiers", () => {
+    const db = new Database(":memory:");
+    db.exec("CREATE TABLE t (id INTEGER PRIMARY KEY)");
+    expect(() => ensureColumn(db, "t", "c", "TEXT); DROP TABLE t;--")).toThrow(/column type/);
+    expect(() => ensureColumn(db, "t", "c)--", "TEXT")).toThrow(/identifier/);
+    db.close();
+  });
 });
 
 describe("listing persistence", () => {
@@ -76,12 +84,20 @@ describe("listing persistence", () => {
     const [rejected] = getQueue("rejected");
     expect(rejected.reject_reason).toBe("too far");
   });
+
+  test("upsertListing rejects a listing with no external_id", () => {
+    useTempDb();
+    expect(() =>
+      upsertListing({ portal: "kleinanzeigen", url: "https://example.test/x" }),
+    ).toThrow(/external_id/);
+  });
 });
 
 describe("countQualifying (DOD pass condition)", () => {
-  // One fully-qualifying listing plus one of each disqualifying variant, so the
-  // count must be exactly 1. This pins the DOD qualifying_count contract:
-  // pending verdict + target district + rent ceiling + real listing URL.
+  // Two qualifying listings (one per pass path: warm-rent ceiling + s-anzeige
+  // URL, and cold-rent proxy + expose URL) plus one of each disqualifying
+  // variant, so the count must be exactly 2. This pins the DOD qualifying_count
+  // contract: pending verdict + target district + rent ceiling + real listing URL.
   test("counts only listings meeting every DOD criterion", () => {
     useTempDb();
     // Qualifying: pending, Mitte, warm_rent within ceiling, real s-anzeige URL.

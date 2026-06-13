@@ -11,7 +11,7 @@ If you have not configured `config/config.toml` yet, run `/berlin-flats:init` fi
 First, check that dependencies are installed:
 
 ```bash
-cd $CLAUDE_PLUGIN_ROOT && ls node_modules 2>/dev/null || npm install
+cd $CLAUDE_PLUGIN_ROOT && ls node_modules 2>/dev/null || bun install
 ```
 
 Then run the hunt:

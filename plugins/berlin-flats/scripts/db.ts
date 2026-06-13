@@ -13,6 +13,15 @@ function assertIdentifier(value: string): void {
   }
 }
 
+// Column types are interpolated into ALTER TABLE, so constrain them to a known
+// allowlist rather than trusting the caller-supplied string (no SQL injection).
+const ALLOWED_COLUMN_TYPES = new Set(['TEXT', 'INTEGER', 'REAL', 'BLOB', 'NUMERIC']);
+function assertColumnType(type: string): void {
+  if (!ALLOWED_COLUMN_TYPES.has(type.toUpperCase())) {
+    throw new Error(`Invalid SQLite column type: ${type}`);
+  }
+}
+
 /**
  * Ensure a column exists in a table. Uses PRAGMA table_info to check first,
  * then ALTER TABLE if missing. Safe to call on existing databases (migration helper).
@@ -20,6 +29,7 @@ function assertIdentifier(value: string): void {
 export function ensureColumn(db: SqliteDb, table: string, col: string, type: string): void {
   assertIdentifier(table);
   assertIdentifier(col);
+  assertColumnType(type);
   const cols = db.query(`PRAGMA table_info(${table})`).all() as Array<{ name: string }>;
   const exists = cols.some((c) => c.name === col);
   if (!exists) {
@@ -73,6 +83,12 @@ export function resetDbForTests(): void {
 }
 
 export function upsertListing(listing: Listing): void {
+  // external_id is optional on Listing (it's populated incrementally while
+  // scraping) but NOT NULL in the schema and half the UNIQUE key. Fail fast
+  // with a clear message instead of a cryptic SQLite constraint error.
+  if (!listing.external_id) {
+    throw new Error(`upsertListing requires external_id (portal=${listing.portal}, url=${listing.url})`);
+  }
   const db = getDb();
   const stmt = db.query(`
     INSERT INTO listings (portal, external_id, url, title, cold_rent, warm_rent,
