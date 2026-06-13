@@ -12,7 +12,7 @@ DB="${VHS_BERLIN_DB:-$HOME/.local/share/vhs-berlin/vhs.db}"
 LD="$(log_dir "$JOB")"; LOG="$LD/$(date +%Y-%m-%d_%H%M%S).log"
 
 # Ensure deps + DB exist (idempotent).
-( cd "$PLUGIN" && [ -d node_modules ] || "$BUN" install ) >>"$LOG" 2>&1
+( cd "$PLUGIN" && { [ -d node_modules ] || "$BUN" install; } ) >>"$LOG" 2>&1
 [ -f "$DB" ] || ( cd "$PLUGIN" && "$BUN" run scripts/init-db.ts --db-path "$DB" ) >>"$LOG" 2>&1
 
 OUT="$(cd "$PLUGIN" && "$BUN" run scripts/watch.ts check --db-path "$DB" 2>>"$LOG")"

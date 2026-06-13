@@ -71,8 +71,14 @@ async function cmdSave(db, label, queryJson) {
   const watchId = Number(db.query("SELECT last_insert_rowid() as id").get().id);
   const registry = loadConfig("query-registry.yaml");
   const url = buildSearchUrl(payload.parsed ?? payload, registry);
-  const { html } = await fetchHtml(url);
-  const courseIds = html ? parseCourseIds(html) : [];
+  const { html, tier, error } = await fetchHtml(url);
+  // Don't write a baseline snapshot if the initial fetch failed — an empty
+  // baseline would later make every real course look "new". Save the watch but
+  // report the verification failure; the first successful check sets the baseline.
+  if (tier === 0 || !html) {
+    return { watch_id: watchId, label, url, verification_failed: true, error: error ?? "fetch failed", course_count: 0 };
+  }
+  const courseIds = parseCourseIds(html);
   const hash = snapshotHash(courseIds);
   db.prepare("INSERT INTO snapshots (watch_id,extracted_at,result_hash,result_count,result_course_ids) VALUES (?,?,?,?,?)")
     .run(watchId, now, hash, courseIds.length, JSON.stringify(courseIds));
