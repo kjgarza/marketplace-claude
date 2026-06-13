@@ -58,11 +58,18 @@ Generate a complete communication timeline for the current book club cycle, mapp
          "day_of_week": "Monday",
          "type": "announce",
          "command": "/bookclub:generate announce",
-         "description": "Book of the month announcement"
+         "description": "Book of the month announcement",
+         "sent": false,
+         "sent_at": null
        }
      ]
    }
    ```
+
+   Every entry carries `"sent": false` and `"sent_at": null` when the timeline is first created.
+   The `/bookclub:dispatch` command flips these to `true` / an ISO timestamp once a message has
+   been generated and delivered, so scheduled dispatch is idempotent. Preserve existing `sent`
+   values when regenerating a timeline for the same book.
 
 6. **Save outputs** under `book_dir`
    - `bookclub-timeline.md` and `bookclub-timeline.json`

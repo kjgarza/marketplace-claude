@@ -2,190 +2,116 @@
 name: vhs-digest
 description: "Generate awareness summaries and digests of VHS Berlin courses. Create weekly summaries of new courses, courses starting soon, status changes, or custom digest views. Use when the user wants a periodic overview or 'what's new this week' summary."
 argument-hint: "[period: daily|weekly|monthly] [optional: custom filters]"
-allowed-tools: ["Read", "Bash", "mcp__sqlite__read_query", "mcp__sqlite__list_tables"]
+allowed-tools: ["Bash", "Read", "Write"]
 ---
 
 # VHS Digest: Awareness Summaries
 
-Generate periodic summaries of VHS Berlin course activity based on your watches and interests.
+Generate periodic summaries of VHS Berlin course activity based on your watches and interests. All data comes from the local SQLite database populated by watch checks and searches.
+
+## Configuration
+
+Read DB path from `.claude/vhs-berlin-agent.local.md` (frontmatter `db_path`), else default `~/.local/share/vhs-berlin/vhs.db`.
+
+## Resolve bun
+
+```bash
+BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
+```
 
 ## Workflow
 
-### Digest Type: Weekly
+### Digest Type: Weekly (default)
 
-**User request:** "What's new this week?" or "Weekly digest"
+**User request:** "What's new this week?" or "Weekly VHS digest"
 
-#### Step 1: Define Time Window
+#### Step 1: Define time window
+
 ```
-start_date = today - 7 days
-end_date = today
-```
-
-#### Step 2: Query New Courses
-Find courses extracted within the time window that match your active watches:
-
-```sql
-SELECT DISTINCT c.*
-FROM courses c
-JOIN snapshots s ON json_extract(s.result_course_ids, '$') LIKE '%' || c.source_course_id || '%'
-JOIN watched_searches w ON s.watch_id = w.watch_id
-WHERE w.enabled = 1
-  AND c.extracted_at >= date('now', '-7 days')
-  AND c.extracted_at <= date('now')
-ORDER BY c.start_date ASC;
+period = weekly → 7 days
+period = monthly → 30 days
+period = daily → 1 day
 ```
 
-#### Step 3: Query Recent Changes
-Find events logged in the past week:
+#### Step 2: Query the database
 
-```sql
-SELECT e.*, c.title, c.district, c.location, w.label AS watch_label
-FROM course_events e
-LEFT JOIN courses c ON e.course_id = c.source_course_id
-LEFT JOIN watched_searches w ON e.watch_id = w.watch_id
-WHERE e.detected_at >= date('now', '-7 days')
-ORDER BY e.detected_at DESC;
+Run these queries using `sqlite3`:
+
+**New courses this period:**
+```bash
+sqlite3 "<db_path>" "SELECT DISTINCT c.source_course_id, c.title, c.district, c.location, c.schedule_text, c.price_text, c.booking_status, c.source_url FROM courses c WHERE c.extracted_at >= datetime('now', '-7 days') ORDER BY c.extracted_at DESC LIMIT 50"
 ```
 
-#### Step 4: Query Starting Soon
-Find courses starting in the next 2 weeks:
-
-```sql
-SELECT c.*
-FROM courses c
-JOIN snapshots s ON json_extract(s.result_course_ids, '$') LIKE '%' || c.source_course_id || '%'
-JOIN watched_searches w ON s.watch_id = w.watch_id
-WHERE w.enabled = 1
-  AND c.start_date >= date('now')
-  AND c.start_date <= date('now', '+14 days')
-ORDER BY c.start_date ASC;
+**Recent course events (changes):**
+```bash
+sqlite3 "<db_path>" "SELECT e.event_type, e.course_id, e.detected_at, w.label FROM course_events e LEFT JOIN watched_searches w ON e.watch_id = w.watch_id WHERE e.detected_at >= datetime('now', '-7 days') ORDER BY e.detected_at DESC"
 ```
 
-#### Step 5: Present Digest
+**Active watches:**
+```bash
+sqlite3 "<db_path>" "SELECT watch_id, label, last_checked_at FROM watched_searches WHERE enabled=1 ORDER BY label"
+```
+
+#### Step 3: Run check if no recent data
+
+If no courses extracted in the past period, offer to run a watch check first:
+```bash
+$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/watch.ts check --db-path "<db_path>"
+```
+
+#### Step 4: Present the digest
 
 ```
 # VHS Berlin Weekly Digest
-**Week of April 14-18, 2026**
+**Week of <date range>**
 
----
+## New Courses This Week (N)
 
-## 🆕 New Courses This Week (5)
+### <title> — <district>
+- **Where**: <location>
+- **When**: <schedule_text>
+- **Price**: <price_text>
+- **Status**: <booking_status>
+- **Link**: <source_url>
 
-### Deutsch B1.2 Intensiv — Mitte
-- **Where**: VHS Linienstraße
-- **When**: May 20 – Jul 15, Mon-Fri 09:00-12:15
-- **Price**: €280
-- **Status**: Anmeldung möglich
-- **Watch**: B1 German evening Mitte
-- **Link**: [View](...)
+## Course Changes (N)
+- <title> → new_course / disappeared (watch: <label>)
 
-### Töpfern für Anfänger — Pankow
-- **Where**: VHS Pankow, Schulstraße
-- **When**: May 10 – Jun 21, Sat 10:00-14:00
-- **Price**: €95
-- **Status**: Anmeldung möglich
-- **Watch**: Pottery weekend classes
-- **Link**: [View](...)
+## Your Active Watches
+- <label> (last checked: <date>)
 
----
-
-## 📅 Starting Soon (Next 2 Weeks)
-
-- **May 1**: Spanisch A2 Konversation (Neukölln)
-- **May 6**: Aquarellmalerei (Charlottenburg)
-- **May 8**: Python Programmierung (Mitte)
-
----
-
-## 🔄 Status Changes (3)
-
-- **Deutsch B1 Kompakt** (Mitte) → now open for registration (was waitlist)
-- **Yoga Anfänger** (Tempelhof) → waitlist (was open)
-- **Keramik Workshop** (Friedrichshain) → fully booked (was open)
-
----
-
-## ❌ No Longer Available (1)
-
-- **Deutsch B1 Wochenende** (Mitte) — removed from listing
-
----
-
-**Summary**: 5 new courses, 3 status changes, 3 courses starting soon.
-Want to adjust your watches or search for something specific?
+**Summary**: N new courses, N changes detected.
+Want to search for something specific or adjust your watches?
 ```
 
-If nothing new:
+If no data:
 ```
-# VHS Berlin Weekly Digest
-**Week of April 14-18, 2026**
-
-No new courses or changes this week matching your active watches.
-
-**Your active watches:**
-- B1 German evening Mitte
-- Pottery weekend classes
-
-Want to add more watches or explore different topics?
+No VHS course activity recorded yet.
+Run a watch check first, or search for courses to populate the database.
 ```
-
----
-
-### Digest Type: Monthly
-
-**User request:** "Monthly summary" or "What happened this month?"
-
-Similar to weekly, but with 30-day window.
 
 ---
 
 ### Digest Type: Custom
 
-**User request:** "Show me pottery classes that appeared this month under €100"
+**User request:** "Show pottery classes under €100 this month"
 
-#### Step 1: Parse Custom Filters
-Extract:
-- Time window: "this month"
-- Category: "pottery"
-- Price limit: "under €100"
+Parse custom filters (category, price limit, time window) and translate to appropriate sqlite3 queries using the `courses` table columns: `category`, `price_text`, `district`, `start_date`, `booking_status`, `extracted_at`.
 
-#### Step 2: Build Custom Query
-```sql
-SELECT c.*
-FROM courses c
-WHERE c.category LIKE '%töpfern%' OR c.category LIKE '%keramik%'
-  AND cast(replace(replace(c.price_text, '€', ''), ',', '.') AS REAL) < 100
-  AND c.extracted_at >= date('now', 'start of month')
-ORDER BY c.start_date ASC;
-```
-
-#### Step 3: Present Results
-
----
-
-## Digest Delivery Options
-
-### On-Demand
-User asks "Weekly digest" → generate and return immediately.
-
-### Scheduled (Future Enhancement)
-Set up a cron job or periodic task to:
-1. Generate digest automatically
-2. Send via notification channel (Telegram, email, etc.)
-
-For now, focus on on-demand generation.
+Note: `price_text` is a raw string (e.g., "€95,00") — use `CAST(REPLACE(REPLACE(price_text,'€',''),',','.') AS REAL)` to compare numerically.
 
 ---
 
 ## Tips
 
-- **Group by watch**: Show which watch triggered each result
-- **Highlight urgency**: "Starting this week" or "Last chance to register"
-- **Include stats**: "5 new, 3 changes, 1 removed"
-- **Offer actions**: "Want to watch one of these?" or "Shall I open the booking page?"
+- **Group by watch**: Show which watch label triggered each result
+- **Highlight urgency**: Surface courses starting in the next 7 days
+- **Include stats**: "N new, N changes, N watches active"
+- **Offer actions**: "Want to watch one of these?" or link directly to VHS site
+- **If DB is empty**: Direct user to run `/vhs-berlin-agent:init` and then a search
 
 ## See Also
 
-- `vhs-watch` skill (for managing watches)
-- `vhs-search` skill (for finding specific courses)
-- `data/schema.sql` (for query structure)
+- `vhs-watch` skill — run check and manage watchlists
+- `vhs-search` skill — find courses on demand
+- `data/schema.sql` — full database schema

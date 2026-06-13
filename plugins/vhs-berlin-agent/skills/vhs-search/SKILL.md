@@ -2,240 +2,104 @@
 name: vhs-search
 description: "Search VHS Berlin courses using natural language. Converts queries like 'Find A2 German evening courses in Neukölln' into structured VHS searches, extracts results, and presents them in a clean format. Use when the user wants to find specific VHS Berlin courses."
 argument-hint: "[natural language search query]"
-allowed-tools: ["Read", "Bash", "WebSearch", "WebFetch", "Agent", "mcp__browser__browser_navigate", "mcp__browser__browser_snapshot", "mcp__browser__browser_get_page_text", "mcp__sqlite__read_query", "mcp__sqlite__write_query", "mcp__sqlite__create_table", "mcp__sqlite__list_tables"]
+allowed-tools: ["Bash", "Read", "Write"]
 ---
 
 # VHS Berlin Course Search
 
-Convert natural language queries into VHS Berlin course searches, extract structured results, and present them cleanly.
+Convert natural language queries into VHS Berlin course searches, run deterministic fetch+parse scripts, and present results cleanly.
+
+## Configuration
+
+Read DB path from `.claude/vhs-berlin-agent.local.md` (frontmatter `db_path`), else default `~/.local/share/vhs-berlin/vhs.db`.
+
+## Resolve bun
+
+```bash
+BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
+```
 
 ## Workflow
 
-### Step 1: Parse the User Query
+### Step 1: Parse the user query
 
-Extract structured parameters from the natural language query:
+Extract structured parameters from the natural language query and build a `query-json` object:
 
-**Location/District**: Mitte, Pankow, Neukölln, Tempelhof-Schöneberg, Charlottenburg-Wilmersdorf, Spandau, Steglitz-Zehlendorf, Treptow-Köpenick, Marzahn-Hellersdorf, Lichtenberg, Reinickendorf, Friedrichshain-Kreuzberg
+| Field | Examples |
+|-------|---------|
+| `district` | "Mitte", "Neukölln", "Pankow" |
+| `category` | "German", "pottery", "yoga", "cooking" |
+| `level` | "A1", "A2", "B1", "B2" (language courses) |
+| `time` | "evening", "morning", "weekend" |
+| `keyword` | free-text search term |
+| `max_price` | numeric (e.g. 90) |
 
-**Category/Topic**: German language, integration courses, pottery, art, cooking, career, health, languages (Spanish, English, French, etc.), digital skills, crafts, music, dance, etc.
-
-**Time**: morning, afternoon, evening, weekend, weekdays, specific day (Monday, Tuesday, etc.)
-
-**Level** (for language courses): A1, A2, B1, B2, C1, C2
-
-**Format**: online, in-person, hybrid
-
-**Price range**: under €X, between €X and €Y
-
-**Start date**: next month, this month, specific date range
-
-**Course ID** (if user provides one): direct course lookup
-
-### Step 2: Build Search Query
-
-Check `config/query-registry.yaml` for known URL patterns and parameters.
-
-**Priority order:**
-1. **Direct course ID** → use `id=` parameter if available
-2. **District + location** → use `direkt=1&bezirk=...&lehrstaette=...` if validated
-3. **Keyword search** → use `stichw=` if pattern exists
-4. **Browser-driven search** → navigate to VHS search page and fill form
-
-Load `config/query-registry.yaml`:
-
-```yaml
-base_url: https://vhsit.berlin.de
-patterns:
-  direct_course:
-    template: "{{base_url}}/VHSKURSE/...?id={{course_id}}"
-    confidence: verified
-    tested_at: "2026-04-18"
-  
-  district_location:
-    template: "{{base_url}}/VHSKURSE/...?direkt=1&bezirk={{district_code}}&lehrstaette={{location_code}}"
-    confidence: likely
-    tested_at: "2026-04-18"
-  
-  keyword_search:
-    template: "{{base_url}}/VHSKURSE/...?stichw={{keyword}}"
-    confidence: observed
-    tested_at: null
-    note: "Seen in public snippets, not fully validated"
-
-districts:
-  mitte: {code: "01", variants: ["Mitte", "Berlin-Mitte"]}
-  pankow: {code: "03", variants: ["Pankow"]}
-  neukoelln: {code: "08", variants: ["Neukölln", "Neukoelln"]}
-  # ... (complete list in actual file)
+Example JSON for "Find A2 German evening courses in Neukölln":
+```json
+{"district": "Neukölln", "category": "German", "level": "A2", "time": "evening"}
 ```
 
-### Step 3: Execute Search
+### Step 2: Run search script
 
-**Before fetching any course URL**, check qurl first:
 ```bash
-qurl get "<vhs_course_url>"
-```
-- Exit 0: use cached course data, skip fetch. Course pages are stable for weeks.
-- Exit 1: fetch the URL, then index:
-```bash
-echo "<fetched_content>" | qurl add "<vhs_course_url>" --source vhs-berlin \
-  --tags "<level>,<district>,<category>"
-```
-To search cached courses: `qurl query "A2 German Mitte evening" --source vhs-berlin`
-
-#### Option A: URL-driven (preferred)
-```bash
-curl -s "{{constructed_url}}" | extract_courses
+$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/search.ts \
+  --query-json '{"district":"Neukölln","category":"German","level":"A2"}' \
+  --db-path "<db_path>" \
+  --limit 20
 ```
 
-#### Option B: Browser-driven (fallback)
-Use Browser MCP to:
-1. Navigate to VHS search page
-2. Detect page type from `config/page-map.yaml`
-3. Fill search form
-4. Extract results
+The script:
+1. Reads `config/query-registry.yaml` to build the VHS search URL
+2. Fetches via direct HTTP (tier 1) or Jina reader fallback (tier 2)
+3. Parses course links with cheerio
+4. Upserts results into the SQLite DB (if initialized)
+5. Outputs JSON: `{courses, url, tier, via?, verification}`
 
-Load `config/page-map.yaml`:
+### Step 3: Handle verification result
 
-```yaml
-pages:
-  search_form:
-    url_pattern: "vhsit.berlin.de/VHSKURSE.*suche"
-    identifier: "form.search-form"
-    fields:
-      keyword: "input[name='stichw']"
-      district: "select[name='bezirk']"
-      category: "select[name='kategorie']"
-    submit: "button[type='submit']"
-    verified_at: "2026-04-18"
-  
-  results_list:
-    url_pattern: "vhsit.berlin.de/VHSKURSE.*ergebnisse"
-    identifier: ".course-list"
-    item_selector: ".course-item"
-    fields:
-      title: "h3.course-title"
-      course_id: "a.course-link@href"
-      district: ".course-district"
-      location: ".course-location"
-      dates: ".course-dates"
-      price: ".course-price"
-      status: ".booking-status"
-    pagination: ".pagination a.next"
-    verified_at: "2026-04-18"
-  
-  course_detail:
-    url_pattern: "vhsit.berlin.de/VHSKURSE.*id="
-    identifier: ".course-detail"
-    # ... (extraction rules for detail page)
-```
+Check `verification.ok` in the output:
 
-### Step 4: Extract and Normalize Results
+- `ok: true` → parse courses and present them
+- `ok: false` → report the `reason` explicitly:
+  ```
+  ⚠️ VHS search completed but 0 courses parsed.
+  Reason: <reason from script>
+  Search URL: <url>
+  Suggest opening: https://vhsit.berlin.de/VHSKURSE/BusinessPages/CourseList.aspx
+  ```
 
-Use `scripts/normalize-course.js` to structure the data:
+Never silently return empty results. If the script reports a verification failure, surface it.
 
-```javascript
-{
-  source_url: "https://vhsit.berlin.de/...",
-  source_course_id: "VHS-12345",
-  title: "Deutsch als Fremdsprache A2.2",
-  district: "Mitte",
-  location: "VHS Linienstraße",
-  category: "Sprachen > Deutsch",
-  level: "A2",
-  start_date: "2026-05-15",
-  end_date: "2026-07-20",
-  schedule_text: "Mo+Mi 18:00-20:15",
-  price_text: "€135",
-  booking_status: "Anmeldung möglich",
-  special_rules: null,  // or "Beratung erforderlich"
-  extracted_at: "2026-04-18T17:30:00Z",
-  raw_hash: "sha256..."
-}
-```
+### Step 4: Check for special registration rules
 
-### Step 5: Check for Special Registration Rules
+After parsing, check each course title/category against `config/extraction-rules.yaml` patterns:
 
-If the course category matches known consultation-required patterns, surface the rule:
+- **Integration courses** (Integrationskurs, Alphabetisierung): consultation required — warn the user before they try to book online
+- **Language courses with A1/A2/B1/B2**: placement test may be required
+- **Seniorenkurs / für Frauen**: eligibility restrictions may apply
 
-**Integration courses**: "Registration only possible after personal consultation and assessment"
-**German language courses** (certain types): May require placement test
-
-Check `config/extraction-rules.yaml` for rule patterns.
-
-### Step 6: Store Results (Optional)
-
-If the query seems reusable or the user wants to watch it, offer to save:
-
-```sql
-INSERT INTO courses (...) VALUES (...);
-INSERT INTO watched_searches (label, query_type, query_payload, created_at)
-VALUES ('A2 German evening Neukölln', 'natural_language', '{"text": "..."}', datetime('now'));
-```
-
-Use SQLite MCP:
-```
-mcp__sqlite__write_query("INSERT INTO courses ...")
-mcp__sqlite__create_table("CREATE TABLE IF NOT EXISTS ...")  # on first use
-```
-
-### Step 7: Present Results
-
-Return a clean summary:
+### Step 5: Present results
 
 ```
-## Found 5 matching courses:
+## Found N matching courses
 
 ### Deutsch als Fremdsprache A2.2 — Mitte
 - **Where**: VHS Linienstraße
-- **When**: May 15 – Jul 20, Mon+Wed 18:00-20:15
-- **Price**: €135
-- **Status**: Anmeldung möglich
-- **Link**: [View details](https://vhsit.berlin.de/VHSKURSE/...)
-
-### Deutsch Intensivkurs A2 — Neukölln
-- **Where**: VHS Neukölln, Boddinstraße
-- **When**: May 20 – Jun 28, Mon-Fri 09:00-12:15
-- **Price**: €210
-- **Status**: Warteliste
-- **Link**: [View details](...)
+- **When**: [schedule_text]
+- **Price**: [price_text]
+- **Status**: [booking_status]
+- **Link**: [source_url]
 
 ---
 
-**Want to watch this search for changes?** Let me know and I'll save it as a watchlist item.
+**Want to watch this search for changes?** Say "Watch this search" to save it.
 ```
 
-### Step 8: Handle Errors Gracefully
-
-If selectors fail or the page structure changed:
-
-```
-⚠️ Some course details could not be verified from the live page.
-The VHS website structure may have changed.
-I recommend opening the live search page for confirmation:
-[Open VHS search](https://vhsit.berlin.de/...)
-
-**What I could extract:**
-- Found 3 course titles
-- Locations and dates incomplete
-- Booking status unavailable
-```
-
----
-
-## Tips
-
-- **URL-first**: Try direct URLs before browser automation
-- **Page map is your friend**: Always check `page-map.yaml` before scraping
-- **Confidence levels**: Mark query params as verified / likely / observed
-- **Selector fallbacks**: If primary selector fails, try secondary
-- **Timestamps**: Always record `extracted_at` for freshness tracking
-- **Special rules**: Surface consultation-required courses early
+If no courses found (verification ok but 0 results): suggest broadening the search or checking the VHS website directly.
 
 ## See Also
 
-- `vhs-watch` skill for monitoring saved searches
-- `vhs-digest` skill for awareness summaries
-- `config/query-registry.yaml` for URL patterns
-- `config/page-map.yaml` for page structure
-- `config/extraction-rules.yaml` for special rules
+- `vhs-watch` skill — save and monitor searches
+- `vhs-digest` skill — weekly summaries
+- `config/query-registry.yaml` — URL patterns and district codes
+- `config/extraction-rules.yaml` — registration rule patterns

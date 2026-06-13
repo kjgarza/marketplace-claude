@@ -8,25 +8,30 @@ description: Use when user says "wrap up", "close session", "end session",
 # Session Wrap-Up
 
 Run four phases in order. Each phase is conversational and inline — no
-separate documents. All phases auto-apply without asking; present a
-consolidated report at the end.
+separate documents. Local, reversible actions (commits, task updates, memory
+writes) auto-apply. **Outward-facing or hard-to-reverse actions — pushing to a
+remote and moving/renaming files — are proposed, then applied only after the
+user confirms.** Present a consolidated report at the end.
 
 ## Phase 1: Ship It
 
-**Commit:**
+**Commit (auto — local and reversible):**
 1. Run `git status` in each repo directory that was touched during the session
-2. If uncommitted changes exist, auto-commit to main with a descriptive message
-3. Push to remote
+2. If uncommitted changes exist, auto-commit with a descriptive message. If on the
+   default branch, create a session branch first rather than committing straight to main.
 
-**File placement check:**
+**Push (confirm first):**
+3. List the commits that would be pushed and to which remote/branch, then ask the
+   user to confirm before pushing. Do not push without explicit confirmation.
+
+**File placement check (confirm moves/renames first):**
 4. If any files were created or saved during this session:
-   - Verify they follow your naming convention
-   - Auto-fix naming violations (rename the file)
-   - Verify they're in the correct subfolder per your project structure
-   - Auto-move misplaced files to their correct location
-5. If any document-type files (.md, .docx, .pdf, .xlsx, .pptx) were created
-   at the workspace root or in code directories, move them to the docs folder
-   if they belong there
+   - Verify they follow your naming convention and are in the correct subfolder
+   - **List every proposed rename/move** (from → to) and apply them only after the
+     user confirms. Never silently rename or relocate files.
+5. If any document-type files (.md, .docx, .pdf, .xlsx, .pptx) were created at the
+   workspace root or in code directories, include them in the proposed-moves list
+   (to the docs folder) — same single confirmation gate.
 
 **Deploy:**
 6. Check if the project has a deploy skill or script

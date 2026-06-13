@@ -121,6 +121,20 @@ Key inputs: gross yield = (annual rent / total purchase cost) × 100; net yield 
 
 ## Step 8: Rent vs. Buy Comparison Summary
 
+**Run the deterministic model first**, then build the table from its output (don't hand-compute
+amortization or compounding):
+
+```bash
+BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
+echo '{"purchase_price":500000,"kaufnebenkosten_pct":12,"equity":150000,"mortgage_rate_pct":3.6,
+"tilgung_pct":2.0,"hausgeld_monthly":350,"current_rent_monthly":1600,"rent_increase_pct":2.5,
+"etf_return_pct":6.5,"etf_tax_pct":18.46,"appreciation_pct":2.0,"horizons":[10,20,30]}' \
+  | $BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/rent-vs-buy.ts
+```
+
+Fill the assumptions from the user's data and the market research above. The script returns
+per-horizon owning vs renting net cost and the break-even year. Use these figures in the table.
+
 Create a comparison table covering both scenarios:
 
 | Metric | Rent + Invest | Buy to Live | Buy to Let |

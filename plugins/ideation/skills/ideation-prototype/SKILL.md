@@ -21,10 +21,15 @@ Build interactive prototypes from selected UI concepts. Each prototype is a Reac
 
 ## Prerequisites
 
-The `web-artifacts-builder` skill must be installed. Install it with:
+The `web-artifacts-builder` skill is **preferred** for the richest output. Install it with:
 ```
 /install-skill https://skills.sh/anthropics/skills/web-artifacts-builder
 ```
+
+**Fallback when not installed:** if `web-artifacts-builder` is unavailable, do not abort.
+Generate a single self-contained `.html` file (inline CSS + vanilla JS, or CDN React) per
+`../ideation/references/html-prototype-spec.md`, written to the same `prototypes/` location.
+Note in the output which path was used.
 
 ## Steps
 

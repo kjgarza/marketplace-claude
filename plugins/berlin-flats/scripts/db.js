@@ -5,27 +5,40 @@ import { dirname, join } from 'path';
 const __dir = dirname(fileURLToPath(import.meta.url));
 const DB_PATH = join(__dir, '../state.db');
 
+/**
+ * Ensure a column exists in a table. Uses PRAGMA table_info to check first,
+ * then ALTER TABLE if missing. Safe to call on existing databases (migration helper).
+ */
+export function ensureColumn(db, table, col, type) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all();
+  const exists = cols.some(c => c.name === col);
+  if (!exists) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${col} ${type}`);
+  }
+}
+
 let _db;
 export function getDb() {
   if (_db) return _db;
   _db = new DatabaseSync(DB_PATH);
   _db.exec(`
     CREATE TABLE IF NOT EXISTS listings (
-      id          INTEGER PRIMARY KEY AUTOINCREMENT,
-      portal      TEXT NOT NULL,
-      external_id TEXT NOT NULL,
-      url         TEXT NOT NULL,
-      title       TEXT,
-      cold_rent   REAL,
-      warm_rent   REAL,
-      sqm         REAL,
-      rooms       REAL,
-      district    TEXT,
-      posted_at   TEXT,
-      fetched_at  TEXT DEFAULT (datetime('now')),
-      scam_score  REAL,
-      verdict     TEXT DEFAULT 'pending',
-      raw_json    TEXT,
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      portal       TEXT NOT NULL,
+      external_id  TEXT NOT NULL,
+      url          TEXT NOT NULL,
+      title        TEXT,
+      cold_rent    REAL,
+      warm_rent    REAL,
+      sqm          REAL,
+      rooms        REAL,
+      district     TEXT,
+      posted_at    TEXT,
+      fetched_at   TEXT DEFAULT (datetime('now')),
+      scam_score   REAL,
+      verdict      TEXT DEFAULT 'pending',
+      raw_json     TEXT,
+      reject_reason TEXT,
       UNIQUE(portal, external_id)
     );
     CREATE TABLE IF NOT EXISTS events (
@@ -35,6 +48,8 @@ export function getDb() {
       payload    TEXT
     );
   `);
+  // Migration: ensure reject_reason exists for databases created before this column was added
+  ensureColumn(_db, 'listings', 'reject_reason', 'TEXT');
   return _db;
 }
 
@@ -54,6 +69,14 @@ export function upsertListing(listing) {
   stmt.run(listing);
 }
 
+/** Returns true if the listing was newly inserted (did not exist before), false if it was an update. */
+export function upsertListingNew(listing) {
+  const db = getDb();
+  const wasNew = !isSeen(listing.portal, listing.external_id);
+  upsertListing(listing);
+  return wasNew;
+}
+
 export function isSeen(portal, externalId) {
   const db = getDb();
   const row = db.prepare(
@@ -68,6 +91,8 @@ export function getQueue(verdict = 'pending') {
   ).all({ verdict });
 }
 
-export function setVerdict(id, verdict) {
-  getDb().prepare('UPDATE listings SET verdict=:verdict WHERE id=:id').run({ verdict, id });
+export function setVerdict(id, verdict, reason = null) {
+  getDb().prepare(
+    'UPDATE listings SET verdict=:verdict, reject_reason=:reason WHERE id=:id'
+  ).run({ verdict, reason, id });
 }

@@ -1,0 +1,13 @@
+{
+  "description": "Enforce Slack message word-count limits on generated book-club message files.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate-message.sh", "timeout": 10 }
+        ]
+      }
+    ]
+  }
+}

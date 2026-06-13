@@ -1,43 +1,63 @@
 ---
 name: triage
-description: Review pending flat listings queue. Accept, reject, snooze, or initiate contact for each listing. Use after /hunt to act on results.
-allowed-tools: Bash, Read
+description: Review pending and review-band flat listings. Auto-adjudicates review-band listings with the scam-judge agent, then lets you accept, reject, snooze, or contact each. Use after /hunt to act on results.
+allowed-tools: Bash, Read, Agent
 ---
 
-Read pending listings from the SQLite state DB:
+Resolve node once (nvm shims break in non-interactive shells):
 
 ```bash
-cd $CLAUDE_PLUGIN_ROOT && node -e "
-import('./scripts/db.js').then(({ getQueue }) => {
-  const listings = getQueue('pending');
-  console.log(JSON.stringify(listings, null, 2));
-});
-" 2>&1
+NODE="$(command -v node || echo /opt/homebrew/bin/node)"
+```
+
+## Step 1 — Adjudicate the review band with scam-judge
+
+Load listings the rule-based scorer left in the inconclusive `review` band (scam score 0.55–0.84):
+
+```bash
+cd $CLAUDE_PLUGIN_ROOT && "$NODE" --experimental-sqlite scripts/queue.js review
+```
+
+For **each** review listing, launch the `scam-judge` agent (haiku) with the listing JSON as context. Apply its verdict:
+
+- `block` → `set-verdict.js --id <id> --verdict rejected --reason "scam-judge: <top reason codes>"`
+- `ok` → `set-verdict.js --id <id> --verdict pending`
+- `review` → leave as `review`; it will be surfaced to you below.
+
+```bash
+cd $CLAUDE_PLUGIN_ROOT && "$NODE" --experimental-sqlite scripts/set-verdict.js --id <id> --verdict <verdict> --reason "<reason>"
+```
+
+## Step 2 — Interactive triage
+
+Load the remaining queue (pending + any still-review listings):
+
+```bash
+cd $CLAUDE_PLUGIN_ROOT && "$NODE" --experimental-sqlite scripts/queue.js triage
 ```
 
 For each listing, present:
 - **Title** and URL
 - District | Cold rent | Warm rent | Rooms | sqm
-- Scam score and verdict
+- Scam score and verdict (note any scam-judge override)
 - Description excerpt (first 200 chars)
 
 Ask the user for each: **(a)ccept, (r)eject, (s)nooze, (c)ontact, or (q)uit?**
 
-To update verdict (replace VERDICT with accepted/rejected/snoozed and ID with the listing id):
+Apply the choice via `set-verdict.js`. On **(r)eject**, ask for a one-line reason and pass it with `--reason` so the calibration loop can learn from it:
 
 ```bash
-cd $CLAUDE_PLUGIN_ROOT && node -e "
-import('./scripts/db.js').then(({ setVerdict }) => {
-  setVerdict(ID, 'VERDICT');
-  console.log('updated');
-});
-" 2>&1
+cd $CLAUDE_PLUGIN_ROOT && "$NODE" --experimental-sqlite scripts/set-verdict.js --id <id> --verdict rejected --reason "<why>"
 ```
 
-On **(c)ontact**: invoke the scribe agent to draft a message for this listing. Provide the listing JSON as context.
+On **(c)ontact**: invoke the `scribe` agent to draft a message for this listing (provide the listing JSON), then `set-verdict.js --verdict contacted`.
 
-After all listings are reviewed, show summary:
-- Accepted: N
-- Rejected: N
-- Snoozed: N
-- Contacted: N
+## Step 3 — Summary + calibration
+
+After all listings are reviewed, show the session summary (Accepted / Rejected / Snoozed / Contacted counts), then run the feedback loop and surface its suggestions:
+
+```bash
+cd $CLAUDE_PLUGIN_ROOT && "$NODE" --experimental-sqlite scripts/calibrate.js
+```
+
+Relay any calibration suggestions (e.g. districts to drop, threshold tweaks) to the user — these are concrete edits they can make to `config/config.toml`.

@@ -1,29 +1,31 @@
 ---
 name: watch
-description: Run the flat hunt in a continuous loop, polling portals every 90-120 seconds. Notifies on new listings. Use when you want ongoing monitoring.
-argument-hint: "[--interval=90]"
+description: Explains continuous flat monitoring. Continuous polling runs as a scheduled background job; this command runs a single ad-hoc hunt and points you at the scheduler.
+argument-hint: ""
 allowed-tools: Bash, Read
 ---
 
-Run the hunt in a continuous polling loop.
+Continuous watching is **not** an in-session loop — a `while(true)` inside one tool call dies at the tool timeout and stops notifying. Use the scheduled background job instead.
+
+## Continuous monitoring (recommended)
+
+The `berlin-flats-hunt` launchd job polls the portals every 30 minutes (07:00–22:00 Berlin time, quiet hours respected) and sends new `pending`/`review` listings to Telegram. Install it from the repo automation layer:
 
 ```bash
-cd $CLAUDE_PLUGIN_ROOT && node -e "
-import('./scripts/hunt.js').then(async ({ hunt }) => {
-  const intervalMs = parseInt('$ARGUMENTS'.match(/--interval=(\d+)/)?.[1] || '120') * 1000;
-  console.log('[watch] Starting loop, interval:', intervalMs / 1000, 's');
-  while (true) {
-    await hunt();
-    console.log('[watch] Sleeping', intervalMs / 1000, 's...');
-    await new Promise(r => setTimeout(r, intervalMs));
-  }
-});
-" 2>&1
+bash <marketplace-root>/automation/install.sh
 ```
 
-This runs until interrupted (Ctrl+C). Between each poll:
-- Results are saved to the SQLite DB
-- New pending listings trigger a notification message here
-- Run /triage in a separate session to review the queue
+Then review the queue any time with `/berlin-flats:triage`. The job logs to `~/Logs/berlin-flats-hunt/`.
 
-Quiet hours (22:00–07:00 Berlin time): warn the user if they start watch during quiet hours, as notifications may be intrusive.
+## Ad-hoc single hunt (this session)
+
+To run one hunt right now:
+
+```bash
+NODE="$(command -v node || echo /opt/homebrew/bin/node)"
+cd $CLAUDE_PLUGIN_ROOT && "$NODE" --experimental-sqlite scripts/hunt.js 2>&1
+```
+
+New listings are saved to the SQLite DB with their verdict. Run `/berlin-flats:triage` to act on them.
+
+**Quiet hours:** if it is between 22:00 and 07:00 Berlin time, warn the user before running — notifications during these hours may be intrusive.

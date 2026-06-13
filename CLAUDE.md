@@ -37,9 +37,20 @@ plugins/<name>/                   ← Individual plugins
 | kjgarza-product | productivity | Agents + commands + skills + output-styles (PRD, user stories, research) |
 | bookclub | productivity | Agents + commands + skills (Slack comms, discussion guides) |
 | rapid-mvp | development | Commands + skills (Next.js/11ty monorepo scaffolding) |
-| berlin-events | productivity | Agents + skills + scripts (Berlin art/food event discovery) |
-| readitlater-digest | productivity | Skills + scripts (Obsidian bookmark digests with SQLite) |
+| berlin-events | productivity | Agents + skills + scripts (Berlin art/food event discovery; shown-dedup + taste feedback) |
+| readitlater-digest | productivity | Skills + scripts (Obsidian bookmark digests, SQLite, feedback loop, catch-up) |
 | prototyping-skills | development | Skills + hooks (Bun monorepo stack: Hono API, Next.js UI, MCP) |
+| ideation | productivity | Agent + skills + hooks (5-stage ideation pipeline with stage validation) |
+| vhs-berlin-agent | productivity | Skills + bun scripts (VHS course search/watch; no MCP) |
+| berlin-flats | productivity | Commands + agents + node scripts (rental hunt, scam-judge, triage, calibrate) |
+| taskwarrior | productivity | Skills + hooks (task lifecycle; SessionStart/Stop enforcement) |
+| finanz-pilot | productivity | Agents + commands + skills + bun scripts (German finance; projection models) |
+| bulletjournal | productivity | Bullet-journal workflow automation (excluded from the autonomy overhaul) |
+
+## Automation
+
+Scheduled, hands-off runs of the productivity plugins live in [`automation/`](automation/) and
+install as macOS launchd agents that deliver results to Telegram. See [AUTOMATION.md](AUTOMATION.md).
 
 ## Rules
 

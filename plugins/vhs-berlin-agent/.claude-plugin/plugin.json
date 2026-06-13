@@ -1,11 +1,11 @@
 {
   "name": "vhs-berlin-agent",
-  "version": "0.1.0",
-  "description": "Personal navigation and monitoring layer for VHS Berlin courses — search, watchlists, change detection, and awareness digests via Browser and SQLite MCP",
+  "version": "0.2.0",
+  "description": "Personal navigation and monitoring layer for VHS Berlin courses — search, watchlists, change detection, and awareness digests using bun scripts and local SQLite",
   "author": {
     "name": "Kristian Garza",
     "email": "kj.garza@gmail.com"
   },
   "license": "MIT",
-  "keywords": ["vhs", "berlin", "courses", "education", "monitoring", "sqlite", "browser-mcp"]
+  "keywords": ["vhs", "berlin", "courses", "education", "monitoring", "sqlite", "bun"]
 }

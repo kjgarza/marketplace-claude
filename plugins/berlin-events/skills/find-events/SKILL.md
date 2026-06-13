@@ -80,10 +80,16 @@ qurl vsearch "$QUERY" \
   --limit 20
 ```
 
-**Relevance filter** — a result counts as relevant if its snippet contains any of:
-- EN: `april`, `may`, `monday`–`sunday`, `vernissage`, `opening`, `exhibition`, `finissage`
+**Relevance filter** — first derive the date tokens from **today's date**, do not hardcode months:
+- `MONTH_NAMES` = lowercased full English + German names of the current month and next month (e.g. for June: `june`, `juni`, `july`, `juli`).
+- `MONTH_NUMS` = zero-padded numeric forms for the same two months bracketed by dots (e.g. `.06.`, `.07.`).
+- `YEAR` = current year (and next year if the lookahead window crosses into January).
+
+A result counts as relevant if its snippet contains any of:
+- EN/DE month names from `MONTH_NAMES`
+- `monday`–`sunday`, `vernissage`, `opening`, `exhibition`, `finissage`
 - DE: `ausstellung`, `veranstaltung`, `führung`, `kalender`, `programm`
-- Dates: current year, `.04.`, `.05.` (adjust for current month)
+- Dates: any token in `MONTH_NUMS`, or `YEAR`
 
 If vsearch returns fewer than 5 relevant results, fall back to web search (Step 5b).
 
@@ -97,13 +103,16 @@ If vsearch returns fewer than 5 relevant results, fall back to web search (Step 
 
 ### Step 6: Check Google Calendar
 
-Check for scheduling conflicts:
+Check for scheduling conflicts over the lookahead window.
 
-```bash
-gcalcli agenda --nocolor --details end "today" "+14 days"
-```
-
-If gcalcli is not installed: `pip3 install gcalcli`. If not authenticated, ask the user to run `! gcalcli agenda` to complete OAuth.
+- **Interactive sessions:** prefer the **Google Calendar MCP tools** if available
+  (`mcp__claude_ai_Google_Calendar__list_events` for the date range). No install or OAuth needed.
+- **Headless / no MCP** (the weekly launchd job): fall back to `gcalcli`:
+  ```bash
+  gcalcli agenda --nocolor --details end "today" "+14 days"
+  ```
+  If gcalcli is not installed: `pip3 install gcalcli`. If not authenticated, ask the user to
+  run `! gcalcli agenda` to complete OAuth.
 
 Parse output to identify busy time slots. Flag events that overlap with existing entries.
 
@@ -116,6 +125,30 @@ For each event, note the neighborhood (e.g., "Kreuzberg", "Mitte", "Charlottenbu
 
 Use general Berlin geography knowledge. Do not call external routing APIs.
 
+### Step 7.5: Drop already-shown events (dedup) and load taste feedback
+
+Initialize the state DB once (idempotent), then filter out events surfaced in previous runs so the user never sees the same suggestion twice. Resolve `$BUN` first:
+
+```bash
+BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-plugins/berlin-events}"
+$BUN run "$PLUGIN_ROOT/scripts/events-db.ts" init
+```
+
+Write your curated candidate events to a temp JSON array (each object needs `title`, `date`, `venue`, plus any other fields you carry), then filter:
+
+```bash
+echo "$CANDIDATES_JSON" | $BUN run "$PLUGIN_ROOT/scripts/events-db.ts" filter
+```
+
+Only the returned (unseen) events proceed. Also load recent taste feedback to inform ranking:
+
+```bash
+$BUN run "$PLUGIN_ROOT/scripts/events-db.ts" recent-feedback --limit 20
+```
+
+Bias ranking toward venues/categories the user marked `went` and away from those marked `skip`.
+
 ### Step 8: Rank and Curate
 
 Score events by:
@@ -124,6 +157,7 @@ Score events by:
 3. **Proximity** to user's neighborhood
 4. **Uniqueness** — special/one-time events ranked higher than recurring
 5. **Source quality** — primary sources and editorial picks ranked higher
+6. **Taste** — prior `went`/`skip` feedback (Step 7.5)
 
 ### Step 9: Present Results
 
@@ -150,6 +184,18 @@ https://calendar.google.com/calendar/render?action=TEMPLATE&text=[title]&dates=2
 ```
 
 Include a summary at the top: "Found X events (Y art, Z food) for [date range]. N conflicts with your calendar."
+
+**After presenting**, record the events you showed so they are not repeated next run:
+
+```bash
+echo "$PRESENTED_JSON" | $BUN run "$PLUGIN_ROOT/scripts/events-db.ts" record
+```
+
+To capture taste over time, the user can later mark an event:
+
+```bash
+$BUN run "$PLUGIN_ROOT/scripts/events-db.ts" feedback --hash <event-hash> --verdict went|skip --notes "..."
+```
 
 ## Tips
 
