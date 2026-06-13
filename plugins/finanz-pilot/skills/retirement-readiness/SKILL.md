@@ -77,6 +77,23 @@ Compile all private retirement provisions:
 
 For each product, note the projected monthly payout or the capital value and convert to a monthly withdrawal using the 4% rule (for liquid assets) or the provider's annuity factor (for insurance products).
 
+### Deterministic projection (use the script, don't hand-compute)
+
+Do the future-value math with the bundled script rather than inline arithmetic. Resolve `$BUN`,
+assemble the pillars from the data above, and run:
+
+```bash
+BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
+echo '{"current_age":38,"retirement_age":67,"pillars":[
+  {"name":"ETF Sparplan","type":"capital","present_value":40000,"monthly_contribution":800,"annual_return_pct":7,"ter_pct":0.2},
+  {"name":"Rürup","type":"annuity","present_value":15000,"monthly_contribution":150,"annual_return_pct":4,"annuity_monthly_per_100k":350},
+  {"name":"GRV","type":"fixed_monthly","fixed_monthly":1400}
+],"withdrawal_rate_pct":4}' | $BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/retirement-projection.ts
+```
+
+The script returns each pillar's future value at retirement and an estimated gross monthly
+income. Interpret the output (apply tax/KV-PV per the methodology); never recompute FV by hand.
+
 ## Step 5: Gap Analysis (Versorgungslücke)
 
 1. **Target retirement income**: Calculate 70–80% of current net monthly income as the baseline target. Adjust for:
