@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { writeFileSync, mkdtempSync } from "node:fs";
+import { writeFileSync, mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { loadConfig } from "../config.ts";
@@ -18,8 +18,12 @@ describe("loadConfig", () => {
 
   test("throws clearly for malformed TOML", () => {
     const dir = mkdtempSync(join(tmpdir(), "berlin-flats-config-"));
-    const bad = join(dir, "bad.toml");
-    writeFileSync(bad, "[search\nmax_warm_rent_eur = 1");
-    expect(() => loadConfig(bad)).toThrow();
+    try {
+      const bad = join(dir, "bad.toml");
+      writeFileSync(bad, "[search\nmax_warm_rent_eur = 1");
+      expect(() => loadConfig(bad)).toThrow();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

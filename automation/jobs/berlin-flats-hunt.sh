@@ -14,7 +14,7 @@ if berlin_quiet_hours; then echo "$JOB: quiet hours, skipping"; exit 0; fi
 # Resolve Bun across PATH and the common install dirs (Apple Silicon + Intel
 # Homebrew, ~/.bun), since scheduled launchd jobs may run with a bare PATH.
 BUN_BIN="$(command -v bun 2>/dev/null || true)"
-for c in "$HOME/.bun/bin/bun" /opt/homebrew/bin/bun /usr/local/bin/bun; do
+for c in "${HOME:-}/.bun/bin/bun" /opt/homebrew/bin/bun /usr/local/bin/bun; do
   [ -n "$BUN_BIN" ] && break
   [ -x "$c" ] && BUN_BIN="$c"
 done
