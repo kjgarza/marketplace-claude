@@ -22,9 +22,11 @@
  * Output: per-horizon total owning cost vs total renting cost (incl. opportunity cost of
  * equity and remaining-mortgage/appreciation at horizon), and the break-even year.
  */
+import { readFileSync } from "fs";
+
 function readInput(): any {
   const i = process.argv.indexOf("--input");
-  const raw = i >= 0 ? process.argv[i + 1] : require("fs").readFileSync(0, "utf-8");
+  const raw = i >= 0 ? process.argv[i + 1] : readFileSync(0, "utf-8");
   return JSON.parse(raw);
 }
 function round(n: number): number { return Math.round(n); }

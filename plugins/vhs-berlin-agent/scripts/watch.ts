@@ -71,8 +71,14 @@ async function cmdSave(db, label, queryJson) {
   const watchId = Number(db.query("SELECT last_insert_rowid() as id").get().id);
   const registry = loadConfig("query-registry.yaml");
   const url = buildSearchUrl(payload.parsed ?? payload, registry);
-  const { html } = await fetchHtml(url);
-  const courseIds = html ? parseCourseIds(html) : [];
+  const { html, tier, error } = await fetchHtml(url);
+  // Don't write a baseline snapshot if the initial fetch failed — an empty
+  // baseline would later make every real course look "new". Save the watch but
+  // report the verification failure; the first successful check sets the baseline.
+  if (tier === 0 || !html) {
+    return { watch_id: watchId, label, url, verification_failed: true, error: error ?? "fetch failed", course_count: 0 };
+  }
+  const courseIds = parseCourseIds(html);
   const hash = snapshotHash(courseIds);
   db.prepare("INSERT INTO snapshots (watch_id,extracted_at,result_hash,result_count,result_course_ids) VALUES (?,?,?,?,?)")
     .run(watchId, now, hash, courseIds.length, JSON.stringify(courseIds));
@@ -85,15 +91,26 @@ async function cmdCheck(db) {
   for (const watch of watches) {
     const payload = JSON.parse(watch.query_payload);
     const url = buildSearchUrl(payload.parsed ?? payload, registry);
-    const { html } = await fetchHtml(url);
-    const currentIds = html ? parseCourseIds(html) : [];
+    const { html, tier, error } = await fetchHtml(url);
+    const now = new Date().toISOString();
     const prevSnap = db.query("SELECT * FROM snapshots WHERE watch_id=? ORDER BY extracted_at DESC LIMIT 1").get(watch.watch_id);
     const prevIds = prevSnap ? JSON.parse(prevSnap.result_course_ids) : [];
+    const currentIds = (tier === 0 || !html) ? [] : parseCourseIds(html);
+    // A failed fetch *or* a successful fetch that parses to 0 ids when we previously
+    // saw a non-empty list (e.g. the JS-hydrated list returned no `id=` links) would
+    // make `removed` swallow every prior id — false "disappeared" events plus a corrupt
+    // empty snapshot. Treat both as verification failures: skip all writes AND leave
+    // last_checked_at untouched, so it always reflects the last *successful* check.
+    const fetchFailed = tier === 0 || !html;
+    const suspectEmpty = currentIds.length === 0 && prevIds.length > 0;
+    if (fetchFailed || suspectEmpty) {
+      allChanges.push({ watch_id: watch.watch_id, label: watch.label, verification_failed: true, error: error ?? (suspectEmpty ? "parsed 0 ids with prior non-empty snapshot" : "fetch failed"), new_courses: [], removed: [], current_count: 0 });
+      continue;
+    }
     const prevSet = new Set(prevIds);
     const currSet = new Set(currentIds);
     const newCourses = currentIds.filter(id => !prevSet.has(id));
     const removed = prevIds.filter(id => !currSet.has(id));
-    const now = new Date().toISOString();
     const hash = snapshotHash(currentIds);
     db.prepare("INSERT INTO snapshots (watch_id,extracted_at,result_hash,result_count,result_course_ids) VALUES (?,?,?,?,?)")
       .run(watch.watch_id, now, hash, currentIds.length, JSON.stringify(currentIds));

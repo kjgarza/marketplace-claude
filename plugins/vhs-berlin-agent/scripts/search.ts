@@ -45,8 +45,9 @@ async function fetchDirect(url) {
   } catch (_) {}
   return null;
 }
-// Jina reader executes client-side JS and returns the rendered HTML — needed because
-// the VHS course list is hydrated by JavaScript and a raw fetch yields 0 course links.
+// Best-effort fallback through the Jina reader proxy. A raw fetch of the VHS course
+// list often yields 0 course links; Jina sometimes returns a more complete render.
+// It is not a guaranteed JS-rendering engine — see PLUGIN.md for known limitations.
 async function fetchJina(url) {
   try {
     const res = await fetch("https://r.jina.ai/" + url, {
@@ -96,7 +97,8 @@ function parseCourseList(html, sourceUrl) {
     const linkEl = $el.find("a[href*=\"id=\"]").first();
     const href = linkEl.attr("href") ?? "";
     const idMatch = href.match(/[?&]id=([^&]+)/);
-    const courseId = idMatch ? idMatch[1] : ("course-" + _i);
+    if (!idMatch) return; // no real course id — skip rather than fabricate `course-<index>`
+    const courseId = idMatch[1];
     const fullHref = href.startsWith("http") ? href : href ? "https://vhsit.berlin.de" + href : sourceUrl;
     const district = $el.find(".bezirk,.district,td.bezirk").first().text().trim() || null;
     const location = $el.find(".lehrstaette,.location,td.lehrstaette").first().text().trim() || null;
@@ -143,8 +145,9 @@ if (import.meta.main) {
     process.exit(0);
   }
   let courses = parseCourseList(html, url).slice(0, limit);
-  // The VHS course list is JS-rendered; a direct fetch returns HTML with 0 course
-  // links. If tier-1 parsed nothing, retry through Jina (which renders JS) and re-parse.
+  // A direct fetch of the VHS course list often returns HTML with 0 course links.
+  // If tier-1 parsed nothing, retry through the Jina reader proxy (best-effort, not a
+  // guaranteed JS renderer) and re-parse.
   if (courses.length === 0 && tier === 1) {
     const jina = await fetchJina(url);
     if (jina) {

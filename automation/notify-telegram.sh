@@ -57,8 +57,12 @@ TELEGRAM_BOT_TOKEN="$(grep -E '^TELEGRAM_BOT_TOKEN=' "$ENV_FILE" | head -1 | cut
 [ -f "$ACCESS_FILE" ] || fail "missing $ACCESS_FILE"
 # Extract first string inside the "allowFrom": [ ... ] array. No jq.
 CHAT_ID="$(tr -d '\n' < "$ACCESS_FILE" \
-  | sed -n 's/.*"allowFrom"[[:space:]]*:[[:space:]]*\[[[:space:]]*"\([0-9][0-9]*\)".*/\1/p')"
+  | sed -n 's/.*"allowFrom"[[:space:]]*:[[:space:]]*\[[[:space:]]*"\(-\{0,1\}[0-9][0-9]*\)".*/\1/p')"
 [ -n "$CHAT_ID" ] || fail "could not read allowFrom[0] chat id from $ACCESS_FILE"
+
+# Per-run temp file so concurrent jobs don't clobber each other's API response.
+RESP_FILE="$(mktemp "${TMPDIR:-/tmp}/notify-telegram.XXXXXX")"
+trap 'rm -f "$RESP_FILE"' EXIT
 
 # Telegram hard limit is 4096 chars; truncate with a marker.
 if [ "${#MESSAGE}" -gt 3900 ]; then
@@ -69,7 +73,7 @@ if [ -n "$TITLE" ]; then
   MESSAGE="*${TITLE}*"$'\n'"$MESSAGE"
 fi
 
-HTTP_CODE="$(curl -sS -o /tmp/notify-telegram.out -w '%{http_code}' \
+HTTP_CODE="$(curl -sS -o "$RESP_FILE" -w '%{http_code}' \
   -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
   --data-urlencode "chat_id=${CHAT_ID}" \
   --data-urlencode "text=${MESSAGE}" \
@@ -78,12 +82,12 @@ HTTP_CODE="$(curl -sS -o /tmp/notify-telegram.out -w '%{http_code}' \
 
 if [ "$HTTP_CODE" != "200" ]; then
   # Retry once without Markdown (a stray * or _ can 400 the request).
-  HTTP_CODE="$(curl -sS -o /tmp/notify-telegram.out -w '%{http_code}' \
+  HTTP_CODE="$(curl -sS -o "$RESP_FILE" -w '%{http_code}' \
     -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
     --data-urlencode "chat_id=${CHAT_ID}" \
     --data-urlencode "text=${MESSAGE}" \
     --data-urlencode "disable_web_page_preview=true" 2>/dev/null)" || fail "curl failed"
 fi
 
-[ "$HTTP_CODE" = "200" ] || fail "telegram API returned $HTTP_CODE: $(cat /tmp/notify-telegram.out 2>/dev/null)"
+[ "$HTTP_CODE" = "200" ] || fail "telegram API returned $HTTP_CODE: $(cat "$RESP_FILE" 2>/dev/null)"
 exit 0

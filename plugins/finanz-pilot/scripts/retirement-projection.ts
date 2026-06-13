@@ -21,9 +21,11 @@
  *   annuity pillars  -> annuity_monthly_per_100k applied to FV
  *   fixed_monthly    -> passthrough
  */
+import { readFileSync } from "fs";
+
 function readInput(): any {
   const i = process.argv.indexOf("--input");
-  const raw = i >= 0 ? process.argv[i + 1] : require("fs").readFileSync(0, "utf-8");
+  const raw = i >= 0 ? process.argv[i + 1] : readFileSync(0, "utf-8");
   return JSON.parse(raw);
 }
 

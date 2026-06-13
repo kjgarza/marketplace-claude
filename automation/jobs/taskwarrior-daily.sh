@@ -22,8 +22,12 @@ else
   )"
 fi
 
-# Only notify if there is something actionable (overdue or active present).
-if printf '%s' "$SUMMARY" | grep -qiE 'overdue|active|due|stale' ; then
+# Only notify if there is something actionable. Gate on real Taskwarrior counts,
+# not on header words — the fallback summary always prints "Overdue:"/"Active:"
+# headers even with zero tasks, which would otherwise spam an empty digest daily.
+OVERDUE_N="$(task +OVERDUE count 2>/dev/null || echo 0)"
+ACTIVE_N="$(task +ACTIVE count 2>/dev/null || echo 0)"
+if [ "$(( ${OVERDUE_N:-0} + ${ACTIVE_N:-0} ))" -gt 0 ]; then
   printf '%s' "$SUMMARY" | "$NOTIFY" --silent-fail --title "Taskwarrior"
 fi
 echo "$JOB: done"
