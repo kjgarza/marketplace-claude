@@ -82,7 +82,7 @@ run_claude() {
   "$claude" -p "$prompt" \
     --model "${CLAUDE_MODEL:-sonnet}" \
     --output-format text \
-    --allowedTools "${CLAUDE_ALLOWED_TOOLS:-Bash,Read,Glob,Grep,Write,Edit,WebFetch,WebSearch,Agent}" \
+    --allowedTools "${CLAUDE_ALLOWED_TOOLS:-Bash,Read,Glob,Grep,Write,Edit,WebFetch,WebSearch,Agent,Skill}" \
     "${plugin_flags[@]}" \
     2>&1 | tee -a "$logf"
   local code=${PIPESTATUS[0]}

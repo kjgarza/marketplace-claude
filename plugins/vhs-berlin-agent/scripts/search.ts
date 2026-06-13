@@ -97,7 +97,8 @@ function parseCourseList(html, sourceUrl) {
     const linkEl = $el.find("a[href*=\"id=\"]").first();
     const href = linkEl.attr("href") ?? "";
     const idMatch = href.match(/[?&]id=([^&]+)/);
-    const courseId = idMatch ? idMatch[1] : ("course-" + _i);
+    if (!idMatch) return; // no real course id — skip rather than fabricate `course-<index>`
+    const courseId = idMatch[1];
     const fullHref = href.startsWith("http") ? href : href ? "https://vhsit.berlin.de" + href : sourceUrl;
     const district = $el.find(".bezirk,.district,td.bezirk").first().text().trim() || null;
     const location = $el.find(".lehrstaette,.location,td.lehrstaette").first().text().trim() || null;
