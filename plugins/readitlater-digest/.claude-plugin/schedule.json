@@ -1,8 +1,0 @@
-{
-  "schedule": {
-    "frequency": "weekly",
-    "day": "Monday",
-    "time": "08:00",
-    "timezone": "Europe/Berlin"
-  }
-}

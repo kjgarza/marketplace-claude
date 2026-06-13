@@ -30,6 +30,7 @@
   ],
   "skills": ["./skills/"],
   "commands": ["./commands/"],
+  "agents": ["./agents/"],
   "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/finanz-pilot",
   "repository": "https://github.com/kjgarza/marketplace-claude"
 }

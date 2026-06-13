@@ -39,19 +39,6 @@
       "strict": true
     },
     {
-      "name": "senior-software-developer",
-      "source": "./plugins/senior-software-developer",
-      "description": "Expert-level development assistance for architecture, code review, system design, and technical leadership",
-      "version": "1.0.0",
-      "author": {
-        "name": "Claude Code Team"
-      },
-      "license": "MIT",
-      "category": "development",
-      "keywords": ["senior-developer", "architecture", "code-review", "system-design", "best-practices", "technical-leadership"],
-      "strict": true
-    },
-    {
       "name": "kjgarza-product",
       "source": "./plugins/kjgarza-product",
       "description": "Product management toolkit with document processing, integrations, and research capabilities",
@@ -83,7 +70,7 @@
       "name": "rapid-mvp",
       "source": "./plugins/rapid-mvp",
       "description": "Opinionated defaults and scaffolding for rapid MVP static websites using Next.js or 11ty monorepo patterns",
-      "version": "0.1.0",
+      "version": "0.3.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -195,7 +182,7 @@
       "name": "taskwarrior",
       "source": "./plugins/taskwarrior",
       "description": "Taskwarrior task management with AI agent workflows — canonical add→start→update→close lifecycle, best practices, multiline notes via annotations, and /init setup command.",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"

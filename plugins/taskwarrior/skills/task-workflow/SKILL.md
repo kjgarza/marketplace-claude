@@ -176,7 +176,7 @@ task +ACTIVE list
 task project:Work list
 
 # Quick summary across all projects
-bash /CLAUDE_PLUGIN_ROOT/skills/task-workflow/scripts/tw-summary.sh
+bash ${CLAUDE_PLUGIN_ROOT}/skills/task-workflow/scripts/tw-summary.sh
 ```
 
 ## Mandatory State Updates for AI Agents

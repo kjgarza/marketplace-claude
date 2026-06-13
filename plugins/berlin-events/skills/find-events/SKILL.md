@@ -80,10 +80,16 @@ qurl vsearch "$QUERY" \
   --limit 20
 ```
 
-**Relevance filter** — a result counts as relevant if its snippet contains any of:
-- EN: `april`, `may`, `monday`–`sunday`, `vernissage`, `opening`, `exhibition`, `finissage`
+**Relevance filter** — first derive the date tokens from **today's date**, do not hardcode months:
+- `MONTH_NAMES` = lowercased full English + German names of the current month and next month (e.g. for June: `june`, `juni`, `july`, `juli`).
+- `MONTH_NUMS` = zero-padded numeric forms for the same two months bracketed by dots (e.g. `.06.`, `.07.`).
+- `YEAR` = current year (and next year if the lookahead window crosses into January).
+
+A result counts as relevant if its snippet contains any of:
+- EN/DE month names from `MONTH_NAMES`
+- `monday`–`sunday`, `vernissage`, `opening`, `exhibition`, `finissage`
 - DE: `ausstellung`, `veranstaltung`, `führung`, `kalender`, `programm`
-- Dates: current year, `.04.`, `.05.` (adjust for current month)
+- Dates: any token in `MONTH_NUMS`, or `YEAR`
 
 If vsearch returns fewer than 5 relevant results, fall back to web search (Step 5b).
 

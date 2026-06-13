@@ -39,8 +39,13 @@ skills:
   - ideation-review
   - ideation-ui
   - ideation-prototype
-  - web-artifacts-builder
 ---
+
+> **Prototype stage dependency:** Stage 5 prefers the optional `web-artifacts-builder`
+> skill (React + Tailwind + shadcn, install: `/install-skill https://skills.sh/anthropics/skills/web-artifacts-builder`).
+> It is not declared as a hard dependency. If it is not installed, the
+> `ideation-prototype` skill falls back to a single self-contained HTML file per
+> `skills/ideation/references/html-prototype-spec.md` instead of failing.
 
 # Ideation Pipeline Orchestrator
 
