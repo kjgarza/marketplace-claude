@@ -1,16 +1,17 @@
-#!/usr/bin/env node
-// calibrate.js — feedback loop for berlin-flats.
+#!/usr/bin/env bun
+// calibrate.ts — feedback loop for berlin-flats.
 //
 // Correlates human triage outcomes (accepted/rejected/snoozed/contacted) against
 // scam-score bands and the config criteria each listing matched, then suggests
 // concrete config tweaks. Pure heuristic stats, no LLM.
 //
 // Usage:
-//   node --experimental-sqlite scripts/calibrate.js            # human-readable
-//   node --experimental-sqlite scripts/calibrate.js --json     # machine output
-import { fileURLToPath } from 'url';
-import { getDb } from './db.js';
-import { loadConfig } from './config.js';
+//   bun scripts/calibrate.ts            # human-readable
+//   bun scripts/calibrate.ts --json     # machine output
+import { fileURLToPath } from "node:url";
+import { getDb } from './db.ts';
+import { loadConfig } from './config.ts';
+import type { Listing } from "./types.ts";
 
 const JSON_MODE = process.argv.includes('--json');
 
@@ -24,19 +25,23 @@ const BANDS = [
 const REJECTED = new Set(['rejected', 'filtered', 'block']);
 const ACCEPTED = new Set(['accepted', 'contacted']);
 
+function verdictOf(row: Listing): string {
+  return row.verdict ?? "pending";
+}
+
 export function calibrate() {
   const db = getDb();
   const cfg = loadConfig();
-  const rows = db.prepare('SELECT * FROM listings').all();
+  const rows = db.query('SELECT * FROM listings').all() as Listing[];
 
   const total = rows.length;
-  const decided = rows.filter(r => REJECTED.has(r.verdict) || ACCEPTED.has(r.verdict));
+  const decided = rows.filter(r => REJECTED.has(verdictOf(r)) || ACCEPTED.has(verdictOf(r)));
 
   // Rejection rate by scam-score band
   const bands = BANDS.map(b => {
     const inBand = rows.filter(r => (r.scam_score ?? 0) >= b.min && (r.scam_score ?? 0) < b.max);
-    const rej = inBand.filter(r => REJECTED.has(r.verdict)).length;
-    const acc = inBand.filter(r => ACCEPTED.has(r.verdict)).length;
+    const rej = inBand.filter(r => REJECTED.has(verdictOf(r))).length;
+    const acc = inBand.filter(r => ACCEPTED.has(verdictOf(r))).length;
     return {
       band: b.name,
       count: inBand.length,
@@ -47,9 +52,9 @@ export function calibrate() {
   });
 
   // Most common reject reasons
-  const reasonCounts = {};
+  const reasonCounts: Record<string, number> = {};
   for (const r of rows) {
-    if (REJECTED.has(r.verdict) && r.reject_reason) {
+    if (REJECTED.has(verdictOf(r)) && r.reject_reason) {
       const key = r.reject_reason.split(':')[0].trim();
       reasonCounts[key] = (reasonCounts[key] || 0) + 1;
     }
@@ -59,14 +64,14 @@ export function calibrate() {
     .map(([reason, count]) => ({ reason, count }));
 
   // District outcomes — which configured districts yield rejects
-  const districtStats = {};
+  const districtStats: Record<string, { count: number; rejected: number; accepted: number }> = {};
   for (const r of rows) {
     if (!r.district) continue;
     const d = r.district;
     districtStats[d] = districtStats[d] || { count: 0, rejected: 0, accepted: 0 };
     districtStats[d].count++;
-    if (REJECTED.has(r.verdict)) districtStats[d].rejected++;
-    if (ACCEPTED.has(r.verdict)) districtStats[d].accepted++;
+    if (REJECTED.has(verdictOf(r))) districtStats[d].rejected++;
+    if (ACCEPTED.has(verdictOf(r))) districtStats[d].accepted++;
   }
 
   // Suggestions
@@ -90,7 +95,7 @@ export function calibrate() {
   return { total, decided: decided.length, bands, top_reasons: topReasons, district_stats: districtStats, suggestions };
 }
 
-function printHuman(r) {
+function printHuman(r: ReturnType<typeof calibrate>) {
   console.log('=== berlin-flats calibration ===');
   console.log(`Listings: ${r.total} total, ${r.decided} triaged (accepted/rejected).\n`);
   console.log('Rejection rate by scam-score band:');

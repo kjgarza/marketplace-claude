@@ -1,22 +1,23 @@
 import * as cheerio from 'cheerio';
+import type { Listing } from "./types.ts";
 
-function parseEurDe(str) {
+function parseEurDe(str: string): number | null {
   if (!str) return null;
   const clean = str.replace(/[€\s]/g, '').replace(/\./g, '').replace(',', '.');
   const num = parseFloat(clean);
   return isNaN(num) ? null : num;
 }
 
-function parseFloatDe(str) {
+function parseFloatDe(str: string): number | null {
   if (!str) return null;
   const clean = str.trim().replace(',', '.').replace(/[^\d.]/g, '');
   const num = parseFloat(clean);
   return isNaN(num) ? null : num;
 }
 
-export function parseSearchResults(html, portal) {
+export function parseSearchResults(html: string, portal: string): Listing[] {
   const $ = cheerio.load(html);
-  const listings = [];
+  const listings: Listing[] = [];
 
   if (portal === 'kleinanzeigen') {
     $('article.aditem').each((_, el) => {
@@ -92,9 +93,9 @@ export function parseSearchResults(html, portal) {
   return listings;
 }
 
-export function parseDetail(html, portal, url) {
+export function parseDetail(html: string, portal: string, url: string): Listing {
   const $ = cheerio.load(html);
-  const listing = { portal, url };
+  const listing: Listing = { portal, url };
 
   if (portal === 'kleinanzeigen') {
     listing.title = $('h1#viewad-title').text().trim() || $('h1').first().text().trim();
@@ -118,11 +119,12 @@ export function parseDetail(html, portal, url) {
     const idMatch = ogUrl.match(/\/(\d+)-\d+\/?$/) || url.match(/\/(\d+)-\d+\/?$/);
     listing.external_id = idMatch ? idMatch[1] : url.split('/').pop();
 
-    listing.image_urls = [];
+    const imageUrls: string[] = [];
     $('.galleryimage-element img, #viewad-image img').each((_, img) => {
       const src = $(img).attr('src') || $(img).attr('data-src');
-      if (src && !src.includes('placeholder')) listing.image_urls.push(src);
+      if (src && !src.includes('placeholder')) imageUrls.push(src);
     });
+    listing.image_urls = imageUrls;
   }
 
   if (portal === 'immoscout24') {

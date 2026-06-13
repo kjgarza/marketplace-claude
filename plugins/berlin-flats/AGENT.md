@@ -14,23 +14,23 @@
 ## Current Runtime Snapshot
 
 - Language: JavaScript (ESM)
-- Runtime: Node.js
+- Runtime: Bun + TypeScript
 - Database API: `node:sqlite`
 - HTML parsing: `cheerio`
 - Config parsing: `@iarna/toml`
 - Network fetch: built-in `fetch` with Jina fallback
-- Tests: ad hoc JS scripts executed from `package.json`
+- Tests: `bun test` executed from `package.json`
 
 ## Important Files
 
 - `config/config.toml` — user search/profile settings
-- `scripts/config.js` — config loader
-- `scripts/db.js` — SQLite schema and persistence helpers
-- `scripts/scrape.js` — fetch tier logic
-- `scripts/parse-listing.js` — portal parsers
-- `scripts/scam-score.js` — heuristic scam scoring
-- `scripts/hunt.js` — orchestration and CLI entrypoint
-- `scripts/*.test.js` / `scripts/hunt.smoke.js` — current test coverage
+- `scripts/config.ts` — config loader
+- `scripts/db.ts` — `bun:sqlite` schema and persistence helpers
+- `scripts/scrape.ts` — fetch tier logic
+- `scripts/parse-listing.ts` — portal parsers
+- `scripts/scam-score.ts` — heuristic scam scoring
+- `scripts/hunt.ts` — orchestration and CLI entrypoint
+- `scripts/__tests__/*.test.ts` — current test coverage
 - `portals/*.yaml` — portal recon profiles
 - `agents/` — sub-agent docs for plugin workflows
 
@@ -48,7 +48,7 @@
 The next planned refactor is:
 1. run the plugin on Bun
 2. replace the DB layer with Bun SQLite
-3. convert scripts from `.js` to `.ts`
+3. keep deterministic scripts in `.ts`
 4. keep one shared test suite proving parity before and after the TypeScript conversion
 
 See `TS_BUN_MIGRATION_PLAN.md` for the staged plan.
@@ -66,7 +66,7 @@ Start by reading:
 1. this file
 2. `TS_BUN_MIGRATION_PLAN.md`
 3. `package.json`
-4. the current tests in `scripts/*.test.js`
+4. the current tests in `scripts/__tests__/*.test.ts`
 
 Then confirm whether the task is:
 - docs/planning only

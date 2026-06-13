@@ -2,7 +2,7 @@
 
 ## Goal
 
-The `/hunt` command (`node --experimental-sqlite scripts/hunt.js`) must return at least **1 real Berlin apartment listing** matching all qualifying criteria.
+The `/hunt` command (`bun scripts/hunt.ts`) must return at least **1 real Berlin apartment listing** matching all qualifying criteria.
 
 ## Qualifying Criteria
 
@@ -33,20 +33,7 @@ FAIL if qualifying_count == 0
 
 ```bash
 cd plugins/berlin-flats
-node --experimental-sqlite -e "
-import('./scripts/db.js').then(({ getQueue }) => {
-  const all = getQueue('pending');
-  const qualifying = all.filter(l =>
-    l.url && (l.url.includes('s-anzeige') || l.url.includes('expose')) &&
-    (l.cold_rent == null || l.cold_rent <= 1600) &&
-    (l.warm_rent == null || l.warm_rent <= 2000) &&
-    (l.district || '').length > 0
-  );
-  console.log('QUALIFYING:', qualifying.length);
-  qualifying.slice(0,5).forEach(l =>
-    console.log('-', l.title?.slice(0,50), '|', l.district?.slice(0,20), '| cold:', l.cold_rent, '| warm:', l.warm_rent, '| rooms:', l.rooms)
-  );
-});" 2>/dev/null
+bun scripts/queue.ts pending
 ```
 
 ## Baseline

@@ -9,7 +9,7 @@ const MIETSPIEGEL = {
   'Schöneberg': 13.5,
   'Tempelhof': 11.2,
   'default': 13.0,
-};
+} as const;
 
 const HARD_RULES = [
   { pattern: /western\s*union|moneygram/i,            weight: 0.90, code: 'PAYMENT_FRAUD' },
@@ -22,16 +22,18 @@ const HARD_RULES = [
   { pattern: /google\s+translate|übersetzt\s+mit/i,   weight: 0.35, code: 'TRANSLATION_ARTIFACT' },
 ];
 
-function findDistrict(districtStr) {
+import type { Listing, ScamResult } from "./types.ts";
+
+function findDistrict(districtStr?: string | null): keyof typeof MIETSPIEGEL {
   if (!districtStr) return 'default';
   for (const key of Object.keys(MIETSPIEGEL)) {
     if (key === 'default') continue;
-    if (districtStr.toLowerCase().includes(key.toLowerCase())) return key;
+    if (districtStr.toLowerCase().includes(key.toLowerCase())) return key as keyof typeof MIETSPIEGEL;
   }
   return 'default';
 }
 
-export function scamScore(listing) {
+export function scamScore(listing: Listing): ScamResult {
   const desc = `${listing.title || ''} ${listing.description || ''}`.toLowerCase();
   const reasons = [];
   let score = 0;
