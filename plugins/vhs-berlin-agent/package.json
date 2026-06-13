@@ -1,0 +1,16 @@
+{
+  "name": "vhs-berlin-agent",
+  "version": "0.2.0",
+  "type": "module",
+  "description": "VHS Berlin course search and monitoring scripts",
+  "scripts": {
+    "init-db": "bun run scripts/init-db.ts",
+    "search": "bun run scripts/search.ts",
+    "watch": "bun run scripts/watch.ts",
+    "smoke": "bun run scripts/smoke.ts"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "js-yaml": "^4.1.0"
+  }
+}

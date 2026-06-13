@@ -35,40 +35,62 @@ This is a **personal navigation and monitoring layer**, not a replacement for th
 | `vhs-watch` | Watchlists and change monitoring |
 | `vhs-digest` | Awareness summaries and digests |
 
+## Architecture
+
+The plugin uses **deterministic bun/TypeScript scripts** for all data work. Skills are thin LLM orchestration prose that call scripts via Bash. No MCP servers required.
+
+```
+scripts/
+  init-db.ts    — Create/verify SQLite DB from data/schema.sql
+  search.ts     — Build URL, two-tier fetch, cheerio parse, upsert courses
+  watch.ts      — save|check|list|remove watchlist management
+  smoke.ts      — Quick end-to-end health check
+```
+
+All scripts accept `--db-path` and output JSON to stdout.
+
 ## Requirements
 
-- Browser MCP server (for page loading and extraction)
-- SQLite MCP server (for local course data storage)
+- **bun** (≥1.0) — `curl -fsSL https://bun.sh/install | bash`
+- No MCP servers required
 
 ## Installation
 
 ```bash
-# From marketplace-claude root
-cd plugins/vhs-berlin-agent
+/plugin marketplace add kjgarza/marketplace-claude
 ```
 
-The plugin will auto-create its SQLite database on first use.
+Then initialize the database:
+
+```
+/vhs-berlin-agent:init
+```
 
 ## Usage
 
+### Initialize (required first time)
+```
+/vhs-berlin-agent:init
+```
+
 ### Search for courses
 ```
-/vhs-search "Find watercolor classes in Pankow on weekday evenings"
+Find watercolor classes in Pankow on weekday evenings
 ```
 
 ### Watch a course or search
 ```
-/vhs-watch save "B1 German evening courses in Mitte"
+Watch B1 German evening courses in Mitte
 ```
 
 ### Check for changes
 ```
-/vhs-watch check
+Check my VHS watches
 ```
 
 ### Get a digest
 ```
-/vhs-digest weekly
+Weekly VHS digest
 ```
 
 ## Design Principles
@@ -101,4 +123,4 @@ MIT
 
 ## Version
 
-0.1.0 (Phase 1: Foundation)
+0.2.0 (Phase 2: Bun scripts, no MCP)
