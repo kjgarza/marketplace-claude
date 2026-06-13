@@ -77,7 +77,10 @@ if (cmd === "init") {
   const events = readStdin();
   const ins = db.prepare("INSERT OR IGNORE INTO shown (hash, title, date, venue) VALUES (?, ?, ?, ?)");
   let n = 0;
-  for (const e of events) { ins.run(eventHash(e), e.title ?? null, e.date ?? null, e.venue ?? null); n++; }
+  for (const e of events) {
+    // .changes is 0 when INSERT OR IGNORE skips a duplicate; only count new rows.
+    n += ins.run(eventHash(e), e.title ?? null, e.date ?? null, e.venue ?? null).changes;
+  }
   db.close();
   console.log(JSON.stringify({ recorded: n }));
 } else if (cmd === "feedback") {

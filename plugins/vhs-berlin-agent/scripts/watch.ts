@@ -85,15 +85,23 @@ async function cmdCheck(db) {
   for (const watch of watches) {
     const payload = JSON.parse(watch.query_payload);
     const url = buildSearchUrl(payload.parsed ?? payload, registry);
-    const { html } = await fetchHtml(url);
-    const currentIds = html ? parseCourseIds(html) : [];
+    const { html, tier, error } = await fetchHtml(url);
+    const now = new Date().toISOString();
+    // Fetch failure: empty html would make `removed` swallow every previously
+    // seen id, producing false "disappeared" events and a corrupt empty snapshot.
+    // Skip all writes for this watch and surface the failure instead.
+    if (tier === 0 || !html) {
+      db.prepare("UPDATE watched_searches SET last_checked_at=? WHERE watch_id=?").run(now, watch.watch_id);
+      allChanges.push({ watch_id: watch.watch_id, label: watch.label, verification_failed: true, error: error ?? "fetch failed", new_courses: [], removed: [], current_count: 0 });
+      continue;
+    }
+    const currentIds = parseCourseIds(html);
     const prevSnap = db.query("SELECT * FROM snapshots WHERE watch_id=? ORDER BY extracted_at DESC LIMIT 1").get(watch.watch_id);
     const prevIds = prevSnap ? JSON.parse(prevSnap.result_course_ids) : [];
     const prevSet = new Set(prevIds);
     const currSet = new Set(currentIds);
     const newCourses = currentIds.filter(id => !prevSet.has(id));
     const removed = prevIds.filter(id => !currSet.has(id));
-    const now = new Date().toISOString();
     const hash = snapshotHash(currentIds);
     db.prepare("INSERT INTO snapshots (watch_id,extracted_at,result_hash,result_count,result_course_ids) VALUES (?,?,?,?,?)")
       .run(watch.watch_id, now, hash, currentIds.length, JSON.stringify(currentIds));
