@@ -1,0 +1,13 @@
+{
+  "description": "Validate ideation pipeline stage outputs (frontmatter, run_id, non-empty body) on write.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": "bash ${CLAUDE_PLUGIN_ROOT}/hooks/scripts/validate-stage.sh", "timeout": 10 }
+        ]
+      }
+    ]
+  }
+}
