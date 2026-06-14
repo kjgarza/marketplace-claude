@@ -14,7 +14,7 @@ Discover interesting art and food events in Berlin. Searches multiple event sour
 ## Prerequisites
 
 - [Bun](https://bun.sh/) runtime (for Readability extraction script)
-- [gcalcli](https://github.com/insanum/gcalcli) (for Google Calendar integration)
+- [gogcli](https://github.com/openclaw/gogcli) (binary `gog`, for Google Calendar integration)
 
 ### Install dependencies
 
@@ -25,11 +25,11 @@ curl -fsSL https://bun.sh/install | bash
 # Install script dependencies
 cd plugins/berlin-events/scripts && bun install
 
-# Install gcalcli
-pip3 install gcalcli
+# Install gogcli
+brew install openclaw/tap/gogcli
 
 # Authenticate with Google Calendar (first time only)
-gcalcli agenda
+gog auth add you@gmail.com --services calendar
 ```
 
 ## Configuration

@@ -107,12 +107,12 @@ Check for scheduling conflicts over the lookahead window.
 
 - **Interactive sessions:** prefer the **Google Calendar MCP tools** if available
   (`mcp__claude_ai_Google_Calendar__list_events` for the date range). No install or OAuth needed.
-- **Headless / no MCP** (the weekly launchd job): fall back to `gcalcli`:
+- **Headless / no MCP** (the weekly launchd job): fall back to `gogcli` (binary `gog`):
   ```bash
-  gcalcli agenda --nocolor --details end "today" "+14 days"
+  gog calendar events --from today --days 14 --json
   ```
-  If gcalcli is not installed: `pip3 install gcalcli`. If not authenticated, ask the user to
-  run `! gcalcli agenda` to complete OAuth.
+  If gogcli is not installed: `brew install openclaw/tap/gogcli`. If not authenticated, ask the
+  user to run `! gog auth add you@gmail.com --services calendar` to complete OAuth.
 
 Parse output to identify busy time slots. Flag events that overlap with existing entries.
 
@@ -173,7 +173,7 @@ Output a curated list grouped by date:
 - **Category**: Art | Food
 - **Link**: [URL]
 - **Calendar conflict**: None | "Conflicts with [existing event] at [time]"
-- **Add to calendar**: [gcalcli command or Google Calendar link]
+- **Add to calendar**: [`gog calendar create` command or Google Calendar link]
 
 ---
 ```
@@ -181,6 +181,11 @@ Output a curated list grouped by date:
 Google Calendar link format (compact ISO 8601 dates: `YYYYMMDDTHHmmssZ`):
 ```
 https://calendar.google.com/calendar/render?action=TEMPLATE&text=[title]&dates=20260325T190000Z/20260325T210000Z&location=[venue]&details=[description+link]
+```
+
+Or, with gogcli (RFC3339 times), let the user add directly:
+```bash
+gog calendar create primary --summary "[title]" --from "2026-03-25T19:00:00+01:00" --to "2026-03-25T21:00:00+01:00" --location "[venue]"
 ```
 
 Include a summary at the top: "Found X events (Y art, Z food) for [date range]. N conflicts with your calendar."
