@@ -7,7 +7,7 @@ lookahead_days: 14
 
 # Berlin Events Settings
 
-Copy this file to `.claude/berlin-events.local.md` in your project root or `~/.claude/berlin-events.local.md` in your home directory.
+Copy this file to `.claude/berlin-events.local.md` in your project root (the single location the skill reads).
 
 | Field | Default | Description |
 |-------|---------|-------------|

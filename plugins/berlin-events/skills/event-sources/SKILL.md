@@ -20,14 +20,31 @@ After ingesting all sources, embed and search:
 
 ```bash
 qurl embed
-qurl vsearch "April 2026 Berlin exhibition opening vernissage workshop event calendar art food" \
-  --source berlin-events \
-  --limit 20
+# Primary: `qurl search` (pure BM25, honors --source/--tag/--limit).
+# Keep the query SHORT (3-5 words) — BM25 needs term overlap, so a
+# verbose keyword-stuffed query returns "No results".
+qurl search "Berlin art exhibition opening" --source berlin-events --limit 20
 ```
+
+**Choose the qurl command by behaviour (verified against qurl source):**
+
+- `qurl search` — pure BM25 keyword (FTS5); exact terms, needs term overlap. Honors `--source`/`--tag`/`--limit`.
+- `qurl query` — **alias for `search`** (identical, pure BM25). Not hybrid/rerank despite the name.
+- `qurl vsearch` — pure vector/semantic; tolerates verbose queries, honors `--limit`, but **ignores `--source`/`--tag`** (whole DB) — grep hosts to filter.
+
+For broad recall with a verbose query, use vsearch + a host grep:
+
+```bash
+qurl vsearch "$(date '+%B %Y') Berlin exhibition opening vernissage workshop event calendar art food" 2>&1 \
+  | grep -E -i 'indexberlin|kw-berlin|berlinischegalerie|artatberlin|co-berlin|kunstleben-berlin|berlin\.de|visitberlin'
+```
+
+> **Use `qurl`, not `qmd`.** `qurl` is the event-scrape DB. `qmd` is a separate notes search
+> engine and holds no events — never substitute it here, despite shared subcommand names.
 
 ## Priority Sources (confirmed working with Readability)
 
-Ingest these first — they produce date-containing chunks that rank well in vsearch:
+Ingest these first — they produce date-containing chunks that rank well in `qurl query`:
 
 | URL | Tags | What the snippet contains |
 |-----|------|--------------------------|
@@ -42,7 +59,7 @@ Ingest these first — they produce date-containing chunks that rank well in vse
 
 ## Relevance Keywords
 
-A vsearch result is relevant if its snippet contains any of:
+A query result is relevant if its snippet contains any of:
 
 - **EN dates/events**: `april`, `may`, `monday`–`sunday`, `vernissage`, `opening`, `exhibition`, `finissage`
 - **DE events**: `ausstellung`, `veranstaltung`, `führung`, `kalender`, `programm`

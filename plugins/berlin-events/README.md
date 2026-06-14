@@ -34,7 +34,7 @@ gog auth add you@gmail.com --services calendar
 
 ## Configuration
 
-Create `.claude/berlin-events.local.md` in your project or home directory:
+Create `.claude/berlin-events.local.md` in your project root (the single location the skill reads — or run `/berlin-events:init`):
 
 ```markdown
 ---
