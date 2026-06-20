@@ -258,6 +258,14 @@ For each unresolved comment:
 
 - Subjective or architectural → flag for the user (per Rules), don't silently rewrite.
 
+- **Push back** when the suggested change is unneeded, misses the point, or conflicts with best practices. Reply on the PR explaining why — cite the language spec, framework docs, or project convention as appropriate. Don't make the change just to close the comment. Example triggers:
+  - Reviewer asks to add error handling for a code path that can't fail
+  - Suggestion would introduce a known anti-pattern (e.g. `any` cast, suppressing a lint rule, premature abstraction)
+  - Feedback contradicts the project's own CLAUDE.md or established conventions
+  - Bot reviewer (Copilot, etc.) flags something that is intentional and correct in context
+
+  When pushing back: be direct, not defensive. One sentence stating what the code does and why it's correct is enough. Offer an alternative only if one genuinely exists.
+
 6. **If still unclear** after using all the context: summarize what you found — including the surrounding diff — and ask the user for guidance.
 
   
@@ -409,6 +417,7 @@ PR #<number> Status:
 | Actioning a withdrawn comment | A follow-up reply may have retracted or narrowed the original ask | Follow the reply thread before changing code |
 
 | Pushing a fix but not re-requesting review | Copilot/human keeps showing stale "changes requested"; PR looks blocked | Re-request review after pushing code fixes (Step 5b) |
+| Complying with every comment | Wrong changes ship; reviewer may be mistaken or bot-hallucinating | Push back with a reason when the suggestion is wrong or harmful (Step 5) |
 
   
 
