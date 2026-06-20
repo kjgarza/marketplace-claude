@@ -46,13 +46,18 @@ def _plugin_names_from_paths(paths: list[str]) -> set[str]:
 
 
 def version_changed_staged(plugin_name: str) -> bool:
-    """True if marketplace.json version for this plugin differs between HEAD and index."""
+    """True if marketplace.json version for this plugin differs between HEAD and staged index."""
     try:
-        head_json = run(["git", "show", f"HEAD:.claude-plugin/marketplace.json"])
+        head_json = run(["git", "show", "HEAD:.claude-plugin/marketplace.json"])
     except subprocess.CalledProcessError:
         return True  # new repo with no commits yet
+    try:
+        # Read from git index (staged), not the working tree
+        index_json = run(["git", "show", ":.claude-plugin/marketplace.json"])
+    except subprocess.CalledProcessError:
+        return True
     head_data = json.loads(head_json)
-    index_data = json.loads(MARKETPLACE.read_text())
+    index_data = json.loads(index_json)
     head_ver = _plugin_version(head_data, plugin_name)
     index_ver = _plugin_version(index_data, plugin_name)
     return head_ver != index_ver
@@ -83,6 +88,9 @@ def main() -> None:
     base: str | None = None
     if "--base" in sys.argv:
         idx = sys.argv.index("--base")
+        if idx + 1 >= len(sys.argv):
+            print("usage: check-version-bumped.py --base <ref>", file=sys.stderr)
+            sys.exit(1)
         base = sys.argv[idx + 1]
 
     if base:

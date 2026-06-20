@@ -20,7 +20,7 @@ install-hooks:
     #!/usr/bin/env bash
     set -euo pipefail
     HOOK=.git/hooks/pre-commit
-    printf '#!/usr/bin/env bash\npython3 scripts/validate.py\npython3 scripts/check-version-bumped.py\n' > "$HOOK"
+    printf '#!/usr/bin/env bash\nset -e\npython3 scripts/validate.py\npython3 scripts/check-version-bumped.py\n' > "$HOOK"
     chmod +x "$HOOK"
     echo "pre-commit hook installed at $HOOK"
 

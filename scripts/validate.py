@@ -35,16 +35,26 @@ def validate_marketplace() -> dict:
     else:
         err(f"bad metadata.version: '{version}'")
 
+    root_resolved = ROOT.resolve()
     for p in data.get("plugins", []):
         name = p.get("name", "?")
         pver = p.get("version", "")
         source = p.get("source", "")
-        if not re.match(r"^\d+\.\d+\.\d+$", pver):
+        version_ok = bool(re.match(r"^\d+\.\d+\.\d+$", pver))
+        if not version_ok:
             err(f"plugin {name}: bad version '{pver}'")
-        path = ROOT / source.lstrip("./")
+        if not source:
+            err(f"plugin {name}: missing source path")
+            continue
+        path = (ROOT / source).resolve()
+        try:
+            path.relative_to(root_resolved)
+        except ValueError:
+            err(f"plugin {name}: source path escapes repo: {source}")
+            continue
         if not path.exists():
             err(f"plugin {name}: source path missing: {source}")
-        else:
+        elif version_ok:
             ok(f"plugin {name} {pver}")
 
     return data
