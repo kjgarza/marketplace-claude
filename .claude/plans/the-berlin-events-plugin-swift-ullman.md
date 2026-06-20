@@ -84,7 +84,7 @@ Defaults to today if no flags are passed. Exits with status 1 and a message on A
 
 ### 2. MODIFY: `plugins/berlin-events/skills/find-events/SKILL.md`
 
-Insert **Step 8.5: Weather Gate** between the existing Step 7.5 (dedup / taste) and Step 8 (rank & curate).
+Insert **Step 7.6: Weather Gate** between the existing Step 7.5 (dedup / taste) and Step 8 (rank & curate).
 
 The step:
 1. Runs `weather-gate.ts --from $DATE_FROM --to $DATE_TO` to get daily gate objects

@@ -182,7 +182,7 @@ $BUN run "$PLUGIN_ROOT/scripts/events-db.ts" recent-feedback --limit 20
 
 Bias ranking toward venues/categories the user marked `went` and away from those marked `skip`.
 
-### Step 8.5: Weather Gate
+### Step 7.6: Weather Gate
 
 Fetch the daily weather forecast for the date range from Step 2, then discard candidate events whose indoor/outdoor character is incompatible with the forecast.
 

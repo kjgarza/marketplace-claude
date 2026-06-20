@@ -6,9 +6,9 @@
 
 const BERLIN = { lat: 52.52, lon: 13.41 };
 
-// WMO weather interpretation codes
-const RAIN_CODES = new Set([51, 53, 55, 61, 63, 65, 80, 81, 82, 95, 96, 99]);
-const SNOW_CODES = new Set([71, 73, 75, 77, 85, 86]);
+// WMO weather interpretation codes — full ranges per spec (51–65, 80–82, 95–99 / 71–77, 85–86)
+const RAIN_CODES = new Set([51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 80, 81, 82, 95, 96, 97, 98, 99]);
+const SNOW_CODES = new Set([71, 72, 73, 74, 75, 76, 77, 85, 86]);
 
 interface DailyGate {
   date: string;
@@ -86,7 +86,7 @@ async function fetchGates(from: string, to: string): Promise<DailyGate[]> {
 }
 
 function todayISO(): string {
-  return new Date().toISOString().split("T")[0];
+  return new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
 }
 
 const args = process.argv.slice(2);
