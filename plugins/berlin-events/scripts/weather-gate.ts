@@ -35,12 +35,13 @@ async function fetchGates(from: string, to: string): Promise<DailyGate[]> {
   try {
     res = await fetch(url);
   } catch (err) {
-    process.stderr.write(`OpenMeteo fetch error: ${err instanceof Error ? err.message : err}\n`);
-    process.exit(1);
+    process.stderr.write(`OpenMeteo fetch error: ${err instanceof Error ? err.message : err} — skipping weather gate\n`);
+    return [];
   }
   if (!res.ok) {
-    process.stderr.write(`OpenMeteo error: ${res.status} ${res.statusText}\n`);
-    process.exit(1);
+    const body = await res.text().catch(() => "");
+    process.stderr.write(`OpenMeteo error: ${res.status} ${res.statusText}${body ? ` — ${body}` : ""} — skipping weather gate\n`);
+    return [];
   }
 
   let data: {
@@ -55,8 +56,8 @@ async function fetchGates(from: string, to: string): Promise<DailyGate[]> {
   try {
     data = (await res.json()) as typeof data;
   } catch (err) {
-    process.stderr.write(`OpenMeteo parse error: ${err instanceof Error ? err.message : err}\n`);
-    process.exit(1);
+    process.stderr.write(`OpenMeteo parse error: ${err instanceof Error ? err.message : err} — skipping weather gate\n`);
+    return [];
   }
 
   const { time, temperature_2m_max, temperature_2m_min, precipitation_sum, weathercode } =
