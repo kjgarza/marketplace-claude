@@ -104,10 +104,15 @@ def main() -> None:
 
     errors: list[str] = []
     for name in sorted(changed):
-        if base:
-            bumped = version_changed_vs_base(name, base)
-        else:
-            bumped = version_changed_staged(name)
+        try:
+            if base:
+                bumped = version_changed_vs_base(name, base)
+            else:
+                bumped = version_changed_staged(name)
+        except ValueError as e:
+            print(f"  FAIL  {name}: {e}", file=sys.stderr)
+            errors.append(name)
+            continue
 
         if bumped:
             print(f"  ok    {name}: version bumped")
