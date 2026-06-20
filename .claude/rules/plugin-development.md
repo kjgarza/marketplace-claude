@@ -19,7 +19,9 @@ Key skills to use:
 
 ## Plugin Manifest
 
-Every plugin **must** have `.claude-plugin/plugin.json`. This is the canonical location — do NOT put it at the plugin root.
+Every plugin **must** have `.claude-plugin/plugin.json`. This is the canonical location for new plugins.
+
+> **Legacy note:** Some existing plugins (e.g. `kjgarza-product`) also have a root-level `plugin.json`. Do not delete it without verifying no downstream tooling depends on it — but do not create new ones at the root.
 
 **Minimum:**
 ```json

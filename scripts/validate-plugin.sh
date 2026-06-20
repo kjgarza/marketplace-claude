@@ -8,6 +8,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PLUGINS_DIR="$REPO_ROOT/plugins"
 MARKETPLACE="$REPO_ROOT/.claude-plugin/marketplace.json"
+SCRIPTS_DIR="$REPO_ROOT/scripts"
 PASS=0
 FAIL=0
 
@@ -76,23 +77,23 @@ validate_plugin() {
       warn "  [SKIP] No skills found"
     fi
 
-    # 3. Skill description trigger phrase
+    # 3. Skill description trigger phrase — value must START with the phrase
     local trigger_fail=0
     while IFS= read -r -d '' skill_file; do
-      local desc_line
+      local desc_line desc_value
       desc_line=$(grep '^description:' "$skill_file" 2>/dev/null | head -1 || true)
       if [ -n "$desc_line" ]; then
-        if ! echo "$desc_line" | grep -qi 'this skill should be used when'; then
+        desc_value=$(printf '%s' "$desc_line" | sed 's/^description:[[:space:]]*//' | tr -d '"'"'")
+        if ! printf '%s' "$desc_value" | grep -qi '^this skill should be used when'; then
           trigger_fail=$((trigger_fail + 1))
-          warn "  [WARN] description missing trigger phrase: ${skill_file#"$REPO_ROOT/"}"
+          check "trigger phrase at start of description: ${skill_file#"$REPO_ROOT/"}" "fail" \
+            "description must start with: This skill should be used when..."
         fi
       fi
     done < <(find "$skills_dir" -name "SKILL.md" -print0)
 
     if [ "$skill_count" -gt 0 ] && [ "$trigger_fail" -eq 0 ]; then
       check "All skill descriptions use trigger phrase" "ok"
-    elif [ "$trigger_fail" -gt 0 ]; then
-      FAIL=$((FAIL + trigger_fail))
     fi
   fi
 
@@ -101,52 +102,27 @@ validate_plugin() {
   if [ -f "$hooks_json" ]; then
     local missing_scripts=0
     while IFS= read -r script_path; do
-      # Extract bash script paths from hook command fields
       script_path="${script_path/\$\{CLAUDE_PLUGIN_ROOT\}/$dir}"
-      # Grab the actual path after 'bash '
-      actual_path=$(echo "$script_path" | grep -oE '[^ ]+\.sh' | head -1 || true)
+      actual_path=$(printf '%s' "$script_path" | grep -oE '[^ ]+\.sh' | head -1 || true)
       if [ -n "$actual_path" ] && [ ! -f "$actual_path" ]; then
         missing_scripts=$((missing_scripts + 1))
         red "  [FAIL] Hook script missing: $actual_path"
         FAIL=$((FAIL + 1))
       fi
-    done < <(python3 -c "
-import json, sys
-data = json.load(open('$hooks_json'))
-hooks_block = data.get('hooks', data)
-for event_hooks in hooks_block.values():
-    for entry in (event_hooks if isinstance(event_hooks, list) else []):
-        for h in entry.get('hooks', []):
-            if h.get('type') == 'command':
-                print(h.get('command', ''))
-" 2>/dev/null || true)
+    done < <(python3 "$SCRIPTS_DIR/list-hook-commands.py" "$hooks_json" 2>/dev/null || true)
     if [ "$missing_scripts" -eq 0 ]; then
       check "Hook scripts exist" "ok"
     fi
   fi
 
-  # 5. marketplace.json has entry for this plugin
+  # 5. marketplace.json has entry for this plugin with a resolvable source path
   if [ -f "$MARKETPLACE" ]; then
     local in_marketplace
-    in_marketplace=$(python3 -c "
-import json
-data = json.load(open('$MARKETPLACE'))
-plugins = data.get('plugins', [])
-names = [p.get('name','') for p in plugins]
-print('yes' if '$name' in names else 'no')
-" 2>/dev/null || echo "no")
+    in_marketplace=$(python3 "$SCRIPTS_DIR/check-marketplace.py" "$MARKETPLACE" "$name" exists 2>/dev/null || echo "no")
     if [ "$in_marketplace" = "yes" ]; then
       check "marketplace.json has entry" "ok"
-      # Also verify source path resolves
       local source_path
-      source_path=$(python3 -c "
-import json
-data = json.load(open('$MARKETPLACE'))
-for p in data.get('plugins', []):
-    if p.get('name') == '$name':
-        print(p.get('source', ''))
-        break
-" 2>/dev/null || true)
+      source_path=$(python3 "$SCRIPTS_DIR/check-marketplace.py" "$MARKETPLACE" "$name" source 2>/dev/null || true)
       if [ -n "$source_path" ]; then
         local resolved="$REPO_ROOT/${source_path#./}"
         if [ -d "$resolved" ]; then
