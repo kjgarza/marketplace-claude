@@ -92,7 +92,13 @@ def validate_skills() -> None:
 
 def validate_plugin_jsons() -> None:
     print("── plugin.json files")
-    for pjson in sorted(ROOT.glob("plugins/*/plugin.json")):
+    paths = set(ROOT.glob("plugins/*/.claude-plugin/plugin.json"))
+    paths.update(ROOT.glob("plugins/*/plugin.json"))
+    if not paths:
+        ok("no plugin.json files found")
+        return
+
+    for pjson in sorted(paths):
         try:
             data = json.loads(pjson.read_text())
         except Exception as e:

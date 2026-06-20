@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "A collection of useful Claude Code plugins for development workflows",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -14,7 +14,7 @@
       "name": "kjgarza-base",
       "source": "./plugins/kjgarza-base",
       "description": "Base MCP server configuration with puppeteer, fetch, sequential thinking, and context7 documentation servers",
-      "version": "1.0.1",
+      "version": "1.0.3",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -35,7 +35,7 @@
       "name": "scholarly-comms-researcher",
       "source": "./plugins/scholarly-comms-researcher",
       "description": "Expert agent for scholarly communication research with Dimensions database integration and academic search capabilities",
-      "version": "1.0.0",
+      "version": "1.0.2",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -57,7 +57,7 @@
       "name": "kjgarza-product",
       "source": "./plugins/kjgarza-product",
       "description": "Product management toolkit with document processing, integrations, and research capabilities",
-      "version": "1.0.0",
+      "version": "1.0.2",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -80,7 +80,7 @@
       "name": "bookclub",
       "source": "./plugins/bookclub",
       "description": "Book club management plugin for generating Slack communications, discussion materials, and reading schedules",
-      "version": "1.2.0",
+      "version": "1.2.2",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -100,7 +100,7 @@
       "name": "rapid-mvp",
       "source": "./plugins/rapid-mvp",
       "description": "Opinionated defaults and scaffolding for rapid MVP static websites using Next.js or 11ty monorepo patterns",
-      "version": "0.3.0",
+      "version": "0.3.2",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -121,7 +121,7 @@
       "name": "berlin-events",
       "source": "./plugins/berlin-events",
       "description": "Discover interesting art and food events in Berlin, check against your Google Calendar, and get a curated list with travel context from your neighborhood.",
-      "version": "0.2.2",
+      "version": "0.2.4",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -142,7 +142,7 @@
       "name": "readitlater-digest",
       "source": "./plugins/readitlater-digest",
       "description": "Generate themed weekly digests from Obsidian ReadItLater bookmarks with SQLite state tracking and automated cleanup",
-      "version": "0.3.0",
+      "version": "0.3.2",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -163,7 +163,7 @@
       "name": "prototyping-skills",
       "source": "./plugins/prototyping-skills",
       "description": "Skills for rapid prototype development with a standardized Bun monorepo stack (core, types, api, ui, mcp). Encodes conventions, deviation protocol, per-package patterns, test scaffolding, and development workflow chaining.",
-      "version": "0.2.0",
+      "version": "0.2.2",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -189,7 +189,7 @@
       "name": "ideation",
       "source": "./plugins/ideation",
       "description": "5-stage ideation pipeline: problem intake, solution generation, review, ASCII UI concepts, and interactive HTML prototypes",
-      "version": "1.2.0",
+      "version": "1.2.2",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -209,7 +209,7 @@
       "name": "vhs-berlin-agent",
       "source": "./plugins/vhs-berlin-agent",
       "description": "Personal navigation and monitoring layer for VHS Berlin courses — natural language search, watchlists with change detection, and awareness digests via deterministic bun scripts (no MCP).",
-      "version": "0.2.0",
+      "version": "0.2.2",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -232,7 +232,7 @@
       "name": "berlin-flats",
       "source": "./plugins/berlin-flats",
       "description": "Berlin flat hunter — searches Kleinanzeigen and ImmoScout24 for rentals, detects scams, queues listings for triage, and drafts contact messages.",
-      "version": "0.3.0",
+      "version": "0.3.2",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -255,7 +255,7 @@
       "name": "bulletjournal",
       "source": "./plugins/bulletjournal",
       "description": "Bullet journal workflow automation — daily migration, inbox triage, weekly/monthly reviews, and journal synthesis from daily notes and session memory.",
-      "version": "0.1.0",
+      "version": "0.1.2",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -278,7 +278,7 @@
       "name": "taskwarrior",
       "source": "./plugins/taskwarrior",
       "description": "Taskwarrior task management with AI agent workflows — canonical add→start→update→close lifecycle, best practices, multiline notes via annotations, and /init setup command.",
-      "version": "0.3.0",
+      "version": "0.3.2",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -300,7 +300,7 @@
       "name": "finanz-pilot",
       "source": "./plugins/finanz-pilot",
       "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, financial statements, tax checks, pension evaluation, real estate readiness, retirement projections, capital allocation, and integrated personal finance advisory.",
-      "version": "1.6.0",
+      "version": "1.6.2",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"

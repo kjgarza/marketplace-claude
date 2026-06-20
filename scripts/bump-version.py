@@ -48,12 +48,22 @@ def bump_plugin(name: str, part: str) -> None:
             p["version"] = new
             write_json(MARKETPLACE, data)
             print(f"plugin {name}: {old} → {new}")
-            plugin_json = ROOT / "plugins" / name / "plugin.json"
-            if plugin_json.exists():
+            manifests = [
+                ROOT / "plugins" / name / ".claude-plugin" / "plugin.json",
+                ROOT / "plugins" / name / "plugin.json",  # legacy path
+            ]
+            updated_any = False
+            for plugin_json in manifests:
+                if not plugin_json.exists():
+                    continue
                 pdata = json.loads(plugin_json.read_text())
                 pdata["version"] = new
                 write_json(plugin_json, pdata)
-                print(f"  plugin.json updated")
+                print(f"  updated {plugin_json.relative_to(ROOT)}")
+                updated_any = True
+
+            if not updated_any:
+                print("  no plugin.json manifest found (marketplace.json only)")
             return
     print(f"ERROR: plugin '{name}' not found in marketplace.json", file=sys.stderr)
     sys.exit(1)

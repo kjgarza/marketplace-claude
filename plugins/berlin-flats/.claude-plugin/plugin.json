@@ -1,11 +1,19 @@
 {
   "name": "berlin-flats",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "Hunts Berlin rental flats across major portals, detects scams, queues listings for triage, drafts contact messages.",
   "author": {
     "name": "Kristian Garza",
     "email": "kj.garza@gmail.com"
   },
   "license": "MIT",
-  "keywords": ["berlin", "flats", "rental", "housing", "immo", "kleinanzeigen", "immoscout"]
+  "keywords": [
+    "berlin",
+    "flats",
+    "rental",
+    "housing",
+    "immo",
+    "kleinanzeigen",
+    "immoscout"
+  ]
 }

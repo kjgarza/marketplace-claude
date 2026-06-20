@@ -1,6 +1,6 @@
 {
   "name": "ideation",
-  "version": "1.2.0",
+  "version": "1.2.2",
   "description": "5-stage ideation pipeline: intake, generate, review, UI concepts, prototypes",
   "author": {
     "name": "Kristian Garza",

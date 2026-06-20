@@ -59,7 +59,7 @@ release:
     just validate
     version=$(python3 -c "import json; d=json.load(open('.claude-plugin/marketplace.json')); print(d['metadata']['version'])")
     echo "Releasing v$version"
-    git add .claude-plugin/marketplace.json plugins/*/plugin.json 2>/dev/null || true
+    git add .claude-plugin/marketplace.json plugins/*/.claude-plugin/plugin.json plugins/*/plugin.json 2>/dev/null || true
     git diff --cached --quiet && echo "Nothing to commit" && exit 0
     git commit -m "chore: release v$version"
     git tag "v$version"

@@ -1,6 +1,6 @@
 {
   "name": "kjgarza-product",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Product management toolkit with document processing, integrations, and research capabilities",
   "author": {
     "name": "Kristian Garza",
@@ -19,8 +19,18 @@
   ],
   "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/kjgarza-product",
   "repository": "https://github.com/kjgarza/marketplace-claude",
-  "agents": ["./agents/product-manager.md", "./agents/scholarly-comms-researcher.md", "./agents/senior-dev-advisor.md"],
-  "skills": ["./skills/"],
-  "commands": ["./commands/"],
-  "outputStyles": ["./output-styles/"]
+  "agents": [
+    "./agents/product-manager.md",
+    "./agents/scholarly-comms-researcher.md",
+    "./agents/senior-dev-advisor.md"
+  ],
+  "skills": [
+    "./skills/"
+  ],
+  "commands": [
+    "./commands/"
+  ],
+  "outputStyles": [
+    "./output-styles/"
+  ]
 }
