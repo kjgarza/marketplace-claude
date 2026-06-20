@@ -45,10 +45,10 @@ Bun script. Fetches the daily OpenMeteo forecast for Berlin (lat 52.52, lon 13.4
 **CLI interface:**
 ```bash
 # Single date
-bun run scripts/weather-gate.ts --date 2026-06-20
+bun run "$PLUGIN_ROOT/scripts/weather-gate.ts" --date 2026-06-20
 
 # Date range
-bun run scripts/weather-gate.ts --from 2026-06-20 --to 2026-06-27
+bun run "$PLUGIN_ROOT/scripts/weather-gate.ts" --from 2026-06-20 --to 2026-06-27
 ```
 
 **Output (stdout):**
@@ -78,7 +78,7 @@ https://api.open-meteo.com/v1/forecast
   &timezone=Europe/Berlin
 ```
 
-Defaults to today if no flags are passed. Exits with status 1 and a message on API error.
+Defaults to today if no flags are passed. On API/network errors, logs a warning to stderr and returns an empty array (exit 0) so the skill keeps events with no gate.
 
 ---
 

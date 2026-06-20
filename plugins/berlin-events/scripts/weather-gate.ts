@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 // Fetch Berlin daily weather forecast from OpenMeteo and output gate flags.
-// Usage:
-//   bun run scripts/weather-gate.ts --date YYYY-MM-DD
-//   bun run scripts/weather-gate.ts --from YYYY-MM-DD --to YYYY-MM-DD
+// Usage (invoked via $PLUGIN_ROOT from the find-events skill):
+//   bun run "$PLUGIN_ROOT/scripts/weather-gate.ts" --date YYYY-MM-DD
+//   bun run "$PLUGIN_ROOT/scripts/weather-gate.ts" --from YYYY-MM-DD --to YYYY-MM-DD
 
 const BERLIN = { lat: 52.52, lon: 13.41 };
 
@@ -118,7 +118,7 @@ const toArg = get("--to");
 
 function requireDate(name: string, val: string | undefined): string {
   if (!val || !ISO_RE.test(val)) {
-    process.stderr.write(`Usage: bun run scripts/weather-gate.ts [--date YYYY-MM-DD | --from YYYY-MM-DD --to YYYY-MM-DD]\n`);
+    process.stderr.write(`Usage: bun run ${process.argv[1] ?? "weather-gate.ts"} [--date YYYY-MM-DD | --from YYYY-MM-DD --to YYYY-MM-DD]\n`);
     if (val) process.stderr.write(`  Invalid date for ${name}: ${val}\n`);
     else process.stderr.write(`  Missing value for ${name}\n`);
     process.exit(1);
