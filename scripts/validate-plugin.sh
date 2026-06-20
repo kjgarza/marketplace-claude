@@ -62,8 +62,8 @@ validate_plugin() {
     while IFS= read -r -d '' skill_file; do
       skill_count=$((skill_count + 1))
       local has_name has_desc
-      has_name=$(grep -c '^name:' "$skill_file" 2>/dev/null || true)
-      has_desc=$(grep -c '^description:' "$skill_file" 2>/dev/null || true)
+      has_name=$(awk '/^---/{if(++n==2) exit} n==1{print}' "$skill_file" | grep -c '^name:' || true)
+      has_desc=$(awk '/^---/{if(++n==2) exit} n==1{print}' "$skill_file" | grep -c '^description:' || true)
       if [ "$has_name" -eq 0 ] || [ "$has_desc" -eq 0 ]; then
         skill_fail=$((skill_fail + 1))
         red "  [FAIL] SKILL.md missing frontmatter: ${skill_file#"$REPO_ROOT/"}"
@@ -103,6 +103,7 @@ validate_plugin() {
     local missing_scripts=0
     while IFS= read -r script_path; do
       script_path="${script_path/\$\{CLAUDE_PLUGIN_ROOT\}/$dir}"
+      local actual_path
       actual_path=$(printf '%s' "$script_path" | grep -oE '[^ ]+\.sh' | head -1 || true)
       if [ -n "$actual_path" ] && [ ! -f "$actual_path" ]; then
         missing_scripts=$((missing_scripts + 1))

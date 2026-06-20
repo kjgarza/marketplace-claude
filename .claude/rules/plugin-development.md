@@ -93,7 +93,7 @@ skills/skill-name/
 
 ## Command Format
 
-Commands live in `commands/<verb-noun>.md` (kebab-case, verb-noun pattern).
+Commands live in `commands/<name>.md` (kebab-case). Prefer verb-noun names for new commands (e.g. `review-pr.md`, `fix-issue.md`); single-verb names (e.g. `hunt.md`, `init.md`) are acceptable for short workflows.
 
 **Frontmatter:**
 ```yaml
