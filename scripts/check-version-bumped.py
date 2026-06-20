@@ -79,8 +79,8 @@ def version_changed_vs_base(plugin_name: str, base: str) -> bool:
 
 def _plugin_version(data: dict, name: str) -> str | None:
     for p in data.get("plugins", []):
-        if p["name"] == name:
-            return p["version"]
+        if p.get("name") == name:
+            return p.get("version")
     return None
 
 
