@@ -99,7 +99,14 @@ async function fetchGates(from: string, to: string): Promise<DailyGate[]> {
 }
 
 function todayISO(): string {
-  return new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Berlin",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const get = (type: string) => parts.find(p => p.type === type)!.value;
+  return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
 const ISO_RE = /^\d{4}-\d{2}-\d{2}$/;
