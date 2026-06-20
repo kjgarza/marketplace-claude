@@ -211,6 +211,7 @@ Both flags are independent — a 30 °C thunderstorm sets both.
 - **Indoor keywords**: `museum`, `gallery`, `galerie`, `kunsthalle`, `kunsthaus`, `theater`, `theatre`, `kino`, `cinema`, `philharmonie`, `konzerthaus`, `konzertsaal`, `bibliothek`, `library`, `atelier`, `studio`, `club`, `bar`, `restaurant`, `café`, `cafe`, `bistro`, `haus`, `halle`, `akademie`, `institut`
 - **Outdoor keywords**: `park`, `garten`, `garden`, `freilicht`, `freiluft`, `markt`, `market`, `platz`, `square`, `straße`, `strasse`, `festival`, `outdoor`, `open-air`, `open air`, `rooftop`, `dachterrasse`, `strand`
 - **Unknown** (no keyword match in either list): keep the event regardless of weather
+- **Dual match** (keywords from both lists): treat as Unknown and keep the event
 
 Match the gate object by date (`gate.date === event.date`). If no gate exists for an event's date (e.g. beyond the 16-day OpenMeteo window), keep the event.
 

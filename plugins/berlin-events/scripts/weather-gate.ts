@@ -101,24 +101,38 @@ function todayISO(): string {
   return new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Berlin" });
 }
 
+const ISO_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 const args = process.argv.slice(2);
-const get = (flag: string) => {
+const get = (flag: string): string | undefined => {
   const i = args.indexOf(flag);
-  return i >= 0 ? args[i + 1] : undefined;
+  if (i < 0) return undefined;
+  const val = args[i + 1];
+  return val && !val.startsWith("--") ? val : undefined;
 };
 
 const dateArg = get("--date");
 const fromArg = get("--from");
 const toArg = get("--to");
 
+function requireDate(name: string, val: string | undefined): string {
+  if (!val || !ISO_RE.test(val)) {
+    process.stderr.write(`Usage: bun run scripts/weather-gate.ts [--date YYYY-MM-DD | --from YYYY-MM-DD --to YYYY-MM-DD]\n`);
+    if (val) process.stderr.write(`  Invalid date for ${name}: ${val}\n`);
+    else process.stderr.write(`  Missing value for ${name}\n`);
+    process.exit(1);
+  }
+  return val;
+}
+
 let from: string;
 let to: string;
 
-if (dateArg) {
-  from = to = dateArg;
-} else if (fromArg && toArg) {
-  from = fromArg;
-  to = toArg;
+if (args.includes("--date")) {
+  from = to = requireDate("--date", dateArg);
+} else if (args.includes("--from") || args.includes("--to")) {
+  from = requireDate("--from", fromArg);
+  to = requireDate("--to", toArg);
 } else {
   from = to = todayISO();
 }
