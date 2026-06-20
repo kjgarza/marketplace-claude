@@ -14,7 +14,7 @@
       "name": "kjgarza-base",
       "source": "./plugins/kjgarza-base",
       "description": "Base MCP server configuration with puppeteer, fetch, sequential thinking, and context7 documentation servers",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
