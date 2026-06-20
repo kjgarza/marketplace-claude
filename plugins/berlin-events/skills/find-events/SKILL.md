@@ -214,7 +214,7 @@ Both flags are independent — a 30 °C thunderstorm sets both.
 
 Match the gate object by date (`gate.date === event.date`). If no gate exists for an event's date (e.g. beyond the 16-day OpenMeteo window), keep the event.
 
-**Weather note in output header** — include one line per date that has active filtering, e.g.:
+**Weather note in output header** — include one line per date in the range, e.g.:
 
 ```
 Weather 20 Jun: 29°C max, sunny — hot day, indoor events filtered.

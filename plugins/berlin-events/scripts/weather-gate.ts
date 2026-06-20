@@ -1,8 +1,8 @@
 #!/usr/bin/env bun
 // Fetch Berlin daily weather forecast from OpenMeteo and output gate flags.
 // Usage:
-//   bun run weather-gate.ts --date YYYY-MM-DD
-//   bun run weather-gate.ts --from YYYY-MM-DD --to YYYY-MM-DD
+//   bun run scripts/weather-gate.ts --date YYYY-MM-DD
+//   bun run scripts/weather-gate.ts --from YYYY-MM-DD --to YYYY-MM-DD
 
 const BERLIN = { lat: 52.52, lon: 13.41 };
 
@@ -31,13 +31,19 @@ async function fetchGates(from: string, to: string): Promise<DailyGate[]> {
     `&start_date=${from}&end_date=${to}` +
     `&timezone=Europe%2FBerlin`;
 
-  const res = await fetch(url);
+  let res: Response;
+  try {
+    res = await fetch(url);
+  } catch (err) {
+    process.stderr.write(`OpenMeteo fetch error: ${err instanceof Error ? err.message : err}\n`);
+    process.exit(1);
+  }
   if (!res.ok) {
     process.stderr.write(`OpenMeteo error: ${res.status} ${res.statusText}\n`);
     process.exit(1);
   }
 
-  const data = (await res.json()) as {
+  let data: {
     daily: {
       time: string[];
       temperature_2m_max: number[];
@@ -46,6 +52,12 @@ async function fetchGates(from: string, to: string): Promise<DailyGate[]> {
       weathercode: number[];
     };
   };
+  try {
+    data = (await res.json()) as typeof data;
+  } catch (err) {
+    process.stderr.write(`OpenMeteo parse error: ${err instanceof Error ? err.message : err}\n`);
+    process.exit(1);
+  }
 
   const { time, temperature_2m_max, temperature_2m_min, precipitation_sum, weathercode } =
     data.daily;
