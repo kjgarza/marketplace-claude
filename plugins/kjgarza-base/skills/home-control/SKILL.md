@@ -1,4 +1,5 @@
 ---
+name: home-control
 description: "This skill should be used when the user wants to control smart home devices — lights, speakers, music playback, or scenes. Triggers on phrases like 'turn on the lights', 'play some jazz', 'dim the lights', 'stop the music', 'goodnight', 'movie mode', 'what's playing', or any reference to Yeelight bulbs, Google Cast speakers, or SomaFM radio."
 argument-hint: "natural language command (e.g., 'play jazz in the living room')"
 allowed-tools: ["Bash", "Read","Bash(python3:*)","Bash(pip3:*)"]
