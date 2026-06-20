@@ -85,7 +85,7 @@ def _plugin_version(data: dict, name: str) -> str | None:
 
 
 def main() -> None:
-    base: str | None = None
+    base = None
     if "--base" in sys.argv:
         idx = sys.argv.index("--base")
         if idx + 1 >= len(sys.argv):
