@@ -182,6 +182,47 @@ $BUN run "$PLUGIN_ROOT/scripts/events-db.ts" recent-feedback --limit 20
 
 Bias ranking toward venues/categories the user marked `went` and away from those marked `skip`.
 
+### Step 7.6: Weather Gate
+
+Fetch the daily weather forecast for the date range from Step 2, then discard candidate events whose indoor/outdoor character is incompatible with the forecast.
+
+```bash
+BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-plugins/berlin-events}"
+WEATHER_JSON=$($BUN run "$PLUGIN_ROOT/scripts/weather-gate.ts" --from "$DATE_FROM" --to "$DATE_TO")
+```
+
+`DATE_FROM` and `DATE_TO` are the ISO-8601 start/end dates calculated in Step 2.
+
+**Temperature and condition bands:**
+
+| Condition | Flag set | Events dropped |
+|-----------|----------|----------------|
+| `temp_max_c > 27 °C` | `gate_indoor = true` | Indoor events for that date |
+| `temp_min_c < 5 °C` | `gate_outdoor = true` | Outdoor events for that date |
+| WMO rain codes (51–65, 80–82, 95–99) | `gate_outdoor = true` | Outdoor events for that date |
+| WMO snow codes (71–77, 85–86) | `gate_outdoor = true` | Outdoor events for that date |
+| 5–27 °C, no precipitation | both false | No filtering |
+
+Both flags are independent — a 30 °C thunderstorm sets both.
+
+**Classify each event as indoor or outdoor** by searching (case-insensitive) the event's `venue`, `name`, and `description` fields:
+
+- **Indoor keywords**: `museum`, `gallery`, `galerie`, `kunsthalle`, `kunsthaus`, `theater`, `theatre`, `kino`, `cinema`, `philharmonie`, `konzerthaus`, `konzertsaal`, `bibliothek`, `library`, `atelier`, `studio`, `club`, `bar`, `restaurant`, `café`, `cafe`, `bistro`, `haus`, `halle`, `akademie`, `institut`
+- **Outdoor keywords**: `park`, `garten`, `garden`, `freilicht`, `freiluft`, `markt`, `market`, `platz`, `square`, `straße`, `strasse`, `festival`, `outdoor`, `open-air`, `open air`, `rooftop`, `dachterrasse`, `strand`
+- **Unknown** (no keyword match in either list): keep the event regardless of weather
+- **Dual match** (keywords from both lists): treat as Unknown and keep the event
+
+Match the gate object by date (`gate.date === event.date`). If no gate exists for an event's date (e.g. beyond the 16-day OpenMeteo window), keep the event.
+
+**Weather note in output header** — include one line per date in the range, e.g.:
+
+```
+Weather 20 Jun: 29°C max, sunny — hot day, indoor events filtered.
+Weather 21 Jun: 14°C max, rain — outdoor events filtered.
+Weather 22 Jun: 18°C max, mild — all events shown.
+```
+
 ### Step 8: Rank and Curate
 
 Score events by:
