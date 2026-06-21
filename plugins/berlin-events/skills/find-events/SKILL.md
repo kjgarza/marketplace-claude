@@ -189,14 +189,10 @@ Fetch the daily weather forecast for the date range from Step 2. Pass the `weath
 ```bash
 BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-plugins/berlin-events}"
-# Extract weather config from user settings (if present) and pass as JSON
-WEATHER_CFG=$(grep -A 40 '^weather:' .claude/berlin-events.local.md 2>/dev/null | python3 -c "
-import sys, json, re
-text = sys.stdin.read()
-# simple extraction — skip if parsing fails
-" 2>/dev/null || echo "")
-if [ -n "$WEATHER_CFG" ]; then
-  WEATHER_JSON=$($BUN run "$PLUGIN_ROOT/scripts/weather-gate.ts" --from "$DATE_FROM" --to "$DATE_TO" --config "$WEATHER_CFG")
+# Extract weather config from settings using the dedicated helper script
+WEATHER_CFG_JSON=$($BUN run "$PLUGIN_ROOT/scripts/read-weather-config.ts" .claude/berlin-events.local.md 2>/dev/null || echo "")
+if [ -n "$WEATHER_CFG_JSON" ]; then
+  WEATHER_JSON=$($BUN run "$PLUGIN_ROOT/scripts/weather-gate.ts" --from "$DATE_FROM" --to "$DATE_TO" --config "$WEATHER_CFG_JSON")
 else
   WEATHER_JSON=$($BUN run "$PLUGIN_ROOT/scripts/weather-gate.ts" --from "$DATE_FROM" --to "$DATE_TO")
 fi
@@ -214,6 +210,7 @@ fi
   "is_rainy": false,
   "mode": "score",
   "scores": { "outdoor_delta": -2.0, "indoor_delta": 1.0 },
+  "evening_boost": { "evening_start": "18:00", "outdoor_evening_bonus": 1.5 },
   "drop_outdoor": false,
   "drop_indoor": false,
   "suggest_lake": true,
@@ -229,9 +226,10 @@ fi
    - **Outdoor keywords**: `park`, `garten`, `garden`, `freilicht`, `freiluft`, `markt`, `market`, `platz`, `square`, `straße`, `strasse`, `festival`, `outdoor`, `open-air`, `open air`, `rooftop`, `dachterrasse`, `strand`
    - **Unknown** (no keyword match): neutral — no delta applied
    - **Dual match** (both lists): treat as Unknown
-3. Apply score delta from Step 8's ranking:
+3. Apply score deltas per event:
    - Outdoor event: add `scores.outdoor_delta` to its ranking score
    - Indoor event: add `scores.indoor_delta` to its ranking score
+   - Outdoor event with known start time at or after `evening_boost.evening_start`: add an additional `evening_boost.outdoor_evening_bonus` to reward evening outdoor plans on warm/hot days
    - If `drop_outdoor === true`: remove outdoor events for that date entirely (hard drop — precipitation makes them incompatible)
    - `drop_indoor` is always `false` in score mode — indoor events are never hard-dropped
 4. If `suggest_lake === true` for any date, append one entry at the top of that day's results:

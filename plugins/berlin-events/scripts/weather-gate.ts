@@ -60,6 +60,11 @@ interface DailyWeather {
     outdoor_delta: number;
     indoor_delta: number;
   };
+  // Per-event evening boost: apply outdoor_evening_bonus to outdoor events starting at/after evening_start
+  evening_boost: {
+    evening_start: string;
+    outdoor_evening_bonus: number;
+  };
   drop_outdoor: boolean;
   drop_indoor: boolean;
   suggest_lake: boolean;
@@ -193,12 +198,18 @@ async function fetchWeather(from: string, to: string, cfg: WeatherConfig): Promi
     const is_rainy = RAIN_CODES.has(code);
     const is_snowy = SNOW_CODES.has(code);
 
+    const evening_boost = {
+      evening_start: cfg.evening_start,
+      outdoor_evening_bonus: cfg.weights.outdoor_evening_bonus,
+    };
+
     if (cfg.mode === "filter") {
       const { drop_outdoor, drop_indoor, note } = legacyFilterDay(temp_max_c, temp_min_c, is_rainy, is_snowy);
       return {
         date, temp_max_c, temp_min_c, precipitation_mm, weathercode: code,
         is_rainy, is_snowy, mode: "filter" as const,
         scores: { outdoor_delta: 0, indoor_delta: 0 },
+        evening_boost,
         drop_outdoor, drop_indoor, suggest_lake: false, note,
       };
     }
@@ -210,6 +221,7 @@ async function fetchWeather(from: string, to: string, cfg: WeatherConfig): Promi
       date, temp_max_c, temp_min_c, precipitation_mm, weathercode: code,
       is_rainy, is_snowy, mode: "score" as const,
       scores: { outdoor_delta, indoor_delta },
+      evening_boost,
       drop_outdoor, drop_indoor, suggest_lake, note,
     };
   });
@@ -240,10 +252,15 @@ const dateArg = getArg("--date");
 const fromArg = getArg("--from");
 const toArg = getArg("--to");
 const configArg = getArg("--config");
+const configFileArg = getArg("--config-file");
 
 function requireDate(name: string, val: string | undefined): string {
   if (!val || !ISO_RE.test(val)) {
-    process.stderr.write(`Usage: bun run ${process.argv[1] ?? "weather-gate.ts"} [--date YYYY-MM-DD | --from YYYY-MM-DD --to YYYY-MM-DD] [--config '{...}']\n`);
+    process.stderr.write(
+      `Usage: bun run ${process.argv[1] ?? "weather-gate.ts"} ` +
+      `[--date YYYY-MM-DD | --from YYYY-MM-DD --to YYYY-MM-DD] ` +
+      `[--config '{...}' | --config-file path/to/settings.json]\n`,
+    );
     if (val) process.stderr.write(`  Invalid date for ${name}: ${val}\n`);
     else process.stderr.write(`  Missing value for ${name}\n`);
     process.exit(1);
@@ -263,17 +280,32 @@ if (args.includes("--date")) {
   from = to = todayISO();
 }
 
+function mergeConfig(partial: Partial<WeatherConfig>): WeatherConfig {
+  return {
+    ...DEFAULT_CONFIG,
+    ...partial,
+    weights: { ...DEFAULT_CONFIG.weights, ...(partial.weights ?? {}) },
+  };
+}
+
 let cfg: WeatherConfig = DEFAULT_CONFIG;
-if (configArg) {
+if (configFileArg) {
+  // --config-file reads pre-extracted JSON (e.g. from read-weather-config.ts)
+  try {
+    const text = await Bun.file(configFileArg).text();
+    const partial = JSON.parse(text) as Partial<WeatherConfig>;
+    cfg = mergeConfig(partial);
+  } catch (err) {
+    process.stderr.write(`Cannot read --config-file ${configFileArg}: ${err instanceof Error ? err.message : err}\n`);
+    process.exit(1);
+  }
+} else if (configArg) {
   try {
     const partial = JSON.parse(configArg) as Partial<WeatherConfig>;
-    cfg = {
-      ...DEFAULT_CONFIG,
-      ...partial,
-      weights: { ...DEFAULT_CONFIG.weights, ...(partial.weights ?? {}) },
-    };
+    cfg = mergeConfig(partial);
   } catch {
-    process.stderr.write(`Invalid --config JSON: ${configArg} — using defaults\n`);
+    process.stderr.write(`Invalid --config JSON — must be a JSON object. Got: ${configArg}\n`);
+    process.exit(1);
   }
 }
 

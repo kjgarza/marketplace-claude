@@ -36,7 +36,6 @@ interests: <resolved interests>
 calendar_id: <resolved calendar_id>
 lookahead_days: <resolved lookahead_days>
 weather:
-  enabled: true
   mode: score                  # score (soft weighting) | filter (legacy hard gate)
   warm_from_c: 20              # dry days at/above this favour outdoor (Berlin spring/summer)
   evening_start: "18:00"       # outdoor events at/after this get the strongest warm-weather boost
