@@ -55,6 +55,8 @@ Component paths are **auto-discovered** — only specify in plugin.json if devia
 
 Each skill lives at `skills/<skill-name>/SKILL.md`.
 
+> For the full quality bar on skill **content** — naming conventions, conciseness, degrees of freedom, progressive disclosure, feedback loops, executable-code hygiene, and the evaluation requirement — see [`skill-standards.md`](skill-standards.md). The structural rules below stay authoritative for layout and the validator-enforced trigger phrase.
+
 **Required frontmatter:**
 ```yaml
 ---

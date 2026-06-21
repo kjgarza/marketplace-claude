@@ -47,3 +47,5 @@ Avoid multiline `python -c`, `node -e`, `ruby -e`, or shell commands with quoted
 When code is more than one line, write it to a temporary script or a file under scripts/ and run that file instead.
 
 Plugin development rules and validation steps live in `.Codex/rules/plugin-development.md`.
+
+Skill content quality standards (naming, conciseness, progressive disclosure, evaluations) live in `.Codex/rules/skill-standards.md`.
