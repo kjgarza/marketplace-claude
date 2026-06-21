@@ -1,6 +1,6 @@
 {
   "name": "berlin-events",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Discover interesting art and food events in Berlin, check against your Google Calendar, and get a curated list with travel context from your neighborhood.",
   "author": {
     "name": "Kristian Garza"

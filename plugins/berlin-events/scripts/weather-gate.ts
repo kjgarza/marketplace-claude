@@ -14,14 +14,15 @@ const SNOW_CODES = new Set([71, 72, 73, 74, 75, 76, 77, 85, 86]);
 interface WeatherConfig {
   mode: "score" | "filter";
   warm_from_c: number;
-  evening_start: string;   // "HH:MM" — events at/after this hour get the evening outdoor bonus
+  // Passed through to evening_boost in output; applied per-event by the skill (event start time is unknown here)
+  evening_start: string;   // "HH:MM" — outdoor events at/after this get outdoor_evening_bonus added to their score
   hot_from_c: number;
   cold_outdoor_below_c: number;
   rain_penalises_outdoor: boolean;
   suggest_water_from_c: number;
   weights: {
     outdoor_warm_bonus: number;
-    outdoor_evening_bonus: number;
+    outdoor_evening_bonus: number;  // passed through to evening_boost; applied per-event by the skill
     outdoor_daytime_heat_penalty: number;
     indoor_heat_bonus: number;
     outdoor_rain_penalty: number;
