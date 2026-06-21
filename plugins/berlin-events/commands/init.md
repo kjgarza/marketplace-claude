@@ -46,8 +46,8 @@ weather:
     outdoor_warm_bonus: 2.0
     outdoor_daytime_heat_penalty: -2.0
     indoor_heat_bonus: 1.0
-    outdoor_rain_penalty: -3.0
-    outdoor_cold_penalty: -2.0
+    outdoor_precipitation_penalty: -3.0  # rain or snow
+    outdoor_cold_penalty: -2.0           # cold but dry
 ---
 ```
 

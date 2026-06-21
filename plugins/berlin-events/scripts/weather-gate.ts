@@ -22,8 +22,8 @@ interface WeatherConfig {
     outdoor_warm_bonus: number;
     outdoor_daytime_heat_penalty: number;
     indoor_heat_bonus: number;
-    outdoor_rain_penalty: number;
-    outdoor_cold_penalty: number;
+    outdoor_precipitation_penalty: number;  // rain or snow — both treated as incompatible with outdoor
+    outdoor_cold_penalty: number;           // cold but dry weather only
   };
 }
 
@@ -38,7 +38,7 @@ const DEFAULT_CONFIG: WeatherConfig = {
     outdoor_warm_bonus: 2.0,
     outdoor_daytime_heat_penalty: -2.0,
     indoor_heat_bonus: 1.0,
-    outdoor_rain_penalty: -3.0,
+    outdoor_precipitation_penalty: -3.0,
     outdoor_cold_penalty: -2.0,
   },
 };
@@ -97,7 +97,7 @@ function scoreDay(
   }
 
   if (is_precipitation && cfg.precipitation_penalises_outdoor) {
-    outdoor_delta += is_rainy ? w.outdoor_rain_penalty : w.outdoor_cold_penalty;
+    outdoor_delta += w.outdoor_precipitation_penalty;  // same weight for rain and snow
     // Note says "hard-dropped" because drop_outdoor=true removes outdoor events entirely
     notes.push(is_rainy ? "rain expected — outdoor events hard-dropped" : "snow expected — outdoor events hard-dropped");
   }
@@ -123,19 +123,21 @@ function legacyFilterDay(
   temp_min_c: number,
   is_rainy: boolean,
   is_snowy: boolean,
+  cfg: WeatherConfig,
 ): { drop_outdoor: boolean; drop_indoor: boolean; note: string } {
   // Fixed legacy filter mode: hot day penalises OUTDOOR (sun-exposed daytime), not indoor.
   // The original bug was gate_indoor=true on hot days, which dropped indoor AC venues — inverted.
-  const too_hot = temp_max_c > 27;
-  const too_cold = temp_min_c < 5;
+  // Uses cfg.hot_from_c and cfg.cold_outdoor_below_c so filter mode respects user config.
+  const too_hot = temp_max_c > cfg.hot_from_c;
+  const too_cold = temp_min_c < cfg.cold_outdoor_below_c;
   const precipitation = is_rainy || is_snowy;
 
   const drop_outdoor = too_cold || precipitation || too_hot;
   const drop_indoor = false;
 
   const notes: string[] = [];
-  if (too_hot) notes.push(`hot (${temp_max_c}°C > 27°C): outdoor sun-exposed events filtered`);
-  if (too_cold) notes.push(`cold (${temp_min_c}°C < 5°C): outdoor events filtered`);
+  if (too_hot) notes.push(`hot (${temp_max_c}°C > ${cfg.hot_from_c}°C): outdoor sun-exposed events filtered`);
+  if (too_cold) notes.push(`cold (${temp_min_c}°C < ${cfg.cold_outdoor_below_c}°C): outdoor events filtered`);
   if (is_rainy) notes.push("rain expected: outdoor events filtered");
   if (is_snowy) notes.push("snow expected: outdoor events filtered");
   if (!drop_outdoor && !drop_indoor) notes.push("mild and dry: all events shown");
@@ -191,7 +193,7 @@ async function fetchWeather(from: string, to: string, cfg: WeatherConfig): Promi
     const is_snowy = SNOW_CODES.has(code);
 
     if (cfg.mode === "filter") {
-      const { drop_outdoor, drop_indoor, note } = legacyFilterDay(temp_max_c, temp_min_c, is_rainy, is_snowy);
+      const { drop_outdoor, drop_indoor, note } = legacyFilterDay(temp_max_c, temp_min_c, is_rainy, is_snowy, cfg);
       return {
         date, temp_max_c, temp_min_c, precipitation_mm, weathercode: code,
         is_rainy, is_snowy, mode: "filter" as const,

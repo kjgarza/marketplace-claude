@@ -200,7 +200,7 @@ fi
 
 `DATE_FROM` and `DATE_TO` are the ISO-8601 start/end dates calculated in Step 2.
 
-**Script output shape** — one object per day:
+**Script output shape** — one object per day (representative fields; script also emits `precipitation_mm`, `weathercode`, `is_snowy`):
 
 ```json
 {
