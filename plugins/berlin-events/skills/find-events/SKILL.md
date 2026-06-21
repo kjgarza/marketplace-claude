@@ -1,6 +1,6 @@
 ---
 name: find-events
-description: "Find interesting art and food events in Berlin. Use when the user asks 'What events are happening in Berlin this week?' or 'Find me art exhibitions and food festivals in Berlin next weekend.' Ingest event sources into qurl, run semantic search, check against Google Calendar for conflicts, and produce a curated list of relevant events with location context."
+description: "This skill should be used when the user asks 'What events are happening in Berlin this week?', 'Find me art exhibitions and food festivals in Berlin next weekend', or wants to discover upcoming Berlin art and food events. Ingests event sources into qurl, runs semantic search, checks Google Calendar for conflicts, and produces a curated, relevance-ranked list of events with location context."
 argument-hint: "[days ahead, e.g. '7' or 'this weekend']"
 allowed-tools: ["Read", "Bash", "WebSearch", "WebFetch", "Grep", "Glob", "Agent", "mcp__claude-in-chrome__navigate", "mcp__claude-in-chrome__read_page", "mcp__claude-in-chrome__get_page_text", "mcp__claude-in-chrome__tabs_create_mcp", "mcp__claude-in-chrome__tabs_context_mcp"]
 ---
@@ -84,47 +84,16 @@ qurl embed
 > any scraped events and will return nothing relevant. Never substitute a `qmd` command for a
 > `qurl` one, even where they share a subcommand name.
 
-**Pick the right qurl command — they behave differently (verified against the qurl source):**
-
-| Command | Engine | Behaviour |
-|---------|--------|-----------|
-| `qurl search`  | **pure BM25 / FTS5 keyword** | exact terms; **needs term overlap** — a long/verbose query returns "No results". Honors `--source`/`--tag`/`--limit`. |
-| `qurl query`   | **alias for `search`** (identical, also pure BM25) | same as `search`. Despite the name, the CLI does **not** do hybrid/RRF/rerank. |
-| `qurl vsearch` | **pure vector / semantic** | tolerates long verbose queries (good recall); honors `--limit` but **ignores `--source`/`--tag`** — filter hosts yourself. |
-
-**Primary search — `qurl search` (or `query`) with a SHORT query.** It is keyword/BM25, so a
-long keyword-stuffed query matches no document and returns "No results". Use 3–5 focused words:
+Run a **short (3–5 word) BM25 query** first; fall back to `vsearch` if fewer than 5 hits.
+For the full command comparison, `--source`/`--tag` flag behaviour, vsearch grep pipeline, and
+relevance-filter token derivation: → **`references/qurl-search.md`**
 
 ```bash
-# SHORT query — do NOT stuff in the month or a dozen keywords.
 qurl search "Berlin art exhibition opening" --source berlin-events --limit 20
 ```
 
-`--source berlin-events` excludes docs ingested by other plugins. Optionally add `--tag art`
-**or** `--tag food` if the user's `interests` is a single category — but note tags can
-over-narrow (food docs are sparse) and return 0; drop the tag and re-run if so.
-
-**Recall fallback — `qurl vsearch` with the verbose query.** If `query` yields few hits, vector
-search handles a richer query but ignores `--source`, so grep the known event hosts:
-
-```bash
-QUERY="$(date '+%B %Y') Berlin exhibition opening vernissage workshop event calendar art food"
-qurl vsearch "$QUERY" 2>&1 | grep -E -i \
-  'indexberlin|kw-berlin|berlinischegalerie|artatberlin|co-berlin|kunstleben-berlin|berlin\.de|visitberlin'
-```
-
-**Relevance filter** — first derive the date tokens from **today's date**, do not hardcode months:
-- `MONTH_NAMES` = lowercased full English + German names of the current month and next month (e.g. for June: `june`, `juni`, `july`, `juli`).
-- `MONTH_NUMS` = zero-padded numeric forms for the same two months bracketed by dots (e.g. `.06.`, `.07.`).
-- `YEAR` = current year (and next year if the lookahead window crosses into January).
-
-A result counts as relevant if its snippet contains any of:
-- EN/DE month names from `MONTH_NAMES`
-- `monday`–`sunday`, `vernissage`, `opening`, `exhibition`, `finissage`
-- DE: `ausstellung`, `veranstaltung`, `führung`, `kalender`, `programm`
-- Dates: any token in `MONTH_NUMS`, or `YEAR`
-
-If `qurl query` returns fewer than 5 relevant results, fall back to web search (Step 5b).
+Relevance-filter the results against date/event keywords. If fewer than 5 relevant hits, proceed
+to Step 5b.
 
 ### Step 5b: Web Search Fallback (only if query < 5 results)
 
@@ -144,8 +113,7 @@ Check for scheduling conflicts over the lookahead window.
   ```bash
   gog calendar events --from today --days 14 --json
   ```
-  If gogcli is not installed: `brew install openclaw/tap/gogcli`. If not authenticated, ask the
-  user to run `! gog auth add you@gmail.com --services calendar` to complete OAuth.
+  If gogcli is not installed or not authenticated, see **`references/calendar-add.md`**.
 
 Parse output to identify busy time slots. Flag events that overlap with existing entries.
 
@@ -184,12 +152,12 @@ Bias ranking toward venues/categories the user marked `went` and away from those
 
 ### Step 7.6: Weather Scoring
 
-Fetch the daily weather forecast for the date range from Step 2. Pass the `weather` block from user settings as `--config` JSON so thresholds and weights are respected. If the settings file lacks a `weather` block, omit `--config` to use script defaults.
+Run the weather script for the date range. Pass `--config` if the settings file has a `weather`
+block; omit it otherwise.
 
 ```bash
 BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-plugins/berlin-events}"
-# Extract weather config from settings using the dedicated helper script
 WEATHER_CFG_JSON=$($BUN run "$PLUGIN_ROOT/scripts/read-weather-config.ts" .claude/berlin-events.local.md 2>/dev/null || echo "")
 if [ -n "$WEATHER_CFG_JSON" ]; then
   WEATHER_JSON=$($BUN run "$PLUGIN_ROOT/scripts/weather-gate.ts" --from "$DATE_FROM" --to "$DATE_TO" --config "$WEATHER_CFG_JSON")
@@ -200,51 +168,10 @@ fi
 
 `DATE_FROM` and `DATE_TO` are the ISO-8601 start/end dates calculated in Step 2.
 
-**Script output shape** — one object per day (representative fields; script also emits `precipitation_mm`, `weathercode`, `is_snowy`):
-
-```json
-{
-  "date": "2026-06-24",
-  "temp_max_c": 34,
-  "temp_min_c": 20,
-  "is_rainy": false,
-  "mode": "score",
-  "scores": { "outdoor_delta": -2.0, "indoor_delta": 1.0 },
-  "drop_outdoor": false,
-  "drop_indoor": false,
-  "suggest_lake": true,
-  "note": "hot day (34°C) — favour indoor/AC venues; very hot — consider a lake / Strandbad as an alternative"
-}
-```
-
-**Apply weather to ranking (score mode — default):**
-
-1. Match each event to its day's weather object by `date`.
-2. Classify each event as **indoor**, **outdoor**, or **unknown** using keyword search on `venue`, `name`, and `description` fields (case-insensitive):
-   - **Indoor keywords**: `museum`, `gallery`, `galerie`, `kunsthalle`, `kunsthaus`, `theater`, `theatre`, `kino`, `cinema`, `philharmonie`, `konzerthaus`, `konzertsaal`, `bibliothek`, `library`, `atelier`, `studio`, `club`, `bar`, `restaurant`, `café`, `cafe`, `bistro`, `haus`, `halle`, `akademie`, `institut`
-   - **Outdoor keywords**: `park`, `garten`, `garden`, `freilicht`, `freiluft`, `markt`, `market`, `platz`, `square`, `straße`, `strasse`, `festival`, `outdoor`, `open-air`, `open air`, `rooftop`, `dachterrasse`, `strand`
-   - **Unknown** (no keyword match): neutral — no delta applied
-   - **Dual match** (both lists): treat as Unknown
-3. Apply score deltas per event:
-   - Outdoor event: add `scores.outdoor_delta` to its ranking score
-   - Indoor event: add `scores.indoor_delta` to its ranking score
-   - If `drop_outdoor === true`: remove outdoor events for that date entirely (hard drop — precipitation makes outdoor incompatible)
-   - `drop_indoor` is always `false` in score mode — indoor events are never hard-dropped
-4. If `suggest_lake === true` for any date, append one entry at the top of that day's results:
-   > 🏊 **Hot day suggestion**: Check out Berlin's Strandbäder / lakes (Wannsee, Müggelsee, Weißensee) — great alternative to crowded indoor venues.
-5. If no weather object exists for an event's date (beyond the 16-day OpenMeteo window): keep the event, apply no delta.
-
-**Legacy filter mode** (`mode: "filter"` in user settings): `drop_outdoor` and `drop_indoor` are set directly; apply as hard drops, ignore score deltas.
-
-**Weather note in output header** — include one line per date using the `note` field from the script output:
-
-Use the `note` field from the script output verbatim. If `suggest_lake === true`, append " + 🏊 lake/Strandbad suggestion added" after the note:
-
-```
-Weather 20 Jun: 34°C max — hot day (34°C) — favour indoor/AC venues; evening outdoor still good; very hot — consider a lake / Strandbad as an alternative + 🏊 lake/Strandbad suggestion added
-Weather 21 Jun: 14°C max — rain expected — outdoor events hard-dropped
-Weather 22 Jun: 18°C max — mild and dry (18°C) — all events shown
-```
+Classify each event as indoor/outdoor by keyword-matching `venue`, `name`, and `description`;
+apply `outdoor_delta`/`indoor_delta` per day; honour `drop_outdoor` as a hard removal.
+For full keyword lists, scoring algorithm, lake-suggestion rule, and weather-note header format:
+→ **`references/weather-scoring.md`**
 
 ### Step 8: Rank and Curate
 
@@ -259,7 +186,10 @@ Score events by:
 
 ### Step 9: Present Results
 
-Output a curated list grouped by date:
+Include a summary at the top: "Found X events (Y art, Z food) for [date range]. N conflicts with your calendar."
+
+Output events grouped by date. For the Google Calendar URL format and gogcli `calendar create`
+command: → **`references/calendar-add.md`**
 
 ```
 ## [Day, Date]
@@ -271,22 +201,10 @@ Output a curated list grouped by date:
 - **Category**: Art | Food
 - **Link**: [URL]
 - **Calendar conflict**: None | "Conflicts with [existing event] at [time]"
-- **Add to calendar**: [`gog calendar create` command or Google Calendar link]
+- **Add to calendar**: [Google Calendar link or gogcli command — see references/calendar-add.md]
 
 ---
 ```
-
-Google Calendar link format (compact ISO 8601 dates: `YYYYMMDDTHHmmssZ`):
-```
-https://calendar.google.com/calendar/render?action=TEMPLATE&text=[title]&dates=20260325T190000Z/20260325T210000Z&location=[venue]&details=[description+link]
-```
-
-Or, with gogcli (RFC3339 times), let the user add directly:
-```bash
-gog calendar create primary --summary "[title]" --from "2026-03-25T19:00:00+01:00" --to "2026-03-25T21:00:00+01:00" --location "[venue]"
-```
-
-Include a summary at the top: "Found X events (Y art, Z food) for [date range]. N conflicts with your calendar."
 
 **After presenting**, record the events you showed so they are not repeated next run:
 
