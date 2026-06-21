@@ -210,11 +210,10 @@ fi
   "is_rainy": false,
   "mode": "score",
   "scores": { "outdoor_delta": -2.0, "indoor_delta": 1.0 },
-  "evening_boost": { "evening_start": "18:00", "outdoor_evening_bonus": 1.5 },
   "drop_outdoor": false,
   "drop_indoor": false,
   "suggest_lake": true,
-  "note": "hot day (34°C) — favour indoor/AC venues; evening outdoor still good; very hot — consider a lake / Strandbad as an alternative"
+  "note": "hot day (34°C) — favour indoor/AC venues; very hot — consider a lake / Strandbad as an alternative"
 }
 ```
 
@@ -229,8 +228,7 @@ fi
 3. Apply score deltas per event:
    - Outdoor event: add `scores.outdoor_delta` to its ranking score
    - Indoor event: add `scores.indoor_delta` to its ranking score
-   - Outdoor event with known start time at or after `evening_boost.evening_start`: add an additional `evening_boost.outdoor_evening_bonus` to reward evening outdoor plans on warm/hot days
-   - If `drop_outdoor === true`: remove outdoor events for that date entirely (hard drop — precipitation makes them incompatible)
+   - If `drop_outdoor === true`: remove outdoor events for that date entirely (hard drop — precipitation makes outdoor incompatible)
    - `drop_indoor` is always `false` in score mode — indoor events are never hard-dropped
 4. If `suggest_lake === true` for any date, append one entry at the top of that day's results:
    > 🏊 **Hot day suggestion**: Check out Berlin's Strandbäder / lakes (Wannsee, Müggelsee, Weißensee) — great alternative to crowded indoor venues.
@@ -244,7 +242,7 @@ Use the `note` field from the script output verbatim. If `suggest_lake === true`
 
 ```
 Weather 20 Jun: 34°C max — hot day (34°C) — favour indoor/AC venues; evening outdoor still good; very hot — consider a lake / Strandbad as an alternative + 🏊 lake/Strandbad suggestion added
-Weather 21 Jun: 14°C max — rain expected — outdoor events penalised
+Weather 21 Jun: 14°C max — rain expected — outdoor events hard-dropped
 Weather 22 Jun: 18°C max — mild and dry (18°C) — all events shown
 ```
 

@@ -16,12 +16,13 @@ check-bumped:
     python3 scripts/check-version-bumped.py
 
 # Install git pre-commit hook
-# Version bump check is NOT included — runs in CI only via check-bumped-ci
+# Version bump check is NOT included — CI runs it directly via:
+#   python3 scripts/check-version-bumped.py --base origin/main
 install-hooks:
     #!/usr/bin/env bash
     set -euo pipefail
     HOOK=.git/hooks/pre-commit
-    printf '#!/usr/bin/env bash\nset -e\npython3 scripts/validate.py\n# Version bump check runs in CI only (just check-bumped-ci)\n' > "$HOOK"
+    printf '#!/usr/bin/env bash\nset -e\npython3 scripts/validate.py\n# Version bump check runs in CI (python3 scripts/check-version-bumped.py --base origin/main)\n' > "$HOOK"
     chmod +x "$HOOK"
     echo "pre-commit hook installed at $HOOK"
 
