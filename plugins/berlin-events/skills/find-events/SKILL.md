@@ -182,45 +182,68 @@ $BUN run "$PLUGIN_ROOT/scripts/events-db.ts" recent-feedback --limit 20
 
 Bias ranking toward venues/categories the user marked `went` and away from those marked `skip`.
 
-### Step 7.6: Weather Gate
+### Step 7.6: Weather Scoring
 
-Fetch the daily weather forecast for the date range from Step 2, then discard candidate events whose indoor/outdoor character is incompatible with the forecast.
+Fetch the daily weather forecast for the date range from Step 2. Pass the `weather` block from user settings as `--config` JSON so thresholds and weights are respected. If the settings file lacks a `weather` block, omit `--config` to use script defaults.
 
 ```bash
 BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-plugins/berlin-events}"
-WEATHER_JSON=$($BUN run "$PLUGIN_ROOT/scripts/weather-gate.ts" --from "$DATE_FROM" --to "$DATE_TO")
+# Extract weather config from settings using the dedicated helper script
+WEATHER_CFG_JSON=$($BUN run "$PLUGIN_ROOT/scripts/read-weather-config.ts" .claude/berlin-events.local.md 2>/dev/null || echo "")
+if [ -n "$WEATHER_CFG_JSON" ]; then
+  WEATHER_JSON=$($BUN run "$PLUGIN_ROOT/scripts/weather-gate.ts" --from "$DATE_FROM" --to "$DATE_TO" --config "$WEATHER_CFG_JSON")
+else
+  WEATHER_JSON=$($BUN run "$PLUGIN_ROOT/scripts/weather-gate.ts" --from "$DATE_FROM" --to "$DATE_TO")
+fi
 ```
 
 `DATE_FROM` and `DATE_TO` are the ISO-8601 start/end dates calculated in Step 2.
 
-**Temperature and condition bands:**
+**Script output shape** — one object per day (representative fields; script also emits `precipitation_mm`, `weathercode`, `is_snowy`):
 
-| Condition | Flag set | Events dropped |
-|-----------|----------|----------------|
-| `temp_max_c > 27 °C` | `gate_indoor = true` | Indoor events for that date |
-| `temp_min_c < 5 °C` | `gate_outdoor = true` | Outdoor events for that date |
-| WMO rain codes (51–65, 80–82, 95–99) | `gate_outdoor = true` | Outdoor events for that date |
-| WMO snow codes (71–77, 85–86) | `gate_outdoor = true` | Outdoor events for that date |
-| 5–27 °C, no precipitation | both false | No filtering |
+```json
+{
+  "date": "2026-06-24",
+  "temp_max_c": 34,
+  "temp_min_c": 20,
+  "is_rainy": false,
+  "mode": "score",
+  "scores": { "outdoor_delta": -2.0, "indoor_delta": 1.0 },
+  "drop_outdoor": false,
+  "drop_indoor": false,
+  "suggest_lake": true,
+  "note": "hot day (34°C) — favour indoor/AC venues; very hot — consider a lake / Strandbad as an alternative"
+}
+```
 
-Both flags are independent — a 30 °C thunderstorm sets both.
+**Apply weather to ranking (score mode — default):**
 
-**Classify each event as indoor or outdoor** by searching (case-insensitive) the event's `venue`, `name`, and `description` fields:
+1. Match each event to its day's weather object by `date`.
+2. Classify each event as **indoor**, **outdoor**, or **unknown** using keyword search on `venue`, `name`, and `description` fields (case-insensitive):
+   - **Indoor keywords**: `museum`, `gallery`, `galerie`, `kunsthalle`, `kunsthaus`, `theater`, `theatre`, `kino`, `cinema`, `philharmonie`, `konzerthaus`, `konzertsaal`, `bibliothek`, `library`, `atelier`, `studio`, `club`, `bar`, `restaurant`, `café`, `cafe`, `bistro`, `haus`, `halle`, `akademie`, `institut`
+   - **Outdoor keywords**: `park`, `garten`, `garden`, `freilicht`, `freiluft`, `markt`, `market`, `platz`, `square`, `straße`, `strasse`, `festival`, `outdoor`, `open-air`, `open air`, `rooftop`, `dachterrasse`, `strand`
+   - **Unknown** (no keyword match): neutral — no delta applied
+   - **Dual match** (both lists): treat as Unknown
+3. Apply score deltas per event:
+   - Outdoor event: add `scores.outdoor_delta` to its ranking score
+   - Indoor event: add `scores.indoor_delta` to its ranking score
+   - If `drop_outdoor === true`: remove outdoor events for that date entirely (hard drop — precipitation makes outdoor incompatible)
+   - `drop_indoor` is always `false` in score mode — indoor events are never hard-dropped
+4. If `suggest_lake === true` for any date, append one entry at the top of that day's results:
+   > 🏊 **Hot day suggestion**: Check out Berlin's Strandbäder / lakes (Wannsee, Müggelsee, Weißensee) — great alternative to crowded indoor venues.
+5. If no weather object exists for an event's date (beyond the 16-day OpenMeteo window): keep the event, apply no delta.
 
-- **Indoor keywords**: `museum`, `gallery`, `galerie`, `kunsthalle`, `kunsthaus`, `theater`, `theatre`, `kino`, `cinema`, `philharmonie`, `konzerthaus`, `konzertsaal`, `bibliothek`, `library`, `atelier`, `studio`, `club`, `bar`, `restaurant`, `café`, `cafe`, `bistro`, `haus`, `halle`, `akademie`, `institut`
-- **Outdoor keywords**: `park`, `garten`, `garden`, `freilicht`, `freiluft`, `markt`, `market`, `platz`, `square`, `straße`, `strasse`, `festival`, `outdoor`, `open-air`, `open air`, `rooftop`, `dachterrasse`, `strand`
-- **Unknown** (no keyword match in either list): keep the event regardless of weather
-- **Dual match** (keywords from both lists): treat as Unknown and keep the event
+**Legacy filter mode** (`mode: "filter"` in user settings): `drop_outdoor` and `drop_indoor` are set directly; apply as hard drops, ignore score deltas.
 
-Match the gate object by date (`gate.date === event.date`). If no gate exists for an event's date (e.g. beyond the 16-day OpenMeteo window), keep the event.
+**Weather note in output header** — include one line per date using the `note` field from the script output:
 
-**Weather note in output header** — include one line per date in the range, e.g.:
+Use the `note` field from the script output verbatim. If `suggest_lake === true`, append " + 🏊 lake/Strandbad suggestion added" after the note:
 
 ```
-Weather 20 Jun: 29°C max, sunny — hot day, indoor events filtered.
-Weather 21 Jun: 14°C max, rain — outdoor events filtered.
-Weather 22 Jun: 18°C max, mild — all events shown.
+Weather 20 Jun: 34°C max — hot day (34°C) — favour indoor/AC venues; evening outdoor still good; very hot — consider a lake / Strandbad as an alternative + 🏊 lake/Strandbad suggestion added
+Weather 21 Jun: 14°C max — rain expected — outdoor events hard-dropped
+Weather 22 Jun: 18°C max — mild and dry (18°C) — all events shown
 ```
 
 ### Step 8: Rank and Curate
@@ -232,6 +255,7 @@ Score events by:
 4. **Uniqueness** — special/one-time events ranked higher than recurring
 5. **Source quality** — primary sources and editorial picks ranked higher
 6. **Taste** — prior `went`/`skip` feedback (Step 7.5)
+7. **Weather** — apply `outdoor_delta` / `indoor_delta` from Step 7.6 (already done inline in 7.6; Step 8 uses the adjusted scores)
 
 ### Step 9: Present Results
 
