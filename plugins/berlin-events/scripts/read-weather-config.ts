@@ -32,7 +32,17 @@ for (let i = weatherIdx + 1; i < lines.length; i++) {
   weatherLines.push(line);
 }
 
-// Parse simple key: value pairs (handles 2 levels of indentation, inline comments)
+// Detect the actual indentation of the first non-empty, non-comment line in a list
+function detectIndent(lineList: string[]): number {
+  for (const line of lineList) {
+    const stripped = line.trimStart();
+    if (!stripped || stripped.startsWith("#")) continue;
+    return line.length - stripped.length;
+  }
+  return 2; // fallback
+}
+
+// Parse simple key: value pairs (handles arbitrary indentation, inline comments)
 function parseBlock(lineList: string[], baseIndent: number): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   let i = 0;
@@ -52,18 +62,18 @@ function parseBlock(lineList: string[], baseIndent: number): Record<string, unkn
     const rest = stripped.slice(colonIdx + 1).replace(/#.*$/, "").trim(); // strip inline comments
 
     if (rest === "") {
-      // Nested block — gather sub-lines
-      const subIndent = baseIndent + 2;
+      // Nested block — gather sub-lines and detect their indentation
       const subLines: string[] = [];
       i++;
       while (i < lineList.length) {
         const subRaw = lineList[i];
         const subStripped = subRaw.trimStart();
         const subActualIndent = subRaw.length - subStripped.length;
-        if (subStripped && subActualIndent < subIndent) break;
+        if (subStripped && subActualIndent <= baseIndent) break;
         subLines.push(subRaw);
         i++;
       }
+      const subIndent = detectIndent(subLines);
       result[key] = parseBlock(subLines, subIndent);
       continue;
     }
@@ -80,7 +90,8 @@ function parseBlock(lineList: string[], baseIndent: number): Record<string, unkn
   return result;
 }
 
-const weatherCfg = parseBlock(weatherLines, 2);
+const baseIndent = detectIndent(weatherLines);
+const weatherCfg = parseBlock(weatherLines, baseIndent);
 
 if (Object.keys(weatherCfg).length === 0) process.exit(1);
 

@@ -41,7 +41,7 @@ weather:
   evening_start: "18:00"       # outdoor events at/after this get the strongest warm-weather boost
   hot_from_c: 30               # at/above this, redirect: penalise daytime outdoor, favour indoor
   cold_outdoor_below_c: 8      # below this, penalise outdoor events
-  rain_penalises_outdoor: true
+  precipitation_penalises_outdoor: true  # covers both rain and snow
   suggest_water_from_c: 30     # surface lake / Strandbad suggestions on very hot dry days
   weights:
     outdoor_warm_bonus: 2.0

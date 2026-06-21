@@ -18,7 +18,7 @@ interface WeatherConfig {
   evening_start: string;   // "HH:MM" — outdoor events at/after this get outdoor_evening_bonus added to their score
   hot_from_c: number;
   cold_outdoor_below_c: number;
-  rain_penalises_outdoor: boolean;
+  precipitation_penalises_outdoor: boolean;  // covers both rain and snow
   suggest_water_from_c: number;
   weights: {
     outdoor_warm_bonus: number;
@@ -36,7 +36,7 @@ const DEFAULT_CONFIG: WeatherConfig = {
   evening_start: "18:00",
   hot_from_c: 30,
   cold_outdoor_below_c: 8,
-  rain_penalises_outdoor: true,
+  precipitation_penalises_outdoor: true,
   suggest_water_from_c: 30,
   weights: {
     outdoor_warm_bonus: 2.0,
@@ -106,13 +106,13 @@ function scoreDay(
     notes.push(`cold (min ${temp_min_c}°C) — outdoor events penalised`);
   }
 
-  if (is_precipitation && cfg.rain_penalises_outdoor) {
+  if (is_precipitation && cfg.precipitation_penalises_outdoor) {
     outdoor_delta += is_rainy ? w.outdoor_rain_penalty : w.outdoor_cold_penalty;
     notes.push(is_rainy ? "rain expected — outdoor events penalised" : "snow expected — outdoor events penalised");
   }
 
   // Hard drop: only when precipitation makes outdoor genuinely incompatible
-  const drop_outdoor = is_precipitation && cfg.rain_penalises_outdoor;
+  const drop_outdoor = is_precipitation && cfg.precipitation_penalises_outdoor;
   const drop_indoor = false; // indoor events are never hard-dropped by weather
 
   const suggest_lake = temp_max_c >= cfg.suggest_water_from_c && !is_precipitation;
@@ -199,13 +199,13 @@ async function fetchWeather(from: string, to: string, cfg: WeatherConfig): Promi
     const is_rainy = RAIN_CODES.has(code);
     const is_snowy = SNOW_CODES.has(code);
 
-    const evening_boost = {
-      evening_start: cfg.evening_start,
-      outdoor_evening_bonus: cfg.weights.outdoor_evening_bonus,
-    };
-
     if (cfg.mode === "filter") {
       const { drop_outdoor, drop_indoor, note } = legacyFilterDay(temp_max_c, temp_min_c, is_rainy, is_snowy);
+      const evening_boost = {
+        evening_start: cfg.evening_start,
+        // Zero when outdoor events are hard-dropped — no point boosting events that won't appear
+        outdoor_evening_bonus: drop_outdoor ? 0 : cfg.weights.outdoor_evening_bonus,
+      };
       return {
         date, temp_max_c, temp_min_c, precipitation_mm, weathercode: code,
         is_rainy, is_snowy, mode: "filter" as const,
@@ -217,6 +217,12 @@ async function fetchWeather(from: string, to: string, cfg: WeatherConfig): Promi
 
     const { outdoor_delta, indoor_delta, drop_outdoor, drop_indoor, suggest_lake, note } =
       scoreDay(temp_max_c, temp_min_c, is_rainy, is_snowy, cfg);
+
+    const evening_boost = {
+      evening_start: cfg.evening_start,
+      // Zero when outdoor events are hard-dropped — no point boosting events that won't appear
+      outdoor_evening_bonus: drop_outdoor ? 0 : cfg.weights.outdoor_evening_bonus,
+    };
 
     return {
       date, temp_max_c, temp_min_c, precipitation_mm, weathercode: code,

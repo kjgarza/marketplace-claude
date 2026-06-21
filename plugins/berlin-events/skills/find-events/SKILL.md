@@ -240,10 +240,12 @@ fi
 
 **Weather note in output header** — include one line per date using the `note` field from the script output:
 
+Use the `note` field from the script output verbatim. If `suggest_lake === true`, append " + 🏊 lake/Strandbad suggestion added" after the note:
+
 ```
-Weather 20 Jun: 34°C max — hot day (34°C) — favour indoor/AC venues; evening outdoor still good; 🏊 lake suggestion added.
-Weather 21 Jun: 14°C max — rain expected — outdoor events dropped.
-Weather 22 Jun: 18°C max — mild and dry (18°C) — all events shown.
+Weather 20 Jun: 34°C max — hot day (34°C) — favour indoor/AC venues; evening outdoor still good; very hot — consider a lake / Strandbad as an alternative + 🏊 lake/Strandbad suggestion added
+Weather 21 Jun: 14°C max — rain expected — outdoor events penalised
+Weather 22 Jun: 18°C max — mild and dry (18°C) — all events shown
 ```
 
 ### Step 8: Rank and Curate
