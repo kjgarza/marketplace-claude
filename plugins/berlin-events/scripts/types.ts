@@ -5,7 +5,7 @@ export interface Event {
   end_time?: string;
   venue: string;
   neighborhood?: string;
-  category: "art" | "food";
+  category: "art" | "food" | "art,food";
   description: string;
   url: string;
   source: string;

@@ -103,6 +103,13 @@ export const SOURCES: SourceConfig[] = [
   },
 ];
 
+function normalizeLookup(value: string): string {
+  return value.trim().replace(/\/+$/, "");
+}
+
 export function findSource(urlOrSlug: string): SourceConfig | undefined {
-  return SOURCES.find((s) => s.slug === urlOrSlug || s.url === urlOrSlug);
+  const normalized = normalizeLookup(urlOrSlug);
+  return SOURCES.find(
+    (s) => s.slug === normalized || normalizeLookup(s.url) === normalized,
+  );
 }

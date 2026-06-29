@@ -9,12 +9,14 @@
  *                         or rendered Readability text when no events match
  *
  * Usage:
- *   bun run extract-events.ts <url-or-slug> [--force-playwright] [--text]
+ *   bun run extract-events.ts <url-or-slug> [--force-playwright] [--json]
  *
  * Output:
  *   - For source-extractor strategy: JSON array of Event objects when available.
- *   - For readability/playwright: plain text (default) or JSON with
- *     {url, title, textContent} when --json is set.
+ *   - Plain text by default for Readability/Playwright output and source-extractor
+ *     fallback output.
+ *   - With --json: ExtractedArticle for Readability output or RenderedPage for
+ *     Playwright/fallback output.
  */
 
 import { findSource, type SourceConfig } from "./sources.ts";

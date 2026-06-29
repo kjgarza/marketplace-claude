@@ -43,7 +43,7 @@ export async function extract(page: Page): Promise<Event[]> {
       date: parsed.date,
       ...(parsed.time ? { time: parsed.time } : {}),
       venue: card.venue ?? "Tip Berlin (venue TBC)",
-      category: "art",
+      category: "art,food",
       description: card.text.slice(0, 240),
       url: card.link!,
       source: SOURCE_NAME,

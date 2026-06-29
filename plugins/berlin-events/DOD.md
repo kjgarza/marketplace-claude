@@ -17,12 +17,11 @@ The plugin is **done** when it can autonomously:
 - [ ] `extract-events.ts` successfully fetches clean text or structured `Event[]` JSON from at least **3 of the priority event sources** defined in `scripts/sources.ts`
 - [ ] Each scraped page is ingested into qurl with:
   - `--source berlin-events`
-  - `--tags` matching the source category (`art` or `food`)
+  - `--tags` matching the source category (`art`, `food`, or `art,food`)
   - The canonical source URL as the document key
   ```bash
   bun run extract-events.ts "<slug-or-url>" | \
-    bun run /Volumes/Verbatim-Vi560-Media/Development/aves/qurl/packages/core/src/cli/qurl.ts \
-      add "<url>" --source berlin-events --tags art
+    qurl add "<url>" --source berlin-events --tags art
   ```
 - [ ] Duplicate runs do not create duplicate documents (qurl deduplicates by URL + SHA-256)
 
@@ -52,7 +51,7 @@ These parameters are used when running the `/autoresearch` skill to iteratively 
 
 ### Metric
 ```
-METRIC_COMMAND:     ./test-pipeline.sh
+METRIC_COMMAND:     bash plugins/berlin-events/scripts/test-pipeline.sh
 METRIC_EXTRACTION:  "relevant_results: (\d+)" from stdout
 METRIC_DIRECTION:   higher_is_better
 TARGET:             ≥ 5 relevant results in top 10
@@ -71,7 +70,7 @@ IN_SCOPE_FILES:
   - scripts/extract-events.ts        # extraction dispatcher
   - scripts/sources.ts               # typed source registry
   - scripts/extractors/*.ts          # source-specific extractors
-  - scripts/test-pipeline.sh         # metric harness (to be created)
+  - scripts/test-pipeline.sh         # metric harness
   - skills/find-events/SKILL.md      # qurl integration steps
   - skills/event-sources/SKILL.md    # source strategy
 
