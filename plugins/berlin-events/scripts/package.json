@@ -4,6 +4,10 @@
   "type": "module",
   "dependencies": {
     "@mozilla/readability": "^0.5.0",
-    "jsdom": "^25.0.0"
+    "jsdom": "^25.0.0",
+    "playwright": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^21.0.0"
   }
 }
