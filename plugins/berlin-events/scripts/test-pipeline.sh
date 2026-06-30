@@ -16,11 +16,12 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
+BUNX=$(command -v bunx 2>/dev/null || echo "$HOME/.bun/bin/bunx")
 
 # Ensure script dependencies (incl. chromium) are installed
 if [[ ! -d "$SCRIPT_DIR/node_modules" ]]; then
   echo "Installing script dependencies..."
-  (cd "$SCRIPT_DIR" && "$BUN" install --silent && "$BUN" x playwright install chromium >/dev/null 2>&1) \
+  (cd "$SCRIPT_DIR" && "$BUN" install --silent && "$BUNX" playwright install chromium >/dev/null 2>&1) \
     || echo "WARN: dependency install reported errors (continuing)"
 fi
 

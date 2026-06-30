@@ -40,10 +40,14 @@ function isLowSignalText(text: string): boolean {
   );
 }
 
-function printRendered(rendered: { title?: string | null; textContent: string }): void {
-  if (isLowSignalText(rendered.textContent)) {
+function assertUsefulText(text: string): void {
+  if (isLowSignalText(text)) {
     throw new Error("Rendered page returned empty or consent-only content.");
   }
+}
+
+function printRendered(rendered: { title?: string | null; textContent: string }): void {
+  assertUsefulText(rendered.textContent);
   if (rendered.title) console.log(`# ${rendered.title}\n`);
   console.log(rendered.textContent);
 }
@@ -90,6 +94,7 @@ async function dispatch(
       process.exit(1);
     }
     if (wantJson) {
+      assertUsefulText(article.textContent);
       console.log(JSON.stringify(article, null, 2));
     } else {
       printRendered(article);
@@ -104,6 +109,7 @@ async function dispatch(
         : undefined;
     const rendered = await renderAndExtract(source.url, { selector: waitFor });
     if (wantJson) {
+      assertUsefulText(rendered.textContent);
       console.log(JSON.stringify(rendered, null, 2));
     } else {
       printRendered(rendered);
@@ -122,6 +128,7 @@ async function dispatch(
         selector: source.extraction.waitFor,
       });
       if (wantJson) {
+        assertUsefulText(rendered.textContent);
         console.log(JSON.stringify(rendered, null, 2));
       } else {
         printRendered(rendered);
