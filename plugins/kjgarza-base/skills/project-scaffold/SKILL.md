@@ -14,7 +14,7 @@ Scaffold production-ready projects with modern tooling and configurable features
 
 ## Interactive Workflow
 
-Follow these steps in order. Use the AskUserQuestion tool for each step.
+Follow these steps in order. At each step, ask the user a structured multiple-choice question (use a native question tool if available, otherwise plain text options a/b/c).
 
 ### Step 1: Project Name
 

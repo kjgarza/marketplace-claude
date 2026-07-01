@@ -1,6 +1,6 @@
 {
   "name": "readitlater-digest",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Generate themed weekly digests from Obsidian ReadItLater bookmarks with SQLite state tracking",
   "author": {
     "name": "Kristian Garza"

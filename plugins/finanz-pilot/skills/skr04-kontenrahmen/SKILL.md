@@ -1,7 +1,10 @@
 ---
 name: skr04-kontenrahmen
 description: Use for SKR04 account lookup, DATEV account mapping, chart-of-accounts questions, and when a German bookkeeping task needs the likely account number for revenue, expense, asset, liability, equity, tax, payroll, or closing entries. Trigger on terms like SKR04, Konto, Kontenrahmen, DATEV, Gegenkonto, Kontonummer, buchen auf welches Konto, and account-mapping requests.
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # SKR04 Account Lookup
 
@@ -9,10 +12,10 @@ Use this skill to ground bookkeeping answers in plausible SKR04 account numbers 
 
 ## Data source
 
-Read `${CLAUDE_PLUGIN_ROOT}/templates/skr04-accounts.json` before proposing account mappings.
+Read `<plugin_dir>/templates/skr04-accounts.json` before proposing account mappings.
 
 For Bilanz/GuV preparation flows, also consult:
-- `${CLAUDE_PLUGIN_ROOT}/skills/hgb-closing-flow/references/skr04-hgb-starter-mapping.md`
+- `<plugin_dir>/skills/hgb-closing-flow/references/skr04-hgb-starter-mapping.md`
 
 ## Working method
 

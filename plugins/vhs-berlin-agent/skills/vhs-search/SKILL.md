@@ -3,7 +3,10 @@ name: vhs-search
 description: "Search VHS Berlin courses using natural language. Converts queries like 'Find A2 German evening courses in Neukölln' into structured VHS searches, extracts results, and presents them in a clean format. Use when the user wants to find specific VHS Berlin courses."
 argument-hint: "[natural language search query]"
 allowed-tools: ["Bash", "Read", "Write"]
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # VHS Berlin Course Search
 
@@ -42,7 +45,7 @@ Example JSON for "Find A2 German evening courses in Neukölln":
 ### Step 2: Run search script
 
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/search.ts \
+$BUN run <plugin_dir>/scripts/search.ts \
   --query-json '{"district":"Neukölln","category":"German","level":"A2"}' \
   --db-path "<db_path>" \
   --limit 20

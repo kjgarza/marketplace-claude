@@ -2,6 +2,7 @@
 name: sync-daily
 description: Pull today's OpenClaw session activity into the current daily note. Use when the user asks to "sync today", "pull in today's activity", "sync openclaw", or wants to enrich the daily note with Telegram/agent session context.
 disable-model-invocation: true
+portable: false
 ---
 
 # Sync Daily — OpenClaw → Daily Note

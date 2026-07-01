@@ -3,7 +3,10 @@ name: vhs-watch
 description: "Monitor VHS Berlin courses and searches for changes. Save watchlists, check for updates, and get notified when course availability changes. Use when the user wants to track specific courses or searches over time."
 argument-hint: "[action: save|check|list|remove] [query or watch ID]"
 allowed-tools: ["Bash", "Read", "Write"]
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # VHS Watch: Monitoring & Watchlists
 
@@ -21,7 +24,7 @@ BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
 
 Ensure the DB is initialized before any watch command:
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/init-db.ts --db-path "<db_path>"
+$BUN run <plugin_dir>/scripts/init-db.ts --db-path "<db_path>"
 ```
 
 ---
@@ -39,7 +42,7 @@ Example: `{"district":"Mitte","category":"German","level":"B1","time":"evening"}
 #### Step 2: Run watch save
 
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/watch.ts save \
+$BUN run <plugin_dir>/scripts/watch.ts save \
   --db-path "<db_path>" \
   --label "B1 German evening Mitte" \
   --query-json '{"district":"Mitte","category":"German","level":"B1","time":"evening"}'
@@ -61,7 +64,7 @@ Found N matching courses on initial check.
 **User request:** "Check my watches" or "Any updates?"
 
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/watch.ts check \
+$BUN run <plugin_dir>/scripts/watch.ts check \
   --db-path "<db_path>"
 ```
 
@@ -100,7 +103,7 @@ No changes detected in your N active watches.
 **User request:** "Show my watches" or "What am I monitoring?"
 
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/watch.ts list \
+$BUN run <plugin_dir>/scripts/watch.ts list \
   --db-path "<db_path>"
 ```
 
@@ -125,7 +128,7 @@ Parse the JSON and present:
 **User request:** "Stop watching B1 German" or "Remove watch #2"
 
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/watch.ts remove \
+$BUN run <plugin_dir>/scripts/watch.ts remove \
   --db-path "<db_path>" \
   --watch-id <N>
 ```

@@ -5,7 +5,10 @@ description: >
   actually read. Use when the user says "rate the last digest", "that digest was great/meh",
   mentions which themes resonated, or runs /readitlater-digest:feedback.
 allowed-tools: ["Bash", "Read"]
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # ReadItLater Digest Feedback
 
@@ -27,7 +30,7 @@ Translate what the user says into a rating (1–5, optional), free-text notes, a
 themes that resonated. Then:
 
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/record-feedback.ts \
+$BUN run <plugin_dir>/scripts/record-feedback.ts \
   --db-path "<db_path>" \
   --rating 4 \
   --notes "Loved the agents thread; skipped the crypto section" \
@@ -42,7 +45,7 @@ Confirm what was saved and which digest it attached to.
 ## Reading feedback (used by the digest pipeline)
 
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/record-feedback.ts --db-path "<db_path>" --recent --limit 5
+$BUN run <plugin_dir>/scripts/record-feedback.ts --db-path "<db_path>" --recent --limit 5
 ```
 
 Returns the last N feedback rows (rating, notes, themes_liked, week range). The `digest` skill

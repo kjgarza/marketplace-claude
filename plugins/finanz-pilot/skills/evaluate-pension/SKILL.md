@@ -3,13 +3,16 @@ name: evaluate-pension
 description: This skill should be used when the user asks to "evaluate pension", "analyze pension", "review pension plan", "compare pension alternatives", "check pension fees", "pension cost analysis", "should I cancel my pension", "is my Riester worth it", or "pension surrender value". Analyzes private pension plans for cost-efficiency, projected returns, and compares against alternatives in the German financial system.
 argument-hint: "[optional: specific aspect to focus on, e.g., 'fees', 'alternatives', 'tax treatment']"
 allowed-tools: ["Read", "Write", "Edit", "WebSearch", "Bash", "Glob", "Grep"]
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # Evaluate Pension
 
 Analyze the current private pension plan for cost-efficiency, projected returns, and compare against alternatives available in Germany. Produce a comprehensive evaluation report that enables informed decision-making about pension optimization.
 
-Load `${CLAUDE_PLUGIN_ROOT}/skills/financial-analysis/references/german-financial-system.md` for detailed German tax parameters, pension system overview, and regulatory context.
+Load `<plugin_dir>/skills/financial-analysis/references/german-financial-system.md` for detailed German tax parameters, pension system overview, and regulatory context.
 
 ## Step 1: Gather Pension and Employment Data
 

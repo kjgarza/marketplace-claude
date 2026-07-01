@@ -176,7 +176,8 @@ task +ACTIVE list
 task project:Work list
 
 # Quick summary across all projects
-bash ${CLAUDE_PLUGIN_ROOT}/skills/task-workflow/scripts/tw-summary.sh
+# <skill_dir> = the absolute path of the directory containing this SKILL.md (seen when the skill loaded)
+bash <skill_dir>/scripts/tw-summary.sh
 ```
 
 ## Mandatory State Updates for AI Agents

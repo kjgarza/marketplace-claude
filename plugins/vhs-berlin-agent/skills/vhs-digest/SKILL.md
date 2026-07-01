@@ -3,7 +3,10 @@ name: vhs-digest
 description: "Generate awareness summaries and digests of VHS Berlin courses. Create weekly summaries of new courses, courses starting soon, status changes, or custom digest views. Use when the user wants a periodic overview or 'what's new this week' summary."
 argument-hint: "[period: daily|weekly|monthly] [optional: custom filters]"
 allowed-tools: ["Bash", "Read", "Write"]
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # VHS Digest: Awareness Summaries
 
@@ -56,7 +59,7 @@ sqlite3 "<db_path>" "SELECT watch_id, label, last_checked_at FROM watched_search
 
 If no courses extracted in the past period, offer to run a watch check first:
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/watch.ts check --db-path "<db_path>"
+$BUN run <plugin_dir>/scripts/watch.ts check --db-path "<db_path>"
 ```
 
 #### Step 4: Present the digest

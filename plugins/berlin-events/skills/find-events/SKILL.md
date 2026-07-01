@@ -3,6 +3,7 @@ name: find-events
 description: "This skill should be used when the user asks 'What events are happening in Berlin this week?', 'Find me art exhibitions and food festivals in Berlin next weekend', or wants to discover upcoming Berlin art and food events. Ingests event sources into qurl, runs semantic search, checks Google Calendar for conflicts, and produces a curated, relevance-ranked list of events with location context."
 argument-hint: "[days ahead, e.g. '7' or 'this weekend']"
 allowed-tools: ["Read", "Bash", "WebSearch", "WebFetch", "Grep", "Glob", "Agent", "mcp__claude-in-chrome__navigate", "mcp__claude-in-chrome__read_page", "mcp__claude-in-chrome__get_page_text", "mcp__claude-in-chrome__tabs_create_mcp", "mcp__claude-in-chrome__tabs_context_mcp"]
+portable: false
 ---
 
 # Find Berlin Events

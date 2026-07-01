@@ -17,10 +17,10 @@ Prefer one of these inputs:
 
 If the user does not provide enough data for a final statement, say what is missing and continue with a draft structure instead of blocking early.
 
-For a guided end-to-end close from trial balance to Bilanz and GuV, also use:
-- `${CLAUDE_PLUGIN_ROOT}/skills/hgb-closing-flow/references/trial-balance-to-statements.md`
-- `${CLAUDE_PLUGIN_ROOT}/skills/hgb-closing-flow/references/skr04-hgb-starter-mapping.md`
-- `${CLAUDE_PLUGIN_ROOT}/skills/hgb-closing-flow/references/saldenliste-fixture-gkv.md`
+For a guided end-to-end close from trial balance to Bilanz and GuV, also use (paths relative to this skill's directory):
+- `references/trial-balance-to-statements.md`
+- `references/skr04-hgb-starter-mapping.md`
+- `references/saldenliste-fixture-gkv.md`
 
 ## Working method
 

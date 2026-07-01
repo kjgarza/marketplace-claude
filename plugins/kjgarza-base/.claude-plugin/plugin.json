@@ -1,6 +1,6 @@
 {
   "name": "kjgarza-base",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A collection of productivity skills including project scaffolding, image processing with ImageMagick, file organization, and skill creation tooling",
   "author": {
     "name": "Kristian Garza",

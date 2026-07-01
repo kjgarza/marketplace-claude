@@ -1,6 +1,6 @@
 {
   "name": "bulletjournal",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Bullet journal workflow automation — daily migration, inbox triage, weekly/monthly reviews, and journal synthesis.",
   "author": {
     "name": "Kristian Garza",

@@ -3,7 +3,10 @@ name: capital-allocation
 description: This skill should be used when the user asks "where should my money go", "pension or property", "should I invest in pension or buy a house", "capital allocation", "financial plan", "integrated financial advice", "pension vs real estate", "Rente oder Immobilie", "Kapitalallokation", "Vermögensaufbau", "wealth building strategy", or "optimize my finances". Synthesizes pension evaluation and real estate readiness into an integrated capital allocation recommendation with four scenarios.
 argument-hint: "[optional: constraint or preference, e.g., 'prioritize liquidity', 'maximize tax efficiency', 'buy within 2 years']"
 allowed-tools: ["Read", "Write", "Edit", "WebSearch", "Bash", "Glob", "Grep"]
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # Capital Allocation — Integrated Financial Plan
 
@@ -11,7 +14,7 @@ Synthesize pension evaluation, real estate readiness, and retirement projection 
 
 Load `references/allocation-framework.md` for the decision matrix structure, scoring criteria, and interaction effects between pension and property decisions.
 
-Load `${CLAUDE_PLUGIN_ROOT}/skills/financial-analysis/references/german-financial-system.md` for tax parameters and regulatory context.
+Load `<plugin_dir>/skills/financial-analysis/references/german-financial-system.md` for tax parameters and regulatory context.
 
 ## Step 1: Check Prerequisites
 

@@ -1,6 +1,6 @@
 {
   "name": "vhs-berlin-agent",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Personal navigation and monitoring layer for VHS Berlin courses — search, watchlists, change detection, and awareness digests using bun scripts and local SQLite",
   "author": {
     "name": "Kristian Garza",
