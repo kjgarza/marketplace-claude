@@ -17,6 +17,12 @@ jobs:
       - name: Validate marketplace and skills
         run: python3 scripts/validate.py
 
+      - name: Portability lint
+        run: python3 scripts/lint_portability.py
+
+      - name: Codex adapters up to date
+        run: python3 scripts/gen_codex_agents.py --check
+
       - name: Check version bumps on PR
         if: github.event_name == 'pull_request'
         run: python3 scripts/check-version-bumped.py --base ${{ github.event.pull_request.base.sha }}
