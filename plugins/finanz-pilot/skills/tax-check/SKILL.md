@@ -3,13 +3,16 @@ name: tax-check
 description: This skill should be used when the user asks to "check taxes", "tax optimization", "reduce taxes Germany", "Steuererklärung tips", "tax deductions", "Werbungskosten check", "Sparerpauschbetrag optimization", "what can I deduct", "prepare for Steuerberater", or "file tax return". Identifies tax optimization opportunities for a single expat in Berlin using German tax law.
 argument-hint: "[optional: specific area to focus on, e.g., 'investment income', 'pension deductions', 'property tax implications']"
 allowed-tools: ["Read", "Write", "Edit", "WebSearch", "Bash", "Glob", "Grep"]
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # Tax Check — German Tax Optimization for Berlin Expat
 
 Identify tax optimization opportunities for the user's situation as a single expat in Berlin, Germany. Produce a structured, quantitative report with actionable recommendations ranked by estimated annual savings. All output in English. All currency in EUR. All tax references grounded in current German Einkommensteuergesetz (EStG) and related statutes.
 
-Load `${CLAUDE_PLUGIN_ROOT}/skills/financial-analysis/references/german-financial-system.md` for detailed German tax parameters, deduction categories, and regulatory context.
+Load `<plugin_dir>/skills/financial-analysis/references/german-financial-system.md` for detailed German tax parameters, deduction categories, and regulatory context.
 
 ## Step 1: Read Financial Data
 
@@ -58,7 +61,7 @@ Gross annual salary:                         EUR X
 
 ### 3a: Werbungskosten (Income-Related Expenses)
 
-Determine whether actual work-related expenses exceed the Werbungskostenpauschale (EUR 1,230). For km rates, day caps, EUR 800 equipment threshold, and all other calculation parameters, load `${CLAUDE_PLUGIN_ROOT}/skills/financial-analysis/references/german-financial-system.md`.
+Determine whether actual work-related expenses exceed the Werbungskostenpauschale (EUR 1,230). For km rates, day caps, EUR 800 equipment threshold, and all other calculation parameters, load `<plugin_dir>/skills/financial-analysis/references/german-financial-system.md`.
 
 Key categories to evaluate: Entfernungspauschale (commuting), Homeoffice-Pauschale (max EUR 1,260/year, cannot combine with Entfernungspauschale on the same day), professional development, work equipment, association dues, double household (Doppelte Haushaltsführung), and relocation costs.
 
@@ -66,7 +69,7 @@ If actual costs exceed EUR 1,230, flag as an optimization opportunity and quanti
 
 ### 3b: Sonderausgaben (Special Expenses)
 
-Evaluate deductible special expenses. For deduction ceilings, percentage rules, and Günstigerprüfung criteria, load `${CLAUDE_PLUGIN_ROOT}/skills/financial-analysis/references/german-financial-system.md`.
+Evaluate deductible special expenses. For deduction ceilings, percentage rules, and Günstigerprüfung criteria, load `<plugin_dir>/skills/financial-analysis/references/german-financial-system.md`.
 
 Key categories: Basisversorgung contributions (GRV + Rürup, 100% deductible since 2023), Kranken-/Pflegeversicherung Basisbeiträge (fully deductible), Riester Sonderausgabenabzug (up to EUR 2,100 including Zulage), and charitable donations (Spenden up to 20% of income).
 

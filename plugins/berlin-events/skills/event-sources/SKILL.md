@@ -1,7 +1,10 @@
 ---
 name: event-sources
 description: This skill should be used when the user asks about "Berlin event websites", "where to find events in Berlin", "event sources", "Berlin art listings", "Berlin food events", "scrape Berlin events", "extract event data", or when needing to know which websites, APIs, or RSS feeds to use for Berlin event discovery. Provides a curated directory of Berlin event sources with qurl ingestion commands.
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # Berlin Event Sources
 
@@ -12,7 +15,7 @@ A curated directory of Berlin event sources with validated Readability status an
 The standard ingestion command for any source:
 
 ```bash
-bun run ${CLAUDE_PLUGIN_ROOT}/scripts/extract-content.js "<url>" \
+bun run <plugin_dir>/scripts/extract-content.js "<url>" \
   | qurl add "<url>" --source berlin-events --tags <art|food>
 ```
 

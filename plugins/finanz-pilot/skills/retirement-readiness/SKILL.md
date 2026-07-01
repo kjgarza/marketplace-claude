@@ -3,13 +3,16 @@ name: retirement-readiness
 description: This skill should be used when the user asks to "check retirement readiness", "retirement projection", "am I saving enough for retirement", "pension gap analysis", "Rentenlücke", "all my pensions", "three pillar pension", "Wohn-Riester", "redirect pension to mortgage", "pension vs property", "how much pension will I get", or "Versorgungslücke". Assesses overall retirement readiness across all three German pension pillars and models trade-off scenarios including pension-to-property capital redirection.
 argument-hint: "[optional: focus area, e.g., 'Wohn-Riester', 'pension gap', 'redirect to mortgage']"
 allowed-tools: ["Read", "Write", "Edit", "WebSearch", "Bash", "Glob", "Grep"]
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # Retirement Readiness — Three-Pillar Projection
 
 Assess overall retirement readiness across all three German pension pillars (statutory, occupational, private). Quantify the pension gap (Versorgungslücke) and model scenarios including capital redirection toward property purchase. Produce a comprehensive projection report.
 
-Load `${CLAUDE_PLUGIN_ROOT}/skills/financial-analysis/references/german-financial-system.md` for pension system overview, tax parameters, and regulatory context.
+Load `<plugin_dir>/skills/financial-analysis/references/german-financial-system.md` for pension system overview, tax parameters, and regulatory context.
 
 For detailed calculation methodology — Entgeltpunkte formulas, bAV projection by vehicle type, Wohn-Riester rules, and capital redirection modeling — load `references/three-pillar-methodology.md`.
 
@@ -88,7 +91,7 @@ echo '{"current_age":38,"retirement_age":67,"pillars":[
   {"name":"ETF Sparplan","type":"capital","present_value":40000,"monthly_contribution":800,"annual_return_pct":7,"ter_pct":0.2},
   {"name":"Rürup","type":"annuity","present_value":15000,"monthly_contribution":150,"annual_return_pct":4,"annuity_monthly_per_100k":350},
   {"name":"GRV","type":"fixed_monthly","fixed_monthly":1400}
-],"withdrawal_rate_pct":4}' | $BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/retirement-projection.ts
+],"withdrawal_rate_pct":4}' | $BUN run <plugin_dir>/scripts/retirement-projection.ts
 ```
 
 The script returns each pillar's future value at retirement and an estimated gross monthly

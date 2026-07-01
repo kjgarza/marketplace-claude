@@ -11,7 +11,10 @@ allowed-tools:
   - Bash
   - Read
   - Write
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # Taskwarrior Initialization
 
@@ -110,7 +113,7 @@ annotation URIs work correctly:
 Run the summary script to confirm everything is working:
 
 ```bash
-bash $CLAUDE_PLUGIN_ROOT/skills/task-workflow/scripts/tw-summary.sh
+bash <plugin_dir>/skills/task-workflow/scripts/tw-summary.sh
 ```
 
 Expected output: summary header with sections for overdue, today, active, and next.

@@ -6,7 +6,10 @@ description: >
   or consolidate ReadItLater files. Also trigger on cron/loop invocations targeting bookmark processing.
 argument-hint: "[--dry-run] [--week YYYY-MM-DD]"
 allowed-tools: ["Bash", "Read", "Write", "Glob", "Grep", "WebFetch"]
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # ReadItLater Weekly Digest
 
@@ -61,7 +64,7 @@ If a row is returned, **abort immediately** and report: "A digest already exists
 ### Step 1: Initialize database and validate paths
 
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/init-db.ts --db-path "<db_path>"
+$BUN run <plugin_dir>/scripts/init-db.ts --db-path "<db_path>"
 ```
 
 This is idempotent — safe to run every time.
@@ -75,7 +78,7 @@ mkdir -p "<archive_path>"
 ### Step 2: Scan inbox for new bookmarks
 
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/scan-bookmarks.ts \
+$BUN run <plugin_dir>/scripts/scan-bookmarks.ts \
   --inbox-path "<inbox_path>" \
   --db-path "<db_path>"
 ```
@@ -114,7 +117,7 @@ If `--dry-run`, print the scan results and stop here.
 **First, read recent feedback** to bias theme selection toward what the reader actually engages with:
 
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/record-feedback.ts --db-path "<db_path>" --recent --limit 5
+$BUN run <plugin_dir>/scripts/record-feedback.ts --db-path "<db_path>" --recent --limit 5
 ```
 
 If feedback rows are returned, weight recurring `themes_liked` up (favor and foreground them when present this week) and themes repeatedly noted as skipped/disliked down (still include if strongly represented, but don't lead with them). If there is no feedback yet, proceed normally.
@@ -202,7 +205,7 @@ themes:
 Pass each bookmark file as a separate `--bookmark-files` flag. **Do not use comma-separated values** — filenames can contain commas.
 
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/update-db.ts \
+$BUN run <plugin_dir>/scripts/update-db.ts \
   --db-path "<db_path>" \
   --digest-file "<relative_path_to_digest>" \
   --bookmark-files "<file1.md>" \
@@ -222,13 +225,13 @@ ARGS=(--db-path "<db_path>" --digest-file "<relative_path_to_digest>" \
 for f in "${BOOKMARK_FILES[@]}"; do
   ARGS+=(--bookmark-files "$f")
 done
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/update-db.ts "${ARGS[@]}"
+$BUN run <plugin_dir>/scripts/update-db.ts "${ARGS[@]}"
 ```
 
 ### Step 7: Archive processed bookmarks
 
 ```bash
-$BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup.ts archive \
+$BUN run <plugin_dir>/scripts/cleanup.ts archive \
   --db-path "<db_path>" \
   --inbox-path "<inbox_path>" \
   --archive-path "<archive_path>"

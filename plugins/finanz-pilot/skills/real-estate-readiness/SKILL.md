@@ -3,13 +3,16 @@ name: real-estate-readiness
 description: This skill should be used when the user asks to "check real estate readiness", "assess property purchase", "can I afford to buy", "Eigenkapital check", "mortgage readiness", "buy apartment Berlin", "Kaufnebenkosten calculation", "rent or buy", "rent vs buy", "buy a house", "Haus kaufen", "Einfamilienhaus", "Neubau vs Bestand", "house vs apartment", "Doppelhaushälfte", or "Reihenhaus". Assesses financial readiness to purchase property in Berlin/Brandenburg — apartments and houses — with German-specific buying costs.
 argument-hint: "[optional: property price or area to focus on, e.g., '€350,000', 'Neukölln', 'buy-to-let']"
 allowed-tools: ["Read", "Write", "Edit", "WebSearch", "Bash", "Glob", "Grep"]
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # Real Estate Readiness Assessment
 
 Assess financial readiness to purchase property in Berlin/Brandenburg, model purchase scenarios, and highlight German-specific buying costs. Produce a comprehensive report grounded in the user's actual financial data and current market conditions.
 
-Load `${CLAUDE_PLUGIN_ROOT}/skills/financial-analysis/references/german-financial-system.md` for detailed German tax parameters, real estate purchase process, and regulatory context.
+Load `<plugin_dir>/skills/financial-analysis/references/german-financial-system.md` for detailed German tax parameters, real estate purchase process, and regulatory context.
 
 ## Step 1: Gather Financial Data
 
@@ -129,7 +132,7 @@ BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
 echo '{"purchase_price":500000,"kaufnebenkosten_pct":12,"equity":150000,"mortgage_rate_pct":3.6,
 "tilgung_pct":2.0,"hausgeld_monthly":350,"current_rent_monthly":1600,"rent_increase_pct":2.5,
 "etf_return_pct":6.5,"etf_tax_pct":18.46,"appreciation_pct":2.0,"horizons":[10,20,30]}' \
-  | $BUN run ${CLAUDE_PLUGIN_ROOT}/scripts/rent-vs-buy.ts
+  | $BUN run <plugin_dir>/scripts/rent-vs-buy.ts
 ```
 
 Fill the assumptions from the user's data and the market research above. The script returns

@@ -5,7 +5,10 @@ description: >
   /readitlater-digest:status or asks about bookmark counts, digest history, unprocessed bookmarks,
   reading backlog, or "how many bookmarks do I have".
 allowed-tools: ["Bash", "Read"]
+portable: false
 ---
+
+> `<plugin_dir>` = this plugin's root directory (two levels above this SKILL.md).
 
 # ReadItLater Status
 
@@ -24,7 +27,7 @@ If the database doesn't exist, report "No database found — run /readitlater-di
 Run:
 
 ```bash
-bun run ${CLAUDE_PLUGIN_ROOT}/scripts/cleanup.ts status --db-path "<db_path>"
+bun run <plugin_dir>/scripts/cleanup.ts status --db-path "<db_path>"
 ```
 
 Format the JSON output as a readable summary:
