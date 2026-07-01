@@ -17,7 +17,7 @@
 - Runtime: Bun + TypeScript
 - Database API: `bun:sqlite`
 - HTML parsing: `cheerio`
-- Config parsing: `@iarna/toml`
+- Config parsing: `@iarna/toml` (plugin config), `yaml` (portal profiles)
 - Network fetch: built-in `fetch` with Jina fallback
 - Tests: `bun test` executed from `package.json`
 
@@ -30,6 +30,8 @@
 - `scripts/parse-listing.ts` — portal parsers
 - `scripts/scam-score.ts` — heuristic scam scoring
 - `scripts/hunt.ts` — orchestration and CLI entrypoint
+- `scripts/health.ts` — drift classifier (selector/field/access/blocked) reading `runs` table + portal YAML baselines
+- `scripts/portal-profile.ts` — YAML profile loader for `portals/<portal>.yaml`
 - `scripts/__tests__/*.test.ts` — current test coverage
 - `portals/*.yaml` — portal recon profiles
 - `agents/` — sub-agent docs for plugin workflows
