@@ -36,6 +36,16 @@ After adding the marketplace, install individual plugins:
 /plugin install kjgarza-product@marketplace-claude
 ```
 
+## Using with Codex CLI / other agents
+
+Skills follow the [Agent Skills standard](https://agentskills.io). Install any skill into a project for both Claude Code and Codex CLI with:
+
+```
+npx skills add kjgarza/marketplace-claude --skill <skill-name>
+```
+
+See [docs/CODEX.md](docs/CODEX.md) for portability conventions and Codex subagent adapters.
+
 ## Plugin Details
 
 ### kjgarza-base

@@ -60,3 +60,5 @@ When code is more than one line, write it to a temporary script or a file under 
 Plugin development rules and validation steps live in `.claude/rules/plugin-development.md`.
 
 Skill content quality standards (naming, conciseness, progressive disclosure, evaluations) live in `.claude/rules/skill-standards.md`.
+
+Cross-tool (Codex/agentskills.io) portability conventions live in `docs/CODEX.md`. New skills must pass `python3 scripts/lint_portability.py`.
