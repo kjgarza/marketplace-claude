@@ -1,11 +1,35 @@
 import { Database } from "bun:sqlite";
+import { existsSync, copyFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { homedir } from "node:os";
 import type { Listing, RunRecord } from "./types.ts";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = join(__dir, '../state.db');
+const LEGACY_DB_PATH = join(__dir, '../state.db');
 type SqliteDb = Database;
+
+export function resolveStateDir(): string {
+  return process.env.BERLIN_FLATS_STATE_DIR || join(homedir(), '.claude', 'berlin-flats');
+}
+
+/**
+ * One-time migration off the versioned-plugin-cache path: if the new state
+ * dir has no DB yet but a legacy in-plugin-directory DB exists, copy it over.
+ * Never overwrites an existing new-path DB.
+ */
+export function migrateLegacyStateIfNeeded(legacyPath: string, stateDir: string): string {
+  mkdirSync(stateDir, { recursive: true });
+  const newPath = join(stateDir, 'state.db');
+  if (!existsSync(newPath) && existsSync(legacyPath)) {
+    copyFileSync(legacyPath, newPath);
+  }
+  return newPath;
+}
+
+function resolveDbPath(): string {
+  return migrateLegacyStateIfNeeded(LEGACY_DB_PATH, resolveStateDir());
+}
 
 function assertIdentifier(value: string): void {
   if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
@@ -38,9 +62,9 @@ export function ensureColumn(db: SqliteDb, table: string, col: string, type: str
 }
 
 let _db: SqliteDb | undefined;
-let _dbPath = DB_PATH;
+let _dbPath: string | undefined;
 
-export function getDb(dbPath = _dbPath): SqliteDb {
+export function getDb(dbPath = resolveDbPath()): SqliteDb {
   if (_db) return _db;
   _dbPath = dbPath;
   _db = new Database(dbPath);
@@ -93,7 +117,7 @@ export function getDb(dbPath = _dbPath): SqliteDb {
 export function resetDbForTests(): void {
   _db?.close();
   _db = undefined;
-  _dbPath = DB_PATH;
+  _dbPath = undefined;
 }
 
 export function upsertListing(listing: Listing): void {
