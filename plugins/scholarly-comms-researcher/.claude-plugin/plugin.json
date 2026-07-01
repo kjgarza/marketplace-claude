@@ -1,6 +1,6 @@
 {
   "name": "scholarly-comms-researcher",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Expert agent for scholarly communication research with Dimensions database integration and academic search capabilities",
   "author": {
     "name": "Kristian Garza",
