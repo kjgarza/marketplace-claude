@@ -38,7 +38,7 @@ explain the trade-off, flag the blast radius, let the human decide.
 
 Follow these three interactive checkpoints on every scaffold:
 
-1. **Auth gate** — Before writing any files, use `AskUserQuestion` to ask:
+1. **Auth gate** — Before writing any files, ask the user (multiple-choice):
    > "Do you want Google OAuth authentication on this UI? (Requires GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXTAUTH_SECRET env vars)"
    If yes, scaffold the full auth layer (see Authentication section) before pages.
 
@@ -61,7 +61,7 @@ See the **Verification Checklist** section at the end for the exact `TaskCreate`
 
 ## Authentication
 
-Gate this section with `AskUserQuestion` before scaffolding any files:
+Gate this section by asking the user (multiple-choice) before scaffolding any files:
 
 ```
 "Do you want Google OAuth authentication on this UI? (Requires GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, NEXTAUTH_SECRET env vars)"

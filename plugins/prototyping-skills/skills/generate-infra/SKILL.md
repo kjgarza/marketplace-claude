@@ -50,8 +50,8 @@ Run ALL of these checks **before generating any file**:
 2. **Detect UI framework**: `grep '"next"' packages/ui/package.json 2>/dev/null` — only generate `infra/frontend.ts` if Next.js is confirmed
 3. **Detect env vars**: `cat .env.example 2>/dev/null` then grep for `Bun.env.` and `process.env.` across all packages — build the full list of secrets to declare
 4. **Detect native modules**: `grep -r '@libsql/client\|better-sqlite3' packages/*/package.json 2>/dev/null` — add `nodejs.install` if found
-5. **Pipeline gate** — use `AskUserQuestion`: _"Does this project have a background processing pipeline? (queue-based jobs, scheduled Lambda functions, cron workers)"_
-6. **App name gate** — use `AskUserQuestion`: _"What is the SST app name? (kebab-case, e.g. 'my-prototype') This becomes the CloudFormation stack prefix."_
+5. **Pipeline gate** — ask the user (multiple-choice): _"Does this project have a background processing pipeline? (queue-based jobs, scheduled Lambda functions, cron workers)"_
+6. **App name gate** — ask the user (multiple-choice): _"What is the SST app name? (kebab-case, e.g. 'my-prototype') This becomes the CloudFormation stack prefix."_
 
 ## App Export Split (Critical)
 
@@ -131,7 +131,7 @@ See `references/sst-patterns.md` → **infra/frontend.ts**.
 
 **Step 8 — `infra/pipeline.ts`** _(only if user confirmed pipeline)_
 
-Ask a follow-up with `AskUserQuestion`: _"What triggers the pipeline — a queue (SQS),
+Ask the user a follow-up (multiple-choice): _"What triggers the pipeline — a queue (SQS),
 a schedule (cron), or both?"_ Then generate the appropriate pattern.
 
 See `references/sst-patterns.md` → **infra/pipeline.ts**.
