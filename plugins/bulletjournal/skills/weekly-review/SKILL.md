@@ -1,6 +1,7 @@
 ---
 name: weekly-review
 description: This skill should be used when the user asks to "run weekly review", "create weekly note", "do the Friday review", "generate this week's summary", "run weekly-review", or wants to produce a structured weekly journal note from the current week's daily notes.
+portable: false
 ---
 
 # Weekly Review

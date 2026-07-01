@@ -1,6 +1,7 @@
 ---
 name: find-linkedin-contacts
 description: "Find LinkedIn contacts at a target company for a specific job role. Use when helping with job applications and needing to identify people to reach out to — hiring managers, direct managers, and team members who are decision makers. Excludes C-suite, founders, and owners. Works alongside find-kristian-jobs and find-jobs skills. Triggers when asked to find contacts at a company, who should I reach out to for a job, find the hiring manager at a company, find people to reach out to on LinkedIn, build my outreach list for a job or company, or find decision makers at a company."
+portable: false
 ---
 
 # Find LinkedIn Contacts

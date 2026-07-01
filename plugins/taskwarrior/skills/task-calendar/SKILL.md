@@ -5,6 +5,7 @@ description: >
   "check if I'm free", "find a slot for this", "when can I work on", "create a calendar event
   for a task", "reschedule this task", or any request that bridges a Taskwarrior task with
   Google Calendar. Uses gogcli (gog) when available, falls back to Google Calendar MCP tools.
+portable: false
 ---
 
 # Task Calendar

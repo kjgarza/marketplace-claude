@@ -1,6 +1,7 @@
 ---
 name: monthly-review
 description: This skill should be used when the user asks to "run monthly review", "create monthly note", "do the month-end review", "generate monthly summary", "run monthly-review", or wants to produce a structured monthly journal note comparing planned goals against actual outcomes.
+portable: false
 ---
 
 # Monthly Review

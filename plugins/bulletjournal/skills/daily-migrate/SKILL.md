@@ -1,6 +1,7 @@
 ---
 name: daily-migrate
 description: This skill should be used when the user asks to "run daily migration", "migrate tasks", "do morning review", "carry forward tasks", "run daily-migrate", or wants to review yesterday's open tasks and prepare today's or tomorrow's note. Performs bullet-journal-style task migration across recent daily notes.
+portable: false
 ---
 
 # Daily Migrate

@@ -2,6 +2,7 @@
 name: inbox-triage
 description: Process notes in 00-Inbox/ into the correct PARA location with frontmatter filled in. Use when the user asks to "triage inbox", "process inbox", "sort inbox", or "clear inbox".
 disable-model-invocation: true
+portable: false
 ---
 
 # Inbox Triage
