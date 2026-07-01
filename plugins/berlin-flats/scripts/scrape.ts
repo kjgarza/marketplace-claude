@@ -1,6 +1,19 @@
 const BROWSER_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36';
 import type { ScrapeResult } from "./types.ts";
 
+export function jinaHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'User-Agent': BROWSER_UA,
+    'Accept': 'text/html,text/plain',
+    'X-Return-Format': 'html',
+  };
+  // Keyless Jina Reader is capped at 20 RPM; a free API key raises that to 100 RPM.
+  if (process.env.JINA_API_KEY) {
+    headers['Authorization'] = `Bearer ${process.env.JINA_API_KEY}`;
+  }
+  return headers;
+}
+
 export async function scrapeUrl(url: string): Promise<ScrapeResult> {
   // Tier 1: plain fetch
   try {
@@ -23,11 +36,7 @@ export async function scrapeUrl(url: string): Promise<ScrapeResult> {
   try {
     const jinaUrl = `https://r.jina.ai/${url}`;
     const res = await fetch(jinaUrl, {
-      headers: {
-        'User-Agent': BROWSER_UA,
-        'Accept': 'text/html,text/plain',
-        'X-Return-Format': 'html',
-      },
+      headers: jinaHeaders(),
       signal: AbortSignal.timeout(25000),
     });
     if (res.ok) {
