@@ -1,6 +1,6 @@
 ---
 name: Portal Profile Schema
-description: Use when reading or writing portal YAML profiles in portals/<portal>.yaml. Defines the canonical structure that scout-recon writes and scraper/query-builder reads. Reference before creating or validating any portal profile.
+description: This skill should be used when reading or writing portal YAML profiles in portals/<portal>.yaml. Defines the canonical structure that scout-recon writes and scraper/query-builder reads. Reference before creating or validating any portal profile.
 ---
 
 The canonical structure for `portals/<portal>.yaml`. scout-recon writes these. Scripts and agents read them. Bump `schema_version` if you change the shape.

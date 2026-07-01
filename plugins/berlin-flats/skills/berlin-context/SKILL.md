@@ -1,6 +1,6 @@
 ---
 name: Berlin Rental Context
-description: Use when making any decisions about Berlin rental listings — pricing, legality, district quality, Mietspiegel. Provides Berlin 2024 rental law essentials and market context for scam detection, scoring, and messaging.
+description: This skill should be used when making any decision about Berlin rental listings — pricing, legality, district quality, Mietspiegel. Provides Berlin 2024 rental law essentials and market context for scam detection, scoring, and messaging.
 ---
 
 ## Rental Law Essentials
