@@ -3,7 +3,7 @@ import { Database } from "bun:sqlite";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { countQualifying, ensureColumn, getDb, getQueue, isSeen, resetDbForTests, setVerdict, upsertListing } from "../db.ts";
+import { countQualifying, ensureColumn, getDb, getQueue, getRecentRuns, isSeen, recordRun, resetDbForTests, setVerdict, upsertListing } from "../db.ts";
 
 let tempDir: string | undefined;
 
@@ -157,5 +157,30 @@ describe("countQualifying (DOD pass condition)", () => {
     });
 
     expect(countQualifying()).toBe(2);
+  });
+});
+
+describe("run telemetry", () => {
+  test("records and retrieves runs newest-first, scoped by portal", () => {
+    useTempDb();
+    recordRun({ portal: "kleinanzeigen", tier: 1, http_ok: 1, html_length: 5000, cards_found: 12, new_count: 3, detail_ok: 3, detail_total: 3, field_presence: JSON.stringify({ title: 1 }), error: null });
+    recordRun({ portal: "kleinanzeigen", tier: 0, http_ok: 0, html_length: null, cards_found: 0, new_count: 0, detail_ok: 0, detail_total: 0, field_presence: null, error: "all tiers failed" });
+    recordRun({ portal: "immoscout24", tier: 2, http_ok: 1, html_length: 8000, cards_found: 5, new_count: 1, detail_ok: 1, detail_total: 1, field_presence: JSON.stringify({ title: 1 }), error: null });
+
+    const kaRuns = getRecentRuns("kleinanzeigen", 5);
+    expect(kaRuns).toHaveLength(2);
+    expect(kaRuns[0].error).toBe("all tiers failed");
+    expect(kaRuns[1].cards_found).toBe(12);
+
+    const is24Runs = getRecentRuns("immoscout24");
+    expect(is24Runs).toHaveLength(1);
+  });
+
+  test("limits results to the requested count", () => {
+    useTempDb();
+    for (let i = 0; i < 4; i++) {
+      recordRun({ portal: "kleinanzeigen", tier: 1, http_ok: 1, html_length: 100, cards_found: i, new_count: 0, detail_ok: 0, detail_total: 0, field_presence: null, error: null });
+    }
+    expect(getRecentRuns("kleinanzeigen", 2)).toHaveLength(2);
   });
 });

@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import type { Listing } from "./types.ts";
+import type { Listing, RunRecord } from "./types.ts";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const DB_PATH = join(__dir, '../state.db');
@@ -69,6 +69,20 @@ export function getDb(dbPath = _dbPath): SqliteDb {
       ts         TEXT DEFAULT (datetime('now')),
       event_type TEXT,
       payload    TEXT
+    );
+    CREATE TABLE IF NOT EXISTS runs (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      ts            TEXT DEFAULT (datetime('now')),
+      portal        TEXT NOT NULL,
+      tier          INTEGER,
+      http_ok       INTEGER NOT NULL,
+      html_length   INTEGER,
+      cards_found   INTEGER NOT NULL,
+      new_count     INTEGER NOT NULL,
+      detail_ok     INTEGER NOT NULL,
+      detail_total  INTEGER NOT NULL,
+      field_presence TEXT,
+      error         TEXT
     );
   `);
   // Migration: ensure reject_reason exists for databases created before this column was added
@@ -165,4 +179,31 @@ export function setVerdict(id: number, verdict: string, reason: string | null = 
   getDb().query(
     'UPDATE listings SET verdict=$verdict, reject_reason=$reason WHERE id=$id'
   ).run({ $verdict: verdict, $reason: reason, $id: id });
+}
+
+export function recordRun(run: RunRecord): void {
+  const db = getDb();
+  db.query(`
+    INSERT INTO runs (portal, tier, http_ok, html_length, cards_found, new_count,
+      detail_ok, detail_total, field_presence, error)
+    VALUES ($portal, $tier, $http_ok, $html_length, $cards_found, $new_count,
+      $detail_ok, $detail_total, $field_presence, $error)
+  `).run({
+    $portal: run.portal,
+    $tier: run.tier,
+    $http_ok: run.http_ok,
+    $html_length: run.html_length,
+    $cards_found: run.cards_found,
+    $new_count: run.new_count,
+    $detail_ok: run.detail_ok,
+    $detail_total: run.detail_total,
+    $field_presence: run.field_presence,
+    $error: run.error,
+  } as never);
+}
+
+export function getRecentRuns(portal: string, limit = 5): RunRecord[] {
+  return getDb().query(
+    'SELECT * FROM runs WHERE portal=$portal ORDER BY id DESC LIMIT $limit'
+  ).all({ $portal: portal, $limit: limit }) as RunRecord[];
 }
