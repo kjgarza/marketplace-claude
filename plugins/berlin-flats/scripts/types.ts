@@ -68,3 +68,18 @@ export interface ScrapeResult {
   via?: string;
   error?: string;
 }
+
+export interface RunRecord {
+  id?: number;
+  ts?: string;
+  portal: string;
+  tier: number | null;
+  http_ok: number;
+  html_length: number | null;
+  cards_found: number;
+  new_count: number;
+  detail_ok: number;
+  detail_total: number;
+  field_presence: string | null;
+  error: string | null;
+}

@@ -1,11 +1,35 @@
 import { Database } from "bun:sqlite";
+import { existsSync, copyFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import type { Listing } from "./types.ts";
+import { homedir } from "node:os";
+import type { Listing, RunRecord } from "./types.ts";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = join(__dir, '../state.db');
+const LEGACY_DB_PATH = join(__dir, '../state.db');
 type SqliteDb = Database;
+
+export function resolveStateDir(): string {
+  return process.env.BERLIN_FLATS_STATE_DIR || join(homedir(), '.claude', 'berlin-flats');
+}
+
+/**
+ * One-time migration off the versioned-plugin-cache path: if the new state
+ * dir has no DB yet but a legacy in-plugin-directory DB exists, copy it over.
+ * Never overwrites an existing new-path DB.
+ */
+export function migrateLegacyStateIfNeeded(legacyPath: string, stateDir: string): string {
+  mkdirSync(stateDir, { recursive: true });
+  const newPath = join(stateDir, 'state.db');
+  if (!existsSync(newPath) && existsSync(legacyPath)) {
+    copyFileSync(legacyPath, newPath);
+  }
+  return newPath;
+}
+
+function resolveDbPath(): string {
+  return migrateLegacyStateIfNeeded(LEGACY_DB_PATH, resolveStateDir());
+}
 
 function assertIdentifier(value: string): void {
   if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(value)) {
@@ -38,9 +62,9 @@ export function ensureColumn(db: SqliteDb, table: string, col: string, type: str
 }
 
 let _db: SqliteDb | undefined;
-let _dbPath = DB_PATH;
+let _dbPath: string | undefined;
 
-export function getDb(dbPath = _dbPath): SqliteDb {
+export function getDb(dbPath = resolveDbPath()): SqliteDb {
   if (_db) return _db;
   _dbPath = dbPath;
   _db = new Database(dbPath);
@@ -70,6 +94,20 @@ export function getDb(dbPath = _dbPath): SqliteDb {
       event_type TEXT,
       payload    TEXT
     );
+    CREATE TABLE IF NOT EXISTS runs (
+      id            INTEGER PRIMARY KEY AUTOINCREMENT,
+      ts            TEXT DEFAULT (datetime('now')),
+      portal        TEXT NOT NULL,
+      tier          INTEGER,
+      http_ok       INTEGER NOT NULL,
+      html_length   INTEGER,
+      cards_found   INTEGER NOT NULL,
+      new_count     INTEGER NOT NULL,
+      detail_ok     INTEGER NOT NULL,
+      detail_total  INTEGER NOT NULL,
+      field_presence TEXT,
+      error         TEXT
+    );
   `);
   // Migration: ensure reject_reason exists for databases created before this column was added
   ensureColumn(_db, 'listings', 'reject_reason', 'TEXT');
@@ -79,7 +117,7 @@ export function getDb(dbPath = _dbPath): SqliteDb {
 export function resetDbForTests(): void {
   _db?.close();
   _db = undefined;
-  _dbPath = DB_PATH;
+  _dbPath = undefined;
 }
 
 export function upsertListing(listing: Listing): void {
@@ -165,4 +203,31 @@ export function setVerdict(id: number, verdict: string, reason: string | null = 
   getDb().query(
     'UPDATE listings SET verdict=$verdict, reject_reason=$reason WHERE id=$id'
   ).run({ $verdict: verdict, $reason: reason, $id: id });
+}
+
+export function recordRun(run: RunRecord): void {
+  const db = getDb();
+  db.query(`
+    INSERT INTO runs (portal, tier, http_ok, html_length, cards_found, new_count,
+      detail_ok, detail_total, field_presence, error)
+    VALUES ($portal, $tier, $http_ok, $html_length, $cards_found, $new_count,
+      $detail_ok, $detail_total, $field_presence, $error)
+  `).run({
+    $portal: run.portal,
+    $tier: run.tier,
+    $http_ok: run.http_ok,
+    $html_length: run.html_length,
+    $cards_found: run.cards_found,
+    $new_count: run.new_count,
+    $detail_ok: run.detail_ok,
+    $detail_total: run.detail_total,
+    $field_presence: run.field_presence,
+    $error: run.error,
+  } as never);
+}
+
+export function getRecentRuns(portal: string, limit = 5): RunRecord[] {
+  return getDb().query(
+    'SELECT * FROM runs WHERE portal=$portal ORDER BY id DESC LIMIT $limit'
+  ).all({ $portal: portal, $limit: limit }) as RunRecord[];
 }

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { buildSearchUrl, scoreAgainstPrefs } from "../hunt.ts";
+import { buildSearchUrl, computeFieldPresence, scoreAgainstPrefs } from "../hunt.ts";
 
 const prefs = {
   max_warm_rent_eur: 2200,
@@ -46,5 +46,22 @@ describe("scoreAgainstPrefs", () => {
     expect(scoreAgainstPrefs({ portal: "x", url: "https://example.test", title: "Neubau Wohnung", cold_rent: 1000, rooms: 3, sqm: 110, district: "Schöneberg" }, prefs)).toBe(-1);
     expect(scoreAgainstPrefs({ portal: "x", url: "https://example.test", title: "Altbau", cold_rent: 1000, rooms: 3, sqm: 110, district: "Wedding" }, prefs)).toBe(-1);
     expect(scoreAgainstPrefs({ portal: "x", url: "https://example.test", title: "Altbau", cold_rent: 1000, rooms: 3, sqm: 60, district: "Schöneberg" }, prefs)).toBe(-1);
+  });
+});
+
+describe("computeFieldPresence", () => {
+  test("returns the fraction of listings with each tracked field present", () => {
+    const presence = computeFieldPresence([
+      { portal: "x", url: "https://example.test/1", title: "A", cold_rent: 1000, sqm: 50, district: "Mitte" },
+      { portal: "x", url: "https://example.test/2", title: "B", cold_rent: null, sqm: 60, district: "Mitte" },
+    ]);
+    expect(presence.title).toBe(1);
+    expect(presence.cold_rent).toBe(0.5);
+    expect(presence.sqm).toBe(1);
+    expect(presence.rooms).toBe(0);
+  });
+
+  test("returns an empty object for zero listings", () => {
+    expect(computeFieldPresence([])).toEqual({});
   });
 });

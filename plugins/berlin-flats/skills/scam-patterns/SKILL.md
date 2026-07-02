@@ -1,6 +1,6 @@
 ---
 name: Scam Pattern Catalog
-description: Use during scam detection to recognize Berlin rental fraud patterns. Reference before classifying any listing as ok, review, or block.
+description: This skill should be used when performing scam detection to recognize Berlin rental fraud patterns. Reference before classifying any listing as ok, review, or block.
 ---
 
 ## Hard Block Signals (weight 0.8+)

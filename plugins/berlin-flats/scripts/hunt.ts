@@ -3,11 +3,13 @@ import { fileURLToPath } from "node:url";
 import { scrapeUrl } from './scrape.ts';
 import { parseSearchResults, parseDetail } from './parse-listing.ts';
 import { scamScore } from './scam-score.ts';
-import { upsertListing, isSeen } from './db.ts';
+import { upsertListing, isSeen, recordRun } from './db.ts';
 import { loadConfig } from './config.ts';
+import { evaluatePortalHealth } from './health.ts';
 import type { Listing, SearchCriteria } from "./types.ts";
 
 const JSON_MODE = process.argv.includes('--json');
+const HEALTH_MODE = process.argv.includes('--health');
 
 // Kleinanzeigen: all Berlin (district filtering is client-side only per portal YAML)
 const KA_LOCATION_ID = '3331';
@@ -67,6 +69,23 @@ export function buildSearchUrl(portal: string, criteria: SearchCriteria): string
   throw new Error(`Unknown portal: ${portal}`);
 }
 
+// Fields tracked for the field-presence health signal — mirrors the keys
+// declared as `extraction.detail.fields` in portals/<portal>.yaml.
+const TRACKED_DETAIL_FIELDS = ['title', 'cold_rent', 'sqm', 'rooms', 'district', 'description', 'posted_at'] as const;
+
+export function computeFieldPresence(listings: Listing[]): Record<string, number> {
+  if (listings.length === 0) return {};
+  const presence: Record<string, number> = {};
+  for (const field of TRACKED_DETAIL_FIELDS) {
+    const present = listings.filter((l) => {
+      const value = l[field as keyof Listing];
+      return value !== null && value !== undefined && value !== '';
+    }).length;
+    presence[field] = present / listings.length;
+  }
+  return presence;
+}
+
 export function scoreAgainstPrefs(listing: Listing, prefs: SearchCriteria): number {
   if (listing.warm_rent && listing.warm_rent > prefs.max_warm_rent_eur) return -1;
   if (listing.cold_rent && prefs.max_cold_rent_eur && listing.cold_rent > prefs.max_cold_rent_eur) return -1;
@@ -120,6 +139,7 @@ export async function hunt(options: HuntOptions = {}): Promise<Listing[]> {
       const message = e instanceof Error ? e.message : String(e);
       if (!jsonMode) console.error(`[hunt] Skipping ${portal}: ${message}`);
       errors.push({ portal, message });
+      recordRun({ portal, tier: null, http_ok: 0, html_length: null, cards_found: 0, new_count: 0, detail_ok: 0, detail_total: 0, field_presence: null, error: message });
       continue;
     }
     if (!jsonMode) console.log(`[hunt] URL: ${searchUrl}`);
@@ -128,6 +148,7 @@ export async function hunt(options: HuntOptions = {}): Promise<Listing[]> {
     if (error || !html) {
       if (!jsonMode) console.error(`[hunt] Failed to fetch search page: ${error}`);
       errors.push({ portal, message: error || 'empty html' });
+      recordRun({ portal, tier, http_ok: 0, html_length: html?.length ?? null, cards_found: 0, new_count: 0, detail_ok: 0, detail_total: 0, field_presence: null, error: error || 'empty html' });
       continue;
     }
     if (!jsonMode) console.log(`[hunt] Fetched via tier ${tier}, ${html.length} chars`);
@@ -136,11 +157,12 @@ export async function hunt(options: HuntOptions = {}): Promise<Listing[]> {
     if (!jsonMode) console.log(`[hunt] Found ${cards.length} listing cards`);
 
     if (cards.length === 0 && !jsonMode) {
-      console.log(`[hunt] No cards found — HTML snippet:`);
-      console.log(html.substring(0, 800));
+      console.log(`[hunt] No cards found for ${portal}.`);
     }
 
     let newCount = 0;
+    let detailOkCount = 0;
+    const processedListings: Listing[] = [];
     for (const card of cards.slice(0, 20)) {
       if (!card.external_id) continue;
 
@@ -156,6 +178,7 @@ export async function hunt(options: HuntOptions = {}): Promise<Listing[]> {
       if (detail.html && detail.html.length > 200) {
         const parsed = parseDetail(detail.html, portal, card.url);
         listing = { ...card, ...parsed };
+        detailOkCount++;
       }
 
       const { score: scam, verdict: scamVerdict, reasons } = scamScore(listing);
@@ -222,11 +245,31 @@ export async function hunt(options: HuntOptions = {}): Promise<Listing[]> {
           console.log(`\n[hunt] ✗ ${listing.verdict?.toUpperCase()}: ${listing.title || card.url} (scam=${scam})`);
         }
       }
+
+      processedListings.push(listing);
     }
 
     if (!jsonMode && newCount === 0 && cards.length > 0) {
       console.log(`\n[hunt] All ${cards.length} listings already seen.`);
     }
+
+    recordRun({
+      portal,
+      tier,
+      http_ok: 1,
+      html_length: html.length,
+      cards_found: cards.length,
+      new_count: newCount,
+      detail_ok: detailOkCount,
+      detail_total: processedListings.length,
+      field_presence: processedListings.length > 0 ? JSON.stringify(computeFieldPresence(processedListings)) : null,
+      error: null,
+    });
+  }
+
+  if (HEALTH_MODE) {
+    const health = portals.map((portal) => evaluatePortalHealth(portal));
+    process.stdout.write(JSON.stringify({ health }, null, 2) + '\n');
   }
 
   if (jsonMode) {

@@ -1,6 +1,6 @@
 ---
 name: Message Tone — Kristian Garza
-description: Use when drafting rental inquiry messages for Kristian. Captures his writing register so messages are authentic and not AI-flavored.
+description: This skill should be used when drafting rental inquiry messages for Kristian. Captures his writing register so messages are authentic and not AI-flavored.
 ---
 
 ## Kristian's Register

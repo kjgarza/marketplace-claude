@@ -39,6 +39,10 @@ bun scripts/queue.ts qualifying
 
 To inspect the listings behind the count, use `bun scripts/queue.ts pending`.
 
+Note: `state.db` now lives at `$BERLIN_FLATS_STATE_DIR/state.db` (default `~/.claude/berlin-flats/state.db`),
+not inside the plugin directory — set `BERLIN_FLATS_STATE_DIR` if running the measurement command
+against a non-default location.
+
 ## Baseline
 
 - **Date established:** 2026-04-26

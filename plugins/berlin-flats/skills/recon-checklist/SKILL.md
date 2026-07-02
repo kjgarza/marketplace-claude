@@ -1,6 +1,6 @@
 ---
 name: Recon Checklist
-description: Use as working document during scout-recon runs. Provides the Layer A-E checklist for profiling a new portal or re-verifying an existing one.
+description: This skill should be used when running scout-recon as the working checklist document. Provides the Layer A-E checklist for profiling a new portal or re-verifying an existing one.
 ---
 
 This is the working checklist for every portal recon run. Tick off items in evidence notes.md as completed.

@@ -1,6 +1,6 @@
 ---
 name: Query Builder — Portal URL Grammar
-description: Use when constructing or debugging search URLs for Berlin rental portals. Documents the URL grammar for each supported portal so malformed queries don't silently return garbage.
+description: This skill should be used when constructing or debugging search URLs for Berlin rental portals. Documents the URL grammar for each supported portal so malformed queries don't silently return garbage.
 ---
 
 ## Kleinanzeigen
