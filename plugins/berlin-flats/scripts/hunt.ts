@@ -66,6 +66,12 @@ export function buildSearchUrl(portal: string, criteria: SearchCriteria): string
     return `https://www.immobilienscout24.de/Suche/de/${locationPath}/wohnung-mieten?${params}`;
   }
 
+  if (portal === 'inberlinwohnen') {
+    // No server-side filtering — fetch the unfiltered first page and rely on
+    // the existing scoreAgainstPrefs post-filter, same as every other portal.
+    return 'https://www.inberlinwohnen.de/wohnungsfinder/';
+  }
+
   throw new Error(`Unknown portal: ${portal}`);
 }
 
@@ -172,13 +178,19 @@ export async function hunt(options: HuntOptions = {}): Promise<Listing[]> {
         continue;
       }
 
-      // Fetch detail page
+      // Some portals (e.g. inberlinwohnen) return complete records straight
+      // from the search page — skip the redundant detail fetch for those.
       let listing = { ...card };
-      const detail = await scrapeUrl(card.url);
-      if (detail.html && detail.html.length > 200) {
-        const parsed = parseDetail(detail.html, portal, card.url);
-        listing = { ...card, ...parsed };
+      const cardIsComplete = card.cold_rent != null && card.district != null;
+      if (cardIsComplete) {
         detailOkCount++;
+      } else {
+        const detail = await scrapeUrl(card.url);
+        if (detail.html && detail.html.length > 200) {
+          const parsed = parseDetail(detail.html, portal, card.url);
+          listing = { ...card, ...parsed };
+          detailOkCount++;
+        }
       }
 
       const { score: scam, verdict: scamVerdict, reasons } = scamScore(listing);
