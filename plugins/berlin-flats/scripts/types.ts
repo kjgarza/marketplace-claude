@@ -44,6 +44,7 @@ export interface Listing {
   fetched_at?: string | null;
   scam_score?: number | null;
   verdict?: string;
+  verdict_at?: string | null;
   raw_json?: string | null;
   reject_reason?: string | null;
   image_urls?: string[];

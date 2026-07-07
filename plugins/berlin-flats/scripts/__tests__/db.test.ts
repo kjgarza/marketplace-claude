@@ -3,7 +3,7 @@ import { Database } from "bun:sqlite";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { countQualifying, ensureColumn, getDb, getQueue, getRecentRuns, isSeen, migrateLegacyStateIfNeeded, recordRun, resetDbForTests, resolveStateDir, setVerdict, upsertListing } from "../db.ts";
+import { countQualifying, ensureColumn, getByVerdicts, getDb, getQueue, getRecentRuns, isSeen, migrateLegacyStateIfNeeded, recordRun, resetDbForTests, resolveStateDir, setVerdict, upsertListing } from "../db.ts";
 
 let tempDir: string | undefined;
 
@@ -90,6 +90,35 @@ describe("listing persistence", () => {
     expect(() =>
       upsertListing({ portal: "kleinanzeigen", url: "https://example.test/x" }),
     ).toThrow(/external_id/);
+  });
+});
+
+describe("pipeline state machine", () => {
+  test("setVerdict stamps verdict_at and logs an event", () => {
+    useTempDb();
+    upsertListing({ portal: "test", external_id: "sm1", url: "https://x/1" });
+    const id = getQueue("pending").find((l) => l.external_id === "sm1")!.id!;
+    setVerdict(id, "contacted", null);
+    const row = getDb().query("SELECT verdict, verdict_at FROM listings WHERE id=$id").get({ $id: id }) as { verdict: string; verdict_at: string | null };
+    expect(row.verdict).toBe("contacted");
+    expect(row.verdict_at).not.toBeNull();
+    const ev = getDb().query(
+      "SELECT payload FROM events WHERE event_type='verdict' ORDER BY id DESC LIMIT 1"
+    ).get() as { payload: string };
+    expect(JSON.parse(ev.payload)).toMatchObject({ id, verdict: "contacted" });
+  });
+
+  test("getByVerdicts returns listings across several states", () => {
+    useTempDb();
+    upsertListing({ portal: "test", external_id: "sm2", url: "https://x/2" });
+    upsertListing({ portal: "test", external_id: "sm3", url: "https://x/3" });
+    const rows = getQueue("pending").filter((l) => ["sm2", "sm3"].includes(l.external_id!));
+    setVerdict(rows[0].id!, "viewing", null);
+    setVerdict(rows[1].id!, "applied", null);
+    const ids = getByVerdicts(["viewing", "applied"]).map((l) => l.external_id);
+    expect(ids).toContain("sm2");
+    expect(ids).toContain("sm3");
+    expect(getByVerdicts([])).toEqual([]);
   });
 });
 
