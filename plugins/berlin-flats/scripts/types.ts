@@ -26,6 +26,7 @@ export interface PluginConfig {
     threshold_review?: number;
     [key: string]: unknown;
   };
+  documents?: Record<string, { path?: string; issued?: string }>;
 }
 
 export interface Listing {
