@@ -11,6 +11,11 @@ import type { Listing, SearchCriteria } from "./types.ts";
 const JSON_MODE = process.argv.includes('--json');
 const HEALTH_MODE = process.argv.includes('--health');
 
+// Portals whose search-result cards are already complete (no detail page to
+// fetch). Only these skip parseDetail; others always fetch the detail page so
+// description/sqm/rooms/images get populated.
+const SEARCH_COMPLETE_PORTALS = new Set(['inberlinwohnen']);
+
 // Kleinanzeigen: all Berlin (district filtering is client-side only per portal YAML)
 const KA_LOCATION_ID = '3331';
 
@@ -180,8 +185,14 @@ export async function hunt(options: HuntOptions = {}): Promise<Listing[]> {
 
       // Some portals (e.g. inberlinwohnen) return complete records straight
       // from the search page — skip the redundant detail fetch for those.
+      // Scope this to portals that have no detail page: Kleinanzeigen/ImmoScout
+      // cards may also carry cold_rent + district but still need parseDetail for
+      // description/sqm/rooms/images (which drive scamScore/scoreAgainstPrefs).
       let listing = { ...card };
-      const cardIsComplete = card.cold_rent != null && card.district != null;
+      const cardIsComplete =
+        SEARCH_COMPLETE_PORTALS.has(portal) &&
+        card.cold_rent != null &&
+        card.district != null;
       if (cardIsComplete) {
         detailOkCount++;
       } else {

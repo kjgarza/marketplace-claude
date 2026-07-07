@@ -23,7 +23,7 @@ A listing PASSES the DOD if it meets ALL of the following:
 qualifying_count = count of listings in state.db WHERE verdict='pending'
                    AND (district LIKE '%Mitte%' OR district LIKE '%Berlin%' OR ...)
                    AND (cold_rent <= 1600 OR warm_rent <= 2000)
-                   AND url LIKE '%s-anzeige%' OR url LIKE '%expose%' OR portal = 'inberlinwohnen'
+                   AND (url LIKE '%s-anzeige%' OR url LIKE '%expose%' OR portal = 'inberlinwohnen')
 
 PASS if qualifying_count >= 1
 FAIL if qualifying_count == 0

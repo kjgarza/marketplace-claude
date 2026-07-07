@@ -1,6 +1,6 @@
 {
   "name": "berlin-flats",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Hunts Berlin rental flats across major portals, detects scams, queues listings for triage, drafts contact messages.",
   "author": {
     "name": "Kristian Garza",
