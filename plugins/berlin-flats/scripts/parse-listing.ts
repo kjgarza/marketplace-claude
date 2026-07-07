@@ -16,12 +16,15 @@ function parseFloatDe(str: string): number | null {
 }
 
 function decodeHtmlEntities(str: string): string {
+  // Decode &amp; FIRST so nested entities (e.g. &amp;quot;) collapse to their
+  // real form (&quot;) and then get decoded by the rules below. Decoding &amp;
+  // last would leave stray &quot;/&lt; sequences and can break JSON.parse.
   return str
+    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
-    .replace(/&#0?39;/g, "'")
-    .replace(/&amp;/g, '&');
+    .replace(/&#0?39;/g, "'");
 }
 
 interface InberlinwohnenAddress {

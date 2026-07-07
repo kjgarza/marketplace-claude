@@ -184,15 +184,15 @@ export async function hunt(options: HuntOptions = {}): Promise<Listing[]> {
       }
 
       // Some portals (e.g. inberlinwohnen) return complete records straight
-      // from the search page — skip the redundant detail fetch for those.
-      // Scope this to portals that have no detail page: Kleinanzeigen/ImmoScout
-      // cards may also carry cold_rent + district but still need parseDetail for
-      // description/sqm/rooms/images (which drive scamScore/scoreAgainstPrefs).
+      // from the search page and have no detail page — skip the detail fetch
+      // unconditionally for those. Their `url` is a cross-domain municipal
+      // deeplink that parseDetail() has no handler for, so scraping it would
+      // add useless requests without populating any fields. Non-search-complete
+      // portals (Kleinanzeigen/ImmoScout) always fetch the detail page, since
+      // description/sqm/rooms/images (which drive scamScore/scoreAgainstPrefs)
+      // only come from parseDetail.
       let listing = { ...card };
-      const cardIsComplete =
-        SEARCH_COMPLETE_PORTALS.has(portal) &&
-        card.cold_rent != null &&
-        card.district != null;
+      const cardIsComplete = SEARCH_COMPLETE_PORTALS.has(portal);
       if (cardIsComplete) {
         detailOkCount++;
       } else {
