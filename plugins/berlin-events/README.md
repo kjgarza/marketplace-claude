@@ -5,7 +5,7 @@ Discover interesting art and food events in Berlin. Searches multiple event sour
 ## Features
 
 - Searches 15+ Berlin event sources (APIs, RSS feeds, web scraping)
-- Uses Mozilla Readability for clean content extraction
+- Uses a typed source registry with Readability and Playwright-backed extractors
 - Checks Google Calendar for scheduling conflicts
 - Considers your Berlin neighborhood for travel context
 - Ranks events by relevance, proximity, and uniqueness
@@ -13,7 +13,8 @@ Discover interesting art and food events in Berlin. Searches multiple event sour
 
 ## Prerequisites
 
-- [Bun](https://bun.sh/) runtime (for Readability extraction script)
+- [Bun](https://bun.sh/) runtime (for extraction scripts)
+- Playwright Chromium for JS-rendered sources (`cd plugins/berlin-events/scripts && bunx playwright install chromium`)
 - [gogcli](https://github.com/openclaw/gogcli) (binary `gog`, for Google Calendar integration)
 
 ### Install dependencies
@@ -68,7 +69,8 @@ Or just ask naturally:
 | find-events | Skill (user-invoked) | Main entry point - orchestrates search, calendar check, and output |
 | event-sources | Skill (knowledge) | Directory of Berlin event websites with scraping strategies |
 | event-scout | Agent | Autonomous web scraping agent for parallel source searching |
-| extract-content.js | Script | Mozilla Readability content extraction |
+| extract-events.ts | Script | Source dispatcher for Readability and Playwright-backed extraction |
+| extract-content.js | Script | Legacy Mozilla Readability content extraction |
 
 ## Event Sources
 
@@ -78,3 +80,6 @@ Sources are organized by extraction reliability:
 2. **RSS feeds**: Berlin Art Link, ART@Berlin, Mit Vergnuegen, SMB
 3. **Web scraping**: Berlin.de, INDEX Berlin, visitBerlin, Tip Berlin
 4. **Institutional**: Berlinische Galerie, Gropius Bau, C/O Berlin, KW Institute
+
+The canonical ingestion list lives in `scripts/sources.ts`; run
+`bun run plugins/berlin-events/scripts/list-sources.ts` to inspect registered sources.
