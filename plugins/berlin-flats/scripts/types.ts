@@ -49,6 +49,18 @@ export interface Listing {
   image_urls?: string[];
 }
 
+export interface FitFactor {
+  code: string;
+  points: number;
+  detail: string;
+}
+
+export interface FitResult {
+  /** 0–100 desirability vs the user's search config. */
+  score: number;
+  factors: FitFactor[];
+}
+
 export interface ScamReason {
   code: string;
   weight: number;
