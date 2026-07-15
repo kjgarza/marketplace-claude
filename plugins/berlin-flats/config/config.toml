@@ -19,7 +19,7 @@ keywords_required = ["Altbau"]
 deal_breakers     = ["WG", "Tausch", "Souterrain"]
 
 [portals]
-enabled = ["kleinanzeigen", "immoscout24"]
+enabled = ["kleinanzeigen", "immoscout24", "inberlinwohnen"]
 
 [scraping]
 cache_ttl_listing_s = 3600

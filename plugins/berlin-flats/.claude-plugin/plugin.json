@@ -1,7 +1,7 @@
 {
   "name": "berlin-flats",
-  "version": "0.4.0",
-  "description": "Hunts Berlin rental flats across major portals, detects scams, ranks listings by fit score, tracks the application pipeline, and prepares application dossiers and messages.",
+  "version": "0.5.0",
+  "description": "Hunts Berlin rental flats across major portals including municipal housing, detects scams, ranks listings by fit score, tracks the application pipeline, and prepares application dossiers and messages.",
   "author": {
     "name": "Kristian Garza",
     "email": "kj.garza@gmail.com"

@@ -11,6 +11,11 @@ import type { Listing, SearchCriteria } from "./types.ts";
 const JSON_MODE = process.argv.includes('--json');
 const HEALTH_MODE = process.argv.includes('--health');
 
+// Portals whose search-result cards are already complete (no detail page to
+// fetch). Only these skip parseDetail; others always fetch the detail page so
+// description/sqm/rooms/images get populated.
+const SEARCH_COMPLETE_PORTALS = new Set(['inberlinwohnen']);
+
 // Kleinanzeigen: all Berlin (district filtering is client-side only per portal YAML)
 const KA_LOCATION_ID = '3331';
 
@@ -64,6 +69,12 @@ export function buildSearchUrl(portal: string, criteria: SearchCriteria): string
       realestatetype: 'apartment',
     });
     return `https://www.immobilienscout24.de/Suche/de/${locationPath}/wohnung-mieten?${params}`;
+  }
+
+  if (portal === 'inberlinwohnen') {
+    // No server-side filtering — fetch the unfiltered first page and rely on
+    // the existing scoreAgainstPrefs post-filter, same as every other portal.
+    return 'https://www.inberlinwohnen.de/wohnungsfinder/';
   }
 
   throw new Error(`Unknown portal: ${portal}`);
@@ -172,13 +183,25 @@ export async function hunt(options: HuntOptions = {}): Promise<Listing[]> {
         continue;
       }
 
-      // Fetch detail page
+      // Some portals (e.g. inberlinwohnen) return complete records straight
+      // from the search page and have no detail page — skip the detail fetch
+      // unconditionally for those. Their `url` is a cross-domain municipal
+      // deeplink that parseDetail() has no handler for, so scraping it would
+      // add useless requests without populating any fields. Non-search-complete
+      // portals (Kleinanzeigen/ImmoScout) always fetch the detail page, since
+      // description/sqm/rooms/images (which drive scamScore/scoreAgainstPrefs)
+      // only come from parseDetail.
       let listing = { ...card };
-      const detail = await scrapeUrl(card.url);
-      if (detail.html && detail.html.length > 200) {
-        const parsed = parseDetail(detail.html, portal, card.url);
-        listing = { ...card, ...parsed };
+      const cardIsComplete = SEARCH_COMPLETE_PORTALS.has(portal);
+      if (cardIsComplete) {
         detailOkCount++;
+      } else {
+        const detail = await scrapeUrl(card.url);
+        if (detail.html && detail.html.length > 200) {
+          const parsed = parseDetail(detail.html, portal, card.url);
+          listing = { ...card, ...parsed };
+          detailOkCount++;
+        }
       }
 
       const { score: scam, verdict: scamVerdict, reasons } = scamScore(listing);

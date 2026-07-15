@@ -1,0 +1,142 @@
+schema_version: 1
+portal: inberlinwohnen
+display_name: Inberlinwohnen (Berlin municipal housing companies)
+base_url: https://www.inberlinwohnen.de
+last_verified: 2026-07-02
+revisions: 1
+
+legal:
+  robots_allows_listings: true
+  tos_automation: silent
+  preferred_access: [scrape]
+  ban_risk: low
+  notes: "Aggregator run by/for Berlin's 7 state-owned housing companies (degewo, Gewobag, HOWOGE, GESOBAU, STADT UND LAND, WBM, berlinovo). No anti-bot posture observed. robots.txt fully open."
+
+discovery:
+  rss: null
+  api: null
+  email_alerts:
+    available: false
+    signup_url: null
+    frequency_options: []
+  sitemap: null
+  newest_first_param: null
+  posted_after_filter: false
+  update_frequency: unknown
+  poll_interval_s: 120
+  poll_interval_confidence: low
+
+rendering:
+  search_page: ssr
+  detail_page: ssr
+  hydration_blob:
+    selector: 'wire:snapshot attribute on each listing card component (Livewire), not a <script> tag'
+  jsonld_present: false
+  opengraph_completeness: 0.0
+  ajax_endpoints: ["/livewire/update (pagination/filter — not implemented, first-page SSR data is sufficient)"]
+
+anti_bot:
+  provider: none
+  cold_request_works: true
+  warm_session_required: false
+  rate_limit_estimate_rpm: 20
+  rate_limit_confidence: low
+  challenges_seen: []
+  user_agent_sensitivity: permissive
+  geo_sensitivity: low
+  notes: "No bot wall observed on a single cold fetch. First-page SSR includes complete listing data — no per-listing detail fetch needed."
+
+strategy:
+  recommended_order: [readability]
+  tier_confidence:
+    readability: 0.90
+  per_tier_cooldown_s: {}
+
+query_grammar:
+  search_url_template: "https://www.inberlinwohnen.de/wohnungsfinder/"
+  district_encoding: none
+  district_map: {}
+  location_map: {}
+  rent_param: null
+  rent_format: "no server-side filtering used — fetch unfiltered first page, post-filter via scoreAgainstPrefs"
+  rooms_param: null
+  rooms_format: "no server-side filtering used"
+  newest_first: null
+  pagination:
+    style: livewire_ajax
+    param: null
+    max_reachable: 1
+  filters_supported_in_url: []
+  filters_client_side:
+    - all_search_criteria
+
+extraction:
+  search_results:
+    listing_card_selector: 'N/A — not DOM-based; extract via regex over wire:snapshot="..." attribute values'
+    fields:
+      url: "item.deeplink"
+      title: "item.title"
+      cold_rent: "item.rentNet (German decimal comma string)"
+      district: "item.address[0].district"
+      posted_at: "item.createdAt"
+  detail:
+    primary_source: hydration_blob
+    fields:
+      title:
+        path: "item.title"
+        format: string
+        required: true
+        presence_rate: 1.0
+      cold_rent:
+        path: "item.rentNet"
+        format: float_de
+        required: true
+        presence_rate: 1.0
+      warm_rent:
+        path: "item.rentGross"
+        format: native_number
+        required: true
+        presence_rate: 1.0
+      sqm:
+        path: "item.area"
+        format: float_de
+        required: true
+        presence_rate: 1.0
+      rooms:
+        path: "item.rooms"
+        format: float_de
+        required: true
+        presence_rate: 1.0
+      district:
+        path: "item.address[0].district"
+        format: string
+        required: true
+        presence_rate: 1.0
+      posted_at:
+        path: "item.createdAt"
+        format: iso_date
+        required: false
+        presence_rate: 1.0
+      listing_id:
+        path: "item.id"
+        format: native_number
+        required: true
+        presence_rate: 1.0
+    expected_field_count: 8
+
+quirks:
+  - description: "Each wire:snapshot item array contains [realItemObject, {\"s\":\"arr\"}] — the second element is Livewire's array-type marker, not data. Filter by presence of an 'id' key."
+    impact: annoying
+    workaround: "Skip entries that are not objects with an 'id' property when iterating the decoded item array."
+  - description: "rentGross is already a JS number in the source JSON; rentNet, area, and rooms are German-decimal-comma strings. Mixed types in the same object."
+    impact: informational
+    workaround: "Use item.rentGross directly for warm_rent; parseFloatDe for rentNet/area/rooms."
+  - description: "Only the first SSR page of listings is available without implementing /livewire/update pagination (out of scope for Phase 2)."
+    impact: informational
+    workaround: "Accept partial coverage per poll; run frequently enough that new listings are still caught on a later first-page fetch."
+
+scam_signals: []
+
+evidence:
+  directory: recon/inberlinwohnen/2026-07-02/
+  files: [notes.md]

@@ -30,6 +30,11 @@ describe("buildSearchUrl", () => {
   test("rejects unknown portals", () => {
     expect(() => buildSearchUrl("unknown", prefs)).toThrow("Unknown portal");
   });
+
+  test("builds the inberlinwohnen search URL (fixed — no server-side filter params)", () => {
+    const url = buildSearchUrl("inberlinwohnen", prefs);
+    expect(url).toBe("https://www.inberlinwohnen.de/wohnungsfinder/");
+  });
 });
 
 describe("scoreAgainstPrefs", () => {
