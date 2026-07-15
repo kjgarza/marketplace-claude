@@ -14,15 +14,14 @@ The plugin is **done** when it can autonomously:
 
 ### AC-1 · Scrape & Ingest
 
-- [ ] `extract-content.js` (or equivalent) successfully fetches clean text from at least **3 of the 5 priority event sources** defined in `skills/event-sources/references/sources.md`
+- [ ] `extract-events.ts` successfully fetches clean text or structured `Event[]` JSON from at least **3 of the priority event sources** defined in `scripts/sources.ts`
 - [ ] Each scraped page is ingested into qurl with:
   - `--source berlin-events`
-  - `--tags` matching the source category (`art` or `food`)
+  - `--tags` matching the source category (`art`, `food`, or `art,food`)
   - The canonical source URL as the document key
   ```bash
-  bun run extract-content.js "<url>" | \
-    bun run /Volumes/Verbatim-Vi560-Media/Development/aves/qurl/packages/core/src/cli/qurl.ts \
-      add "<url>" --source berlin-events --tags art
+  bun run extract-events.ts "<slug-or-url>" | \
+    qurl add "<url>" --source berlin-events --tags art
   ```
 - [ ] Duplicate runs do not create duplicate documents (qurl deduplicates by URL + SHA-256)
 
@@ -52,14 +51,14 @@ These parameters are used when running the `/autoresearch` skill to iteratively 
 
 ### Metric
 ```
-METRIC_COMMAND:     bun run test-pipeline.sh
+METRIC_COMMAND:     bash plugins/berlin-events/scripts/test-pipeline.sh
 METRIC_EXTRACTION:  "relevant_results: (\d+)" from stdout
 METRIC_DIRECTION:   higher_is_better
 TARGET:             ≥ 5 relevant results in top 10
 ```
 
 The **test pipeline script** (`scripts/test-pipeline.sh`) should:
-1. Scrape sources, ingest to qurl
+1. Scrape sources from `scripts/sources.ts`, ingest to qurl
 2. Run `qurl vsearch "art food events Berlin" --source berlin-events --limit 10`
 3. Count results that contain a valid date within the lookahead window
 4. Print `relevant_results: N`
@@ -67,8 +66,11 @@ The **test pipeline script** (`scripts/test-pipeline.sh`) should:
 ### Scope
 ```
 IN_SCOPE_FILES:
-  - scripts/extract-content.js       # scraping logic
-  - scripts/test-pipeline.sh         # metric harness (to be created)
+  - scripts/extract-content.ts       # Readability scraping logic
+  - scripts/extract-events.ts        # extraction dispatcher
+  - scripts/sources.ts               # typed source registry
+  - scripts/extractors/*.ts          # source-specific extractors
+  - scripts/test-pipeline.sh         # metric harness
   - skills/find-events/SKILL.md      # qurl integration steps
   - skills/event-sources/SKILL.md    # source strategy
 

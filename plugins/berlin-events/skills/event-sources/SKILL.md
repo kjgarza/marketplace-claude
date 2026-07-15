@@ -9,11 +9,24 @@ A curated directory of Berlin event sources with validated Readability status an
 
 ## qurl Ingestion
 
-The standard ingestion command for any source:
+The standard ingestion command for any registered source:
 
 ```bash
-bun run ${CLAUDE_PLUGIN_ROOT}/scripts/extract-content.js "<url>" \
-  | qurl add "<url>" --source berlin-events --tags <art|food>
+PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-plugins/berlin-events}"
+BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
+
+"$BUN" run "$PLUGIN_ROOT/scripts/extract-events.ts" "<slug-or-url>" \
+  | qurl add "<canonical-url>" --source berlin-events --tags <art|food|art,food>
+```
+
+For all registered sources, keep qurl writes sequential:
+
+```bash
+while IFS=$'\t' read -r slug url category _kind; do
+  [[ -z "$slug" ]] && continue
+  "$BUN" run "$PLUGIN_ROOT/scripts/extract-events.ts" "$slug" \
+    | qurl add "$url" --source berlin-events --tags "$category"
+done < <("$BUN" run "$PLUGIN_ROOT/scripts/list-sources.ts")
 ```
 
 After ingesting all sources, embed and search:
@@ -42,20 +55,26 @@ qurl vsearch "$(date '+%B %Y') Berlin exhibition opening vernissage workshop eve
 > **Use `qurl`, not `qmd`.** `qurl` is the event-scrape DB. `qmd` is a separate notes search
 > engine and holds no events — never substitute it here, despite shared subcommand names.
 
-## Priority Sources (confirmed working with Readability)
+## Registered Sources
 
-Ingest these first — they produce date-containing chunks that rank well in `qurl query`:
+The source registry in `scripts/sources.ts` is the canonical ingestion list. It routes sources
+through Readability, generic Playwright rendering, or source-specific Playwright extractors.
 
-| URL | Tags | What the snippet contains |
-|-----|------|--------------------------|
-| https://www.indexberlin.com/events/list/ | art | Day-of-week + date ("Monday, April 6") |
-| https://www.kw-berlin.de/en/events | art | Dated listings ("Wed, 08.04.26, 16:00–18:00") |
-| https://berlinischegalerie.de/programme/kalender/ | art | Month/year + German dates ("April 2026", "7.4.26") |
-| https://www.artatberlin.com/en/calendar-for-vernissagen-exhibitions-events/ | art | "openings/vernissages" keyword |
-| https://co-berlin.org/de/programm/kalender | art | "Ausstellungen", "Führungen", "Kalender" |
-| https://kunstleben-berlin.de/events/ | art | "Veranstaltungen" (slow: ~60s) |
-| https://www.berlin.de/en/events/ | food | Broad coverage; low date-signal but useful for food |
-| https://www.visitberlin.de/en/event-calendar-berlin | food,art | City-wide calendar; featured articles in top chunk |
+Use `bun run scripts/list-sources.ts` to print `slug`, canonical URL, category, and strategy.
+
+| Slug | Tags | Strategy | Notes |
+|------|------|----------|-------|
+| `indexberlin` | art | Readability | Day-of-week + date listings |
+| `kw-berlin` | art | Readability | Dated institutional listings |
+| `berlinischegalerie` | art | Readability | Month/year + German date listings |
+| `artatberlin` | art | Readability | Openings/vernissages calendar |
+| `co-berlin` | art | Readability | Slow, but useful German calendar terms |
+| `kunstleben` | art | Readability | Slow event archive |
+| `berlin-de` | food | Readability | Broad coverage; lower date signal |
+| `visitberlin` | art,food | Readability | Broad city calendar |
+| `tip-berlin` | art,food | source extractor | JS-rendered listings |
+| `gropius-bau` | art | source extractor | JS-rendered institutional calendar |
+| `mitvergnuegen` | food | source extractor | Cookie/JS-heavy; skipped if only consent text is visible |
 
 ## Relevance Keywords
 
@@ -65,13 +84,22 @@ A query result is relevant if its snippet contains any of:
 - **DE events**: `ausstellung`, `veranstaltung`, `führung`, `kalender`, `programm`
 - **Date patterns**: `2026`, `.04.26`, `.05.26`
 
-## Sources to Avoid
+## Source-Specific Extractors
 
-| Source | Reason |
-|--------|--------|
-| `mitvergnuegen.com` | Cookie-consent wall — Readability returns only consent text |
-| `berlinerfestspiele.de/gropius-bau` | JS-rendered — returns only venue address |
-| `tip-berlin.de/event/` | JS-rendered — extraction fails entirely |
+These sources previously failed or produced low-signal output with Readability alone. They are
+now registered with Playwright-backed source extractors plus rendered-text fallback:
+
+| Source | Extractor |
+|--------|-----------|
+| Tip Berlin | `scripts/extractors/tip-berlin.ts` |
+| Gropius Bau | `scripts/extractors/gropius-bau.ts` |
+| Mit Vergnuegen | `scripts/extractors/mitvergnuegen.ts` (best effort; consent-only output is rejected) |
+
+If Playwright reports a missing browser executable, run:
+
+```bash
+cd "$PLUGIN_ROOT/scripts" && bunx playwright install chromium
+```
 
 ## Reference Files
 

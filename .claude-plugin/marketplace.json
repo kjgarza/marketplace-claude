@@ -121,7 +121,7 @@
       "name": "berlin-events",
       "source": "./plugins/berlin-events",
       "description": "Discover interesting art and food events in Berlin, check against your Google Calendar, and get a curated list with travel context from your neighborhood.",
-      "version": "0.2.6",
+      "version": "0.3.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -231,8 +231,8 @@
     {
       "name": "berlin-flats",
       "source": "./plugins/berlin-flats",
-      "description": "Berlin flat hunter — searches Kleinanzeigen and ImmoScout24 for rentals, detects scams, queues listings for triage, and drafts contact messages.",
-      "version": "0.4.0",
+      "description": "Berlin flat hunter — searches Kleinanzeigen, ImmoScout24, and municipal housing portals for rentals, detects scams, ranks listings by fit score, tracks the application pipeline, and prepares application dossiers and messages.",
+      "version": "0.5.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"

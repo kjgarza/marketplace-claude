@@ -26,6 +26,7 @@ export interface PluginConfig {
     threshold_review?: number;
     [key: string]: unknown;
   };
+  documents?: Record<string, { path?: string; issued?: string }>;
 }
 
 export interface Listing {
@@ -44,9 +45,22 @@ export interface Listing {
   fetched_at?: string | null;
   scam_score?: number | null;
   verdict?: string;
+  verdict_at?: string | null;
   raw_json?: string | null;
   reject_reason?: string | null;
   image_urls?: string[];
+}
+
+export interface FitFactor {
+  code: string;
+  points: number;
+  detail: string;
+}
+
+export interface FitResult {
+  /** 0–100 desirability vs the user's search config. */
+  score: number;
+  factors: FitFactor[];
 }
 
 export interface ScamReason {
