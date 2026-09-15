@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Serverless variant: daily ktn_pull.py against KTN feeds, no Miniflux. Copy to ~/Library/LaunchAgents/,
+     fill the placeholders (one --feed pair per KTN inbox), then
+     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.kjgarza.ktn-direct.plist
+     launchd runs a missed StartCalendarInterval job once on wake, so a sleeping laptop still pulls daily. -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.kjgarza.ktn-direct</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>REPLACE_WITH_REPO/docs/spikes/ktn-miniflux/ktn_pull.py</string>
+    <string>--feed</string>
+    <string>https://kill-the-newsletter.com/feeds/REPLACE_WITH_FEED_ID.xml</string>
+    <string>--state</string>
+    <string>REPLACE_WITH_HOME/.local/state/ktn-spike/state.json</string>
+    <string>--out</string>
+    <string>REPLACE_WITH_HOME/.local/state/ktn-spike/jobs.jsonl</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
+  <key>StandardErrorPath</key><string>REPLACE_WITH_HOME/.local/state/ktn-spike/ktn-direct.err</string>
+</dict>
+</plist>

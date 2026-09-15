@@ -2,4 +2,5 @@
 www/
 fixtures/
 *.jsonl
+state*.json
 __pycache__/

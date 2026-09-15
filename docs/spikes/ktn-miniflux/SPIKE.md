@@ -133,9 +133,58 @@ This becomes final only after the 7-day window confirms live delivery (Q1) and r
 3. **Daily pull.** Copy the plist example, fill in the paths and token, and `launchctl bootstrap` it. Keep `docker compose -p ktnspike up -d` running.
 4. **Day 7.** Run `dedup_report.py` on `~/.local/state/ktn-spike/jobs.jsonl`, confirm every forwarded alert appears as an entry, and finalize the decision above.
 
+---
+
+## Results: serverless variant, KTN + script (2026-09-15)
+
+**Why.** Miniflux has to run on a machine that stays on so it can poll. The alternative drops it. The pull script reads each KTN Atom feed directly and keeps a small state file. launchd runs it daily. It costs $0, needs no server, and uses no power between runs.
+
+### What ran
+
+| Piece | Where |
+|-------|-------|
+| Atom pull with a JSON state file (seen entry ids + seen job keys), atomic save; 86 lines, stdlib only, reuses `extract.py` | [`ktn_pull.py`](ktn_pull.py) |
+| Repeatable checks (fixture feed + live KTN fetch) | [`run-checks-ktn.sh`](run-checks-ktn.sh) |
+| launchd job, one `--feed` per KTN inbox | [`com.kjgarza.ktn-direct.plist.example`](com.kjgarza.ktn-direct.plist.example) |
+
+Order of operations: parse feed, skip known entry ids, extract jobs, skip known job keys, append new jobs to JSONL and fsync, then atomically replace `state.json`.
+
+### Answers
+
+| # | Miniflux variant | Serverless variant | Evidence (`run-checks-ktn.sh`) |
+|---|---------|------------|----------|
+| Q1 Capture | Pass (fixtures) | **Pass (fixtures).** Both entries parsed from Atom. A live fetch of the real KTN feed works under `env -i` (feed still empty). | `run1: entries_new=2 jobs_new=7`; live: `entries_new=0`, no error |
+| Q2 Re-delivery | Split: new entries | **Pass at the job level.** Re-delivered emails are new entries but produce 0 new jobs. | `run3: entries_new=2 jobs_new=0` |
+| Q3 Job dedup | Needs a plugin store | **Built in.** The state keeps job keys across emails and runs, so the output contains only first sightings. The 40% repeat rate from Glassdoor never reaches the plugin. The title plus company repost gap is still open. | `entries_seen=2 unique_jobs=7` from 10 sightings |
+| Q4 Cursor | Pass (unread/read) | **Pass.** Re-running on an unchanged feed returns 0. A crash before the state save leaves no state and re-emits on the next run (at-least-once, 7 duplicate lines), then goes quiet. | `run2: jobs_new=0`; `state_exists=no`, `recover: jobs_new=7`, `after: jobs_new=0` |
+| Q5 Links | Pass | **Pass, and better input.** The script reads KTN's raw HTML, which Miniflux has not sanitized, so `utm_content` and the full query survive. | `sources=['glassdoor'] generic=0` |
+| Q6 Headless | Pass, but needs Miniflux running | **Pass, with nothing else running.** No token and no container. | `env -i ... /usr/bin/python3 ktn_pull.py` |
+| Q7 Retention | Miniflux copy buffers outages | **KTN is the only buffer, and gaps can be detected.** About 7 Glassdoor alerts, or 4–7 days, fit under the 512 KiB cap. A daily run has plenty of margin. The script warns when a feed is above 80% of the cap and shares no entry with the last run, which means older mail may already be pruned. | 12 deliveries: `warning: … near KTN cap with no overlap since last run`; re-run: no warning |
+
+### Trade-offs against Miniflux
+
+- **Gained:** no container, no Postgres, no API token, no always-on host. Dedup lives where it is needed, so the separate plugin seen-jobs store from the Miniflux decision is no longer needed. The links are unsanitized.
+- **Lost:** the second copy that protects against KTN pruning while the script isn't running, and a UI for reading raw entries.
+- **Constraint:** the script must run at least every 3–4 days per inbox. launchd `StartCalendarInterval` catches up once on wake after sleep, but not after the machine has been powered off for days. The near-cap warning shows up in stderr when that happens.
+- **State growth:** `state.json` keeps every entry id and job key forever, a few hundred bytes per alert. That is fine at this volume. Prune keys older than 90 days if it ever matters.
+
+### Decision (provisional, replaces the Miniflux one): **Adopt the serverless variant**
+
+Discovery is KTN inboxes plus `ktn_pull.py` under launchd. The seen-jobs state lives in the script's state file, so find-kristian-jobs reads only new jobs from `jobs.jsonl`. Drop the IMAP `mail-source` from #34 and do not run Miniflux. Keep the Miniflux files as the fallback in case pruning losses show up in the 7-day window.
+
+Human steps for the 7-day window are the same as above, with two changes. Load `com.kjgarza.ktn-direct.plist.example` instead of the Miniflux plist. On day 7, check `ktn-direct.err` for cap warnings and compare the count of forwarded Glassdoor alerts in Gmail with `len(state["entries"])`.
+
+---
+
 ### Runbook
 
 ```bash
+# serverless variant
+python3 ktn_pull.py --feed https://kill-the-newsletter.com/feeds/<id>.xml \
+  --state ~/.local/state/ktn-spike/state.json --out ~/.local/state/ktn-spike/jobs.jsonl
+FIXTURES=… WORK=… KTN_FEED_URL=… bash run-checks-ktn.sh
+
+# Miniflux variant
 cd docs/spikes/ktn-miniflux
 docker compose -p ktnspike up -d
 # one-time: API key
