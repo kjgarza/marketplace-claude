@@ -1,0 +1,5 @@
+# Real alert emails and pulled output contain personal data; never commit.
+www/
+fixtures/
+*.jsonl
+__pycache__/

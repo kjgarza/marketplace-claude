@@ -1,0 +1,44 @@
+# Local Miniflux for the KTN + Miniflux newsletter-discovery spike.
+# Usage: docker compose up -d   (UI at http://localhost:8080, admin/spike-admin-pw)
+services:
+  miniflux:
+    image: miniflux/miniflux:2.2.13
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://miniflux:miniflux@db/miniflux?sslmode=disable
+      RUN_MIGRATIONS: "1"
+      CREATE_ADMIN: "1"
+      ADMIN_USERNAME: admin
+      ADMIN_PASSWORD: spike-admin-pw
+      # Default is 60 min; 1 min so the spike doesn't wait between checks.
+      POLLING_FREQUENCY: "1"
+      # Scheduler wakes every minute and refreshes feeds that are due.
+      BATCH_SIZE: "100"
+      # Lets the spike poll a fixture feed served from the host.
+      FETCHER_ALLOW_PRIVATE_NETWORKS: "1"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  # Serves make_feed.py output inside the compose network only (no host port).
+  # Miniflux subscribes to http://fixtures:8000/feed.xml.
+  fixtures:
+    image: python:3.12-alpine
+    command: ["python", "-m", "http.server", "8000", "--directory", "/www"]
+    volumes:
+      - ${FIXTURE_WWW:-./www}:/www:ro
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: miniflux
+      POSTGRES_PASSWORD: miniflux
+    volumes:
+      - miniflux-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "miniflux"]
+      interval: 5s
+      retries: 10
+volumes:
+  miniflux-db:

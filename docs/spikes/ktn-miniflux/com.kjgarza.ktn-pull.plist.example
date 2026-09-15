@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Q6: daily headless pull. Copy to ~/Library/LaunchAgents/, fill the two placeholders, then
+     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.kjgarza.ktn-pull.plist -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.kjgarza.ktn-pull</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>REPLACE_WITH_REPO/docs/spikes/ktn-miniflux/pull.py</string>
+    <string>--out</string>
+    <string>REPLACE_WITH_HOME/.local/state/ktn-spike/jobs.jsonl</string>
+  </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>MINIFLUX_URL</key><string>http://localhost:8080</string>
+    <key>MINIFLUX_TOKEN</key><string>REPLACE_WITH_API_KEY</string>
+  </dict>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
+  <key>StandardErrorPath</key><string>/tmp/ktn-pull.err</string>
+</dict>
+</plist>
