@@ -56,6 +56,24 @@ gh pr view --json number,url,headRefName,state
 
   
 
+### Step 1b: Freshness Preflight (MANDATORY before any fix)
+
+Stale tips have discarded whole batches of work. Before writing anything:
+
+```bash
+git fetch origin
+# Local tip must match the remote PR head
+gh pr view <PR_NUMBER> --json headRefOid --jq .headRefOid
+git rev-parse HEAD
+# Has the base moved since the branch point?
+gh pr view <PR_NUMBER> --json baseRefName --jq .baseRefName
+git log --oneline HEAD..origin/<BASE_REF> | head -5
+```
+
+- **Tips differ** → someone (or another session) advanced the PR. `git pull --ff-only` if fast-forwardable; otherwise STOP and report — do not implement against the stale tip.
+- **Base moved** in a way that touches the same files or invalidates prior conflict resolution → rebase FIRST (Step 6), then re-triage. Comments and CI results may refer to the pre-rebase diff.
+- Re-run this preflight at the top of every loop iteration, not just the first.
+
 ### Step 2: Check PR Status
 
   
@@ -366,7 +384,7 @@ PR #<number> Status:
 
   
 
-- If all checks pass and no unresolved comments: **Done** — report that the PR is ready to merge
+- If all checks pass and no unresolved comments: **Done** — report that the PR is ready to merge. For diffs touching `infra/`, IaC, deployed config or rendered layout, "ready" additionally requires a live probe of the running system (`falsify`, Mode 2); CI green is not evidence that the provider accepts it or that the page renders
 
 - If issues remain: go back to Step 2
 
@@ -377,6 +395,8 @@ PR #<number> Status:
   
 
 ## Rules
+
+- **Closing this PR without merging? Harvest its review findings first** — copy unresolved bot and human findings onto the successor branch or issue before closing. Findings on an abandoned PR are free defect reports, and they re-surface verbatim in the rewrite weeks later if discarded
 
   
 
