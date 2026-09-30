@@ -1,6 +1,6 @@
 ---
 name: session-cleanup
-description: This skill should be used when the user wants to analyze and close stale Claude Code background sessions (the entries in `claude agents` / the agents view) so the view stops accumulating cruft. Builds a close/keep plan against a rubric based on what closing would actually lose — not age — then executes it with `claude rm` behind a dry-run-by-default, canary-first safety process. Triggers when the agents view is cluttered, wants to "clean up sessions", "close old background jobs", "free up disk in ~/.claude/jobs", or asks which sessions are safe to close. Supports scoping to one repo or globally, and a lite/standard/aggressive cleaning level.
+description: This skill should be used when the user wants to analyze and close stale Claude Code background sessions (the entries in `claude agents` / the agents view) so the view stops accumulating cruft. Builds a close/keep plan against a rubric based on what closing would actually lose (sessions past Claude Code's 30-day transcript cleanup close regardless of rename/colour; 20–29-day-old ones are flagged for handoff), then executes it with `claude rm` behind a dry-run-by-default, canary-first safety process. Triggers when the agents view is cluttered, wants to "clean up sessions", "close old background jobs", "free up disk in ~/.claude/jobs", or asks which sessions are safe to close. Supports scoping to one repo or globally, and a lite/standard/aggressive cleaning level.
 allowed-tools: ["Bash", "Read"]
 argument-hint: "[--scope global|repo] [--level lite|standard|aggressive] [--go]"
 ---
@@ -32,37 +32,47 @@ python3 ${CLAUDE_PLUGIN_ROOT}/skills/session-cleanup/scripts/analyze.py --scope 
 
 ## The rubric: what would closing lose?
 
-Not age — age only predicts the answer. In order, first match wins:
+Mostly not age — age only predicts the answer — with one exception: Claude Code deletes
+transcripts older than `cleanupPeriodDays` (default 30), so past that age the session is
+lost whether or not you close it. In order, first match wins:
 
 1. **This session**, and any `interactive` session — never touched (interactive sessions
-   don't even have a `~/.claude/jobs/<id>` entry, so this is automatic).
-2. **You marked it** — renamed it, or gave it a colour other than green. This is the one
-   signal in `state.json` that records *your* judgement rather than the daemon's, so it
-   outranks everything else, at every level.
-3. **A worktree whose HEAD is on no remote branch.** `claude rm` deletes the worktree's
+   don't even have a `~/.claude/jobs/<id>` entry, so this is automatic). `--protect-newest`
+   / `--protect-path` also match here.
+2. **A worktree whose HEAD is on no remote branch.** `claude rm` deletes the worktree's
    *local branch* along with the worktree — verified live: a clean, unpushed branch loses
    its only copy of its commits. `claude rm` itself refuses a **dirty** worktree (tested
    live, message below), so this check only needs to catch the case the tool doesn't
-   already protect: clean but unpushed. Held back at every level, always.
-4. **Live** — finished within `--live-done-hours` (default 24), or pending within
+   already protect: clean but unpushed. Held back at every level, always — the branch
+   outlives transcript cleanup, so this ranks above expiry.
+3. **Expired** — idle ≥ `--expire-days` (default `cleanupPeriodDays`, else 30), measured
+   from the younger of last activity and transcript mtime. Closed at **every** level,
+   *regardless of rename or colour*: the transcript is deleted by Claude Code anyway.
+   Kept jobs within `--warn-days` (default 10, i.e. 20–29 days old) are listed under
+   **"Expiring soon — hand off or clean"** in the report: tell the user to write a
+   handoff (or finish the work) now, or close them.
+4. **You marked it** — renamed it, or gave it a colour other than green. This is the one
+   signal in `state.json` that records *your* judgement rather than the daemon's, so it
+   outranks every remaining tier, at every level.
+5. **Live** — finished within `--live-done-hours` (default 24), or pending within
    `--live-pending-days` (default 3). You're probably still reading it.
-5. **Open child PR** — kept at `lite`/`standard`; closed at `aggressive` (the PR is
+6. **Open child PR** — kept at `lite`/`standard`; closed at `aggressive` (the PR is
    tracked in GitHub regardless of whether the job card exists). If PR state can't be
    verified (`gh` missing, offline, rate-limited), the job is kept, not assumed safe.
-6. **Green** — kept at `lite`/`standard`; closed at `aggressive`. Green is not the
+7. **Green** — kept at `lite`/`standard`; closed at `aggressive`. Green is not the
    default colour, it's something you apply, so treat it as "I'm done with this" — but
    only once you've asked for that level of aggressiveness.
-7. **Abandoned question** — `blocked`/`working`, idle past `--abandoned-days` (default
+8. **Abandoned question** — `blocked`/`working`, idle past `--abandoned-days` (default
    3), with any referenced PRs resolved (not `OPEN`). Closed at `standard`/`aggressive`.
    The plan's markdown report reproduces the job's last pending line, since that's the
    one thing closing destroys.
-8. **Discharged** — `done`/`failed`, no open PR. Closed at `standard`/`aggressive`.
-9. **Tombstone / empty shell** — transcript already expired past the 30-day cleanup, or
+9. **Discharged** — `done`/`failed`, no open PR. Closed at `standard`/`aggressive`.
+10. **Tombstone / empty shell** — transcript already deleted by Claude Code, or
    no `state.json` at all. Closed at **every** level, including `lite` — there is
    nothing left to lose.
 
-`lite` only ever reaches tier 9. `standard` (the default) reaches tier 8. `aggressive`
-also takes tiers 5 and 6. Tiers 1–3 are never overridden by level.
+`lite` only ever reaches tiers 3 and 10. `standard` (the default) reaches tier 9. `aggressive`
+also takes tiers 6 and 7. Tiers 1–4 are never overridden by level (tier 3 closes at every level).
 
 ## Process
 
@@ -108,7 +118,8 @@ If `close.sh` reports a worktree refusal, that's the tool protecting a dirty tre
 bug. Read `README.md`'s stash note before clearing it by hand.
 
 **4. Report back** what closed, what's held and why (worktree refusals, PR-state
-unknowns, unpushed-commit holds), and the before/after count from
+unknowns, unpushed-commit holds), every job in the report's **Expiring soon** section
+with its days left and a prompt to hand off or close it, and the before/after count from
 `claude agents --json --all`.
 
 ## Tuning
@@ -121,7 +132,9 @@ unknowns, unpushed-commit holds), and the before/after count from
 | `--protect-path PATH` | none, repeatable | Always keep jobs whose `cwd` is under this path |
 | `--live-done-hours` | `24` | How long a finished job stays protected as "still fresh" |
 | `--live-pending-days` | `3` | How long a blocked/working job stays protected before counting as "abandoned" |
-| `--abandoned-days` | `3` | Same threshold, named for tier 7 specifically |
+| `--expire-days` | `cleanupPeriodDays`, else `30` | Age at which a job closes regardless of rename/colour (tier 3) — match it to Claude Code's transcript retention |
+| `--warn-days` | `10` | Kept jobs within this many days of expiry get the "hand off or clean" warning |
+| `--abandoned-days` | `3` | Same threshold, named for tier 8 specifically |
 | `--check-prs` | `auto` | `auto` uses `gh` if present; `no` skips PR checks entirely (any job with a PR reference is then kept, not assumed closeable) |
 | `--self-id` | `$CLAUDE_JOB_DIR`'s basename | Override if running outside a background job context |
 

@@ -8,6 +8,12 @@ script's plan has been looked at. Run this on its own as many times as you like.
 Rubric — the question that decides everything is "what would closing lose?", not age:
 
   0. Self session, and any `kind: interactive` session         -> always KEEP
+  E. Expired: >= --expire-days old (default cleanupPeriodDays, else 30)
+                                                                 -> CLOSE at every level,
+     overriding tiers 1 and 3-5: Claude Code deletes the transcript at that age anyway, so
+     rename/colour/PR/green can't save it. Tier 2 still wins (the branch outlives transcript
+     cleanup; `claude rm` would not), as do explicit --protect-* flags. Jobs within
+     --warn-days of expiry (default 10 -> 20-29 days old) are flagged "hand off or clean".
   1. Hand-marked: renamed by the user, or a non-green colour   -> always KEEP (every level)
   2. Worktree whose HEAD is on no remote branch                -> always KEEP (every level) —
      `claude rm` deletes the local branch with the worktree; if nothing else holds that
@@ -167,6 +173,18 @@ def is_dirty(worktree_path):
     return bool(r.stdout.strip())
 
 
+def cleanup_period_days():
+    """Claude Code's transcript retention: settings cleanupPeriodDays, default 30."""
+    for f in ("settings.local.json", "settings.json"):
+        try:
+            v = json.load(open(os.path.join(HOME, ".claude", f))).get("cleanupPeriodDays")
+            if isinstance(v, (int, float)) and v > 0:
+                return float(v)
+        except Exception:
+            continue
+    return 30.0
+
+
 def parse_iso(s):
     if not s:
         return None
@@ -188,12 +206,20 @@ def main():
     ap.add_argument("--live-done-hours", type=float, default=24)
     ap.add_argument("--live-pending-days", type=float, default=3)
     ap.add_argument("--abandoned-days", type=float, default=3)
+    ap.add_argument("--expire-days", type=float, default=None,
+                     help="Age at which Claude Code deletes the transcript; older jobs close "
+                          "regardless of rename/colour (default: cleanupPeriodDays, else 30)")
+    ap.add_argument("--warn-days", type=float, default=10,
+                     help="Flag kept jobs within this many days of --expire-days for handoff/cleanup")
     ap.add_argument("--check-prs", choices=["auto", "yes", "no"], default="auto")
     ap.add_argument("--self-id", default=os.environ.get("CLAUDE_JOB_DIR", "").rstrip("/").rsplit("/", 1)[-1])
     ap.add_argument("--out", default=None, help="Output basename (writes <out>.json and <out>.md)")
     args = ap.parse_args()
 
     now = datetime.datetime.now(datetime.timezone.utc)
+    if args.expire_days is None:
+        args.expire_days = cleanup_period_days()
+    warn_from = args.expire_days - args.warn_days
     protect_paths = [os.path.expanduser(p).rstrip("/") for p in args.protect_path]
 
     rows = load_jobs()
@@ -230,6 +256,15 @@ def main():
         a = parse_iso(r["act"])
         return (now - a).total_seconds() / 86400 if a else 9999
 
+    def expiry_age(r):
+        # Claude Code's cleanup keys off the transcript's mtime; take the younger of that
+        # and the job's own last activity so a job is never called expired too early.
+        ages = [age_days(r)]
+        t = r.get("transcript")
+        if t and os.path.exists(t):
+            ages.append((now.timestamp() - os.path.getmtime(t)) / 86400)
+        return min(ages)
+
     def verdict(r):
         i = r["id"]
         if args.self_id and i == args.self_id:
@@ -239,10 +274,6 @@ def main():
         for p in protect_paths:
             if r["cwd"].rstrip("/") == p or r["cwd"].startswith(p + "/"):
                 return "KEEP", "protected path %s" % p
-        if r["renamed"]:
-            return "KEEP", "you renamed it"
-        if r["color"] and r["color"] != "green":
-            return "KEEP", "colour %s" % r["color"]
         wp = r["worktreePath"]
         if wp and os.path.isdir(wp):
             hor = head_on_remote(wp)
@@ -250,6 +281,13 @@ def main():
                 return "KEEP", "worktree HEAD on no remote branch — commits would be lost"
             if hor is None:
                 return "KEEP", "worktree present, could not verify remote reachability (checked conservatively)"
+        if r["expiry_age"] >= args.expire_days:
+            return "CLOSE", "%.0fd old — past Claude Code's %gd transcript cleanup; rename/colour can't keep it" % (
+                r["expiry_age"], args.expire_days)
+        if r["renamed"]:
+            return "KEEP", "you renamed it"
+        if r["color"] and r["color"] != "green":
+            return "KEEP", "colour %s" % r["color"]
         ad = age_days(r)
         state = r.get("state", "")
         if state == "done" and ad * 24 < args.live_done_hours:
@@ -285,7 +323,11 @@ def main():
         return "KEEP", "unrecognised state %r — kept conservatively" % state
 
     for r in rows:
+        r["expiry_age"] = expiry_age(r)
         r["verdict"], r["why"] = verdict(r)
+        r["expires_in"] = None
+        if r["verdict"] == "KEEP" and warn_from <= r["expiry_age"] < args.expire_days:
+            r["expires_in"] = args.expire_days - r["expiry_age"]
     for r in no_state_rows:
         r["verdict"], r["why"] = "CLOSE", "no state.json — empty/orphaned job dir"
         r["state"] = ""; r["name"] = "(no state.json)"; r["act"] = ""; r["color"] = ""; r["worktreePath"] = None
@@ -295,6 +337,7 @@ def main():
 
     close = [r for r in all_rows if r["verdict"] == "CLOSE"]
     keep = [r for r in all_rows if r["verdict"] == "KEEP"]
+    expiring = sorted((r for r in keep if r.get("expires_in") is not None), key=lambda r: r["expires_in"])
 
     out_base = args.out or os.path.expanduser(
         "~/.claude/session-cleanup/%s-plan" % now.strftime("%Y%m%dT%H%M%SZ"))
@@ -302,7 +345,8 @@ def main():
 
     plan = dict(generated_at=now.isoformat(), scope=scope_desc, level=args.level,
                 self_id=args.self_id, total=len(all_rows), close_count=len(close),
-                keep_count=len(keep),
+                keep_count=len(keep), expire_days=args.expire_days,
+                expiring_ids=[r["id"] for r in expiring],
                 close_ids=[r["id"] for r in close],
                 rows=[{k: v for k, v in r.items() if k not in ("children_pr",)} for r in all_rows])
     json.dump(plan, open(out_base + ".json", "w"), indent=1)
@@ -318,6 +362,14 @@ def main():
             r["id"], r["verdict"], r.get("state", ""), (r.get("act") or "")[:10],
             (r.get("name") or "")[:40], r["why"]))
 
+    if expiring:
+        md.append("\n## Expiring soon — hand off or clean\n")
+        md.append("Kept today, but Claude Code deletes these transcripts at %gd. Write a handoff "
+                  "(or finish them) now, or close them — they won't survive expiry.\n" % args.expire_days)
+        for r in expiring:
+            md.append("- **`%s`** *%s* — %.0fd old, **~%.0fd left** (kept because: %s)" % (
+                r["id"], (r.get("name") or "")[:50], r["expiry_age"], r["expires_in"], r["why"]))
+
     abandoned = [r for r in close if r.get("state") in ("blocked", "working") and r.get("lasttext")]
     if abandoned:
         md.append("\n## Abandoned questions — last pending line\n")
@@ -328,7 +380,8 @@ def main():
     open(out_base + ".md", "w").write("\n".join(md) + "\n")
 
     print(json.dumps(dict(plan_json=out_base + ".json", plan_md=out_base + ".md",
-                           total=len(all_rows), close=len(close), keep=len(keep)), indent=1))
+                           total=len(all_rows), close=len(close), keep=len(keep),
+                           expiring_soon=len(expiring)), indent=1))
 
 
 if __name__ == "__main__":
