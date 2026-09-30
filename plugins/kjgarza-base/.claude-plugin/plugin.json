@@ -1,6 +1,6 @@
 {
   "name": "kjgarza-base",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "A collection of productivity skills including project scaffolding, image processing with ImageMagick, file organization, and skill creation tooling",
   "author": {
     "name": "Kristian Garza",
@@ -12,7 +12,12 @@
     "image-processing",
     "file-organizer",
     "skill-creator",
-    "imagemagick"
+    "imagemagick",
+    "spike",
+    "prototyping",
+    "session-cleanup",
+    "metaprompt",
+    "prompt-engineering"
   ],
   "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/kjgarza-base",
   "repository": "https://github.com/kjgarza/marketplace-claude",
