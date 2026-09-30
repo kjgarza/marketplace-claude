@@ -20,67 +20,33 @@ claude plugin marketplace add kjgarza/marketplace-claude
 
 | Plugin | Category | Description |
 |--------|----------|-------------|
-| **kjgarza-base** | utilities | Base MCP server configuration with puppeteer, fetch, sequential thinking, and context7 documentation servers |
-| **scholarly-comms-researcher** | documentation | Expert agent for scholarly communication research with Dimensions database integration and academic search capabilities |
-| **senior-software-developer** | development | Expert-level development assistance for architecture, code review, system design, and technical leadership |
-| **kjgarza-product** | productivity | Product management toolkit with document processing, integrations, and research capabilities |
+| **dev-workflow** | development | Developer workflow skills: PR babysitting, spikes, metaprompting, session cleanup, file-based planning, project scaffolding/bootstrapping, skill creation, plan execution, and a senior-dev advisor agent with a technical-lead output style. |
+| **job-search** | productivity | Job search assistant: finds matching roles, prepares application materials, and identifies LinkedIn contacts to reach out to at target companies. |
+| **smart-home** | utilities | Controls smart home devices (lights, speakers, music playback, scenes) from natural-language requests. |
+| **file-tools** | utilities | Local file utilities: organize folders, find duplicates, and process images with ImageMagick (convert, resize, crop, batch). |
+| **scholarly-research** | documentation | Expert agent for scholarly communication research with Dimensions database integration and academic search capabilities |
+| **product** | productivity | Product management toolkit: PRDs, user stories, backlog prioritization, usability tests and design critiques, with Office document skills, Coda/Google Drive/Dimensions search, and a product-manager agent and output style. |
+| **bookclub** | productivity | Book club management plugin for generating Slack communications, discussion materials, and reading schedules |
+| **rapid-mvp** | development | Opinionated defaults and scaffolding for rapid MVP static websites using Next.js or 11ty monorepo patterns |
+| **berlin-events** | productivity | Discover interesting art and food events in Berlin, check against your Google Calendar, and get a curated list with travel context from your neighborhood. |
+| **readitlater-digest** | productivity | Generate themed weekly digests from Obsidian ReadItLater bookmarks with SQLite state tracking and automated cleanup |
+| **prototyping** | development | Skills for rapid prototype development with a standardized Bun monorepo stack (core, types, api, ui, mcp). Encodes team conventions (Biome, bun:test, JSON:API, Actor Pattern, design tokens), deviation protocol, per-package patterns, test scaffolding, and development workflow chaining. |
+| **ideation** | productivity | 5-stage ideation pipeline: problem intake, solution generation, review, ASCII UI concepts, and interactive HTML prototypes |
+| **vhs-berlin-agent** | productivity | Personal navigation and monitoring layer for VHS Berlin courses — natural language search, watchlists with change detection, and awareness digests via deterministic bun scripts (no MCP). |
+| **berlin-flats** | productivity | Berlin flat hunter — searches Kleinanzeigen and ImmoScout24 for rentals, detects scams, ranks listings by fit score, tracks the application pipeline, and prepares application dossiers and messages. |
+| **bulletjournal** | productivity | Bullet journal workflow automation — daily migration, inbox triage, weekly/monthly reviews, and journal synthesis from daily notes and session memory. |
+| **taskwarrior** | productivity | Taskwarrior task management with AI agent workflows — canonical add→start→update→close lifecycle, best practices, multiline notes via annotations, and /init setup command. |
+| **finanz-pilot** | productivity | German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, financial statements, tax checks, pension evaluation, real estate readiness, retirement projections, capital allocation, and integrated personal finance advisory. |
+
+Each plugin has its own README under `plugins/<name>/` with its skills, commands and agents.
 
 ## Installing Plugins
 
 After adding the marketplace, install individual plugins:
 
 ```
-/plugin install kjgarza-base@marketplace-claude
-/plugin install scholarly-comms-researcher@marketplace-claude
-/plugin install senior-software-developer@marketplace-claude
-/plugin install kjgarza-product@marketplace-claude
+/plugin install <plugin-name>@marketplace-claude
 ```
-
-## Plugin Details
-
-### kjgarza-base
-
-Foundation plugin with MCP server configurations for:
-- Puppeteer (browser automation)
-- Fetch (HTTP requests)
-- Sequential thinking
-- Context7 documentation
-
-**Skills**: `project-scaffold`, `skill-creator`
-
-### scholarly-comms-researcher
-
-Expert agent for academic research and scholarly communication:
-- Literature reviews with Dimensions database
-- Scholar evaluation
-- Scientific writing guidance
-- Research visualization
-
-**Skills**: `literature-review`, `scholar-evaluation`, `scientific-brainstorming`, `scientific-critical-thinking`, `scientific-visualization`, `scientific-writing`, `scikit-survival`
-
-### senior-software-developer
-
-Senior engineering expertise for:
-- Architecture reviews
-- Code reviews
-- System design
-- Technical leadership
-
-**Commands**: `/architecture-review`, `/code-review`, `/system-design`, `/refactor-strategy`, `/technical-debt-audit`
-
-**Skills**: `chrome-extension-builder`, `cli-generator`, `detect-code-smells`, `mcp-builder`, `monorepo-generator`, `security-pattern-check`, `suggest-performance-fix`, `vscode-extension-builder`
-
-### kjgarza-product
-
-Product management toolkit:
-- Document processing (PDF, DOCX, XLSX, PPTX)
-- Integration with Coda, Google Drive
-- Research with Dimensions API
-- Product frameworks and planning
-
-**Commands**: `/create-prd`, `/create-user-stories`, `/analyze-intel`, `/analyze-feature-request`, `/prioritize-backlog`, `/plan-usability-test`, `/facilitate-design-critique`, `/search-user-research`
-
-**Agents**: `product-manager`, `scholarly-comms-researcher`, `senior-dev-advisor`
 
 ## License
 

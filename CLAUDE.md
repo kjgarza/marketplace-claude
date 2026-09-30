@@ -11,7 +11,7 @@ A Claude Code plugin marketplace — a curated collection of plugins installable
 ```
 .claude-plugin/marketplace.json   ← Marketplace manifest (registry of all plugins)
 plugins/<name>/                   ← Individual plugins
-  plugin.json                     ← Plugin manifest (optional; kjgarza-product has one)
+  plugin.json                     ← Plugin manifest (legacy root-level manifest; prefer .claude-plugin/plugin.json)
   skills/<skill-name>/SKILL.md    ← Skill definitions (frontmatter + instructions)
   commands/<name>.md              ← Slash command definitions
   agents/<name>.md                ← Agent definitions
@@ -32,14 +32,17 @@ plugins/<name>/                   ← Individual plugins
 
 | Plugin | Category | Key Components |
 |--------|----------|----------------|
-| kjgarza-base | utilities | Skills + commands (scaffold, file-organizer, home-control, image-processing) |
-| scholarly-comms-researcher | documentation | Agents + skills (literature-review, scientific-writing, etc.) |
-| kjgarza-product | productivity | Agents + commands + skills + output-styles (PRD, user stories, research) |
+| dev-workflow | development | Agent + commands + skills + output-style (babysit-pr, spike, metaprompt, session-cleanup, planning-with-files, scaffolding, skill-creator) |
+| job-search | productivity | Skills (find-jobs, find-linkedin-contacts) |
+| smart-home | utilities | Skills (home-control) |
+| file-tools | utilities | Skills (file-organizer, image-processing) |
+| scholarly-research | documentation | Agent + skills (literature-review, scientific-writing, etc.) |
+| product | productivity | Agent + commands + skills + output-style (PRD, user stories, Office docs, Coda/Drive/Dimensions search) |
 | bookclub | productivity | Agents + commands + skills (Slack comms, discussion guides) |
 | rapid-mvp | development | Commands + skills (Next.js/11ty monorepo scaffolding) |
 | berlin-events | productivity | Agents + skills + scripts (Berlin art/food event discovery; shown-dedup + taste feedback) |
 | readitlater-digest | productivity | Skills + scripts (Obsidian bookmark digests, SQLite, feedback loop, catch-up) |
-| prototyping-skills | development | Skills + hooks (Bun monorepo stack: Hono API, Next.js UI, MCP) |
+| prototyping | development | Agent + skills + hooks (Bun monorepo stack: Hono API, Next.js UI, MCP) |
 | ideation | productivity | Agent + skills + hooks (5-stage ideation pipeline with stage validation) |
 | vhs-berlin-agent | productivity | Skills + bun scripts (VHS course search/watch; no MCP) |
 | berlin-flats | productivity | Commands + agents + node scripts (rental hunt, scam-judge, triage, calibrate) |

@@ -1,0 +1,34 @@
+{
+  "name": "product",
+  "version": "2.0.0",
+  "description": "Product management toolkit: PRDs, user stories, backlog prioritization, usability tests and design critiques, with Office document skills, Coda/Google Drive/Dimensions search, and a product-manager agent and output style.",
+  "author": {
+    "name": "Kristian Garza",
+    "email": "kj.garza@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "product-management",
+    "document-processing",
+    "integrations",
+    "research",
+    "pdf",
+    "docx",
+    "xlsx",
+    "pptx"
+  ],
+  "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/product",
+  "repository": "https://github.com/kjgarza/marketplace-claude",
+  "agents": [
+    "./agents/product-manager.md"
+  ],
+  "skills": [
+    "./skills/"
+  ],
+  "commands": [
+    "./commands/"
+  ],
+  "outputStyles": [
+    "./output-styles/"
+  ]
+}

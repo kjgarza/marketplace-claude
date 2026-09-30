@@ -1,0 +1,18 @@
+{
+  "name": "file-tools",
+  "version": "1.0.0",
+  "description": "Local file utilities: organize folders, find duplicates, and process images with ImageMagick (convert, resize, crop, batch).",
+  "author": {
+    "name": "Kristian Garza",
+    "email": "kj.garza@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "file-organizer",
+    "duplicates",
+    "image-processing",
+    "imagemagick"
+  ],
+  "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/file-tools",
+  "repository": "https://github.com/kjgarza/marketplace-claude"
+}

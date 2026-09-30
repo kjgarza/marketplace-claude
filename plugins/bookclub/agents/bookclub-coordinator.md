@@ -70,7 +70,7 @@ When generating Slack communications:
 When generating the one-pager visual summary:
 - Read `book-profile.json` for book data
 - Use template from `skills/bookclub/references/document-templates.md`
-- For PDF output, use the pdf skill from kjgarza-product
+- For PDF output, use the `product:pdf` skill (product plugin)
 - For QR codes, follow instructions in `skills/bookclub/references/qr-code-generation.md`
 
 ### 4. Timeline Planning
