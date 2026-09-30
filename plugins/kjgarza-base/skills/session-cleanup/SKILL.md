@@ -46,7 +46,8 @@ lost whether or not you close it. In order, first match wins:
    already protect: clean but unpushed. Held back at every level, always — the branch
    outlives transcript cleanup, so this ranks above expiry.
 3. **Expired** — idle ≥ `--expire-days` (default `cleanupPeriodDays`, else 30), measured
-   from the younger of last activity and transcript mtime. Closed at **every** level,
+   from the younger of last activity and transcript mtime (for a resumed job, the
+   `resumeSessionId` transcript — a stale-looking card can front a live conversation). Closed at **every** level,
    *regardless of rename or colour*: the transcript is deleted by Claude Code anyway.
    Kept jobs within `--warn-days` (default 10, i.e. 20–29 days old) are listed under
    **"Expiring soon — hand off or clean"** in the report: tell the user to write a

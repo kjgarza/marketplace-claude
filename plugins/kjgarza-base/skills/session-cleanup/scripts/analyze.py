@@ -96,7 +96,8 @@ def load_jobs():
         acts = [x for x in [last_at, st.get("lastTerminalAt"), st.get("createdAt")] if x]
         act = max(acts) if acts else None
         sid = st.get("sessionId", "")
-        transcript = find_transcript(sid)
+        # A resumed job writes to the resumed session's transcript, not its own sessionId.
+        transcript = find_transcript(st.get("resumeSessionId")) or find_transcript(sid)
         kids = [c for c in (st.get("children") or []) if c.get("kind") == "pr"]
         rows.append(dict(
             id=d, no_state=False, state=st.get("state", ""), tokens=st.get("tokens", 0) or 0,
