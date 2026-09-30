@@ -11,10 +11,53 @@
   },
   "plugins": [
     {
-      "name": "kjgarza-base",
-      "source": "./plugins/kjgarza-base",
-      "description": "Base MCP server configuration with puppeteer, fetch, sequential thinking, and context7 documentation servers",
-      "version": "1.1.0",
+      "name": "dev-workflow",
+      "source": "./plugins/dev-workflow",
+      "description": "Developer workflow skills: PR babysitting, spikes, metaprompting, session cleanup, file-based planning, project scaffolding/bootstrapping, skill creation, plan execution, and a senior-dev advisor agent with a technical-lead output style.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "development",
+      "keywords": [
+        "pull-requests",
+        "spike",
+        "metaprompt",
+        "session-cleanup",
+        "planning",
+        "project-scaffold",
+        "skill-creator",
+        "code-review"
+      ],
+      "strict": true
+    },
+    {
+      "name": "job-search",
+      "source": "./plugins/job-search",
+      "description": "Job search assistant: finds matching roles, prepares application materials, and identifies LinkedIn contacts to reach out to at target companies.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": [
+        "jobs",
+        "job-search",
+        "cover-letter",
+        "linkedin",
+        "outreach"
+      ],
+      "strict": true
+    },
+    {
+      "name": "smart-home",
+      "source": "./plugins/smart-home",
+      "description": "Controls smart home devices (lights, speakers, music playback, scenes) from natural-language requests.",
+      "version": "1.0.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -22,20 +65,37 @@
       "license": "MIT",
       "category": "utilities",
       "keywords": [
-        "mcp",
-        "puppeteer",
-        "fetch",
-        "sequential-thinking",
-        "context7",
-        "documentation"
+        "smart-home",
+        "lights",
+        "speakers",
+        "home-automation"
       ],
       "strict": true
     },
     {
-      "name": "scholarly-comms-researcher",
-      "source": "./plugins/scholarly-comms-researcher",
+      "name": "file-tools",
+      "source": "./plugins/file-tools",
+      "description": "Local file utilities: organize folders, find duplicates, and process images with ImageMagick (convert, resize, crop, batch).",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "utilities",
+      "keywords": [
+        "file-organizer",
+        "duplicates",
+        "image-processing",
+        "imagemagick"
+      ],
+      "strict": true
+    },
+    {
+      "name": "scholarly-research",
+      "source": "./plugins/scholarly-research",
       "description": "Expert agent for scholarly communication research with Dimensions database integration and academic search capabilities",
-      "version": "1.0.2",
+      "version": "2.0.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -54,10 +114,10 @@
       "strict": true
     },
     {
-      "name": "kjgarza-product",
-      "source": "./plugins/kjgarza-product",
-      "description": "Product management toolkit with document processing, integrations, and research capabilities",
-      "version": "1.0.2",
+      "name": "product",
+      "source": "./plugins/product",
+      "description": "Product management toolkit: PRDs, user stories, backlog prioritization, usability tests and design critiques, with Office document skills, Coda/Google Drive/Dimensions search, and a product-manager agent and output style.",
+      "version": "2.0.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -160,10 +220,10 @@
       "strict": true
     },
     {
-      "name": "prototyping-skills",
-      "source": "./plugins/prototyping-skills",
-      "description": "Skills for rapid prototype development with a standardized Bun monorepo stack (core, types, api, ui, mcp). Encodes conventions, deviation protocol, per-package patterns, test scaffolding, and development workflow chaining.",
-      "version": "0.2.2",
+      "name": "prototyping",
+      "source": "./plugins/prototyping",
+      "description": "Skills for rapid prototype development with a standardized Bun monorepo stack (core, types, api, ui, mcp). Encodes team conventions (Biome, bun:test, JSON:API, Actor Pattern, design tokens), deviation protocol, per-package patterns, test scaffolding, and development workflow chaining.",
+      "version": "1.0.0",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
