@@ -100,6 +100,7 @@ As a result, the same reliability bugs appear in several places. Failures are si
 - A headless browser tier in v1. See Future work.
 - Crawling or link following. One URL in, one result out.
 - Rate limiting across processes that run in parallel.
+- **Discovery: deciding which URLs to fetch.** Each plugin owns its own discovery and hands scrape-core the URLs it found. Listing and detail pages both go through scrape-core; the choice of which listing to open, and which links on it matter, does not. See §5.4.
 
 ### 4. Users
 
@@ -173,6 +174,24 @@ The contract is versioned by the package's major version. Adding a field is a mi
 | N4 | Unit tests use mocked `fetch`. No network in the default `bun test` run. |
 | N5 | One opt-in live smoke test (`SCRAPE_CORE_LIVE=1`) against the berlin-events priority sources. |
 
+#### 5.4 Where URLs come from (input side, not scrape-core's job)
+
+Discovery is a non-goal (§3), but the handover needs a shape, because "who supplies URLs, and in what format" was the gap raised in #34. Each plugin discovers its own URLs and writes them as JSONL, one object per line. scrape-core reads only `url` and ignores every other field, so the format can grow without touching this contract.
+
+| Field | Meaning |
+|---|---|
+| `url` | The page to fetch. The only field scrape-core reads. |
+| `job_key` | `<source>:<id>`, the consumer's stable identity for the thing, for example `glassdoor:1010239743436`. Used for dedup before fetching. |
+| `source` | Which source the id scheme belongs to, or `generic` when the id came from a normalized URL. |
+| `entry_id`, `feed`, `subject`, `published_at`, `text` | Provenance from the discovery step. Ignored by scrape-core, kept for the consumer's own filtering. |
+
+The reference implementation is find-kristian-jobs' email discovery: Kill the Newsletter inboxes plus an ~86-line stdlib script under launchd, measured in the [KTN + Miniflux spike](https://github.com/kjgarza/marketplace-claude/tree/worktree-spike-ktn-miniflux/docs/spikes/ktn-miniflux). Two findings from it shape this contract:
+
+1. **Dedup belongs to the discoverer, not scrape-core.** 40% of job sightings across six real Glassdoor alerts were repeats. The discovery step keeps that state and emits only first sightings, so scrape-core never sees the duplicates.
+2. **Tracking links do not need unwrapping.** The job id sits in the query string, so `job_key` is parsed without following a redirect. That keeps a fetch, and a registered click, out of the discovery path entirely.
+
+Caveat: the spike ran on replayed fixtures from one sender, so treat the non-`url` fields as a starting point rather than a frozen contract.
+
 ### 6. Architecture
 
 ```
@@ -231,7 +250,8 @@ Each migration is done when the consumer calls scrape-core, its old fetch code i
 
 ### 8. Success metrics
 
-- All four consumers use scrape-core. No other `fetch` or `curl` path to web pages remains in them.
+- All four consumers use scrape-core for **HTML page fetches**. No consumer keeps its own Readability, Jina or `curl`-plus-parse path for a web page.
+  Three fetch paths are outside this metric by design, because scrape-core does not serve them: structured APIs (Greenhouse and Lever ATS endpoints, per §7), feed and email reads in a plugin's discovery step (§5.4), and qurl's own storage traffic. The original wording, "no other `fetch` or `curl` path remains", was unachievable for that reason (raised in #34).
 - berlin-events DOD AC-1 passes: at least 3 of the 5 priority sources return content.
 - Zero hung runs over 2 weeks of scheduled use.
 - Every failed scrape in agent output carries an error code, never an empty result.
@@ -241,7 +261,7 @@ Each migration is done when the consumer calls scrape-core, its old fetch code i
 | Risk | Mitigation |
 |---|---|
 | Jina Reader is rate limited or has an outage | Error code shows the tier. `JINA_API_KEY` raises the limit. A future headless tier gives a third path. |
-| Readability drops content on listing pages, such as event calendars | `NO_CONTENT` threshold is low (200 chars). A `--raw` flag is future work if a consumer needs the full HTML. |
+| Readability drops content on listing pages, such as event calendars | `NO_CONTENT` threshold is low (200 chars). A `--raw` flag returns the full HTML when a consumer needs it; whether that ships in v1 is §11 question 3. |
 | Consumers keep old fetch code | Deleting it is part of each migration's done criteria. |
 | Output contract churn breaks agents | Semver on the contract. Agent docs pin to the error codes listed above. |
 
@@ -249,11 +269,14 @@ Each migration is done when the consumer calls scrape-core, its old fetch code i
 
 - `qurl add <url> --fetch`, with scrape-core as a qurl dependency.
 - A headless browser tier (Playwright) for pages that need JavaScript.
-- `--raw` output mode that returns the guarded HTML without Readability.
-- Batch input (`--file urls.txt`) with per-host concurrency limits.
+- `--raw` output mode that returns the guarded HTML without Readability. See §11 question 3: this may belong in v1.
+- Batch input with per-host concurrency limits. The input format is the discovery JSONL of §5.4, read as `--file jobs.jsonl`: one JSON object per line, of which scrape-core reads only `url` and ignores the rest. A plain newline-separated list of URLs stays valid, so a consumer without a discovery step is unaffected.
 - Shared JSON-LD and Open Graph extraction, if two or more consumers need it.
 
 ### 11. Open questions
 
 1. Publish to npm like qurl, or install locally only with `bun link`?
 2. Should berlin-flats import the library or call the CLI? The library is proposed, because it is already TypeScript.
+3. Does `--raw` belong in v1 rather than Future work? #34 argued yes, on the grounds that Readability strips the links discovery needs. Email discovery no longer supports that argument, because the pull script of §5.4 reads newsletter HTML straight from the feed and never calls scrape-core to find links. The remaining case is ordinary listing pages whose links Readability drops, such as event calendars. Decide on that case alone.
+
+> **Resolved:** who supplies URLs, and in what format? Answered in §5.4. Raised in #34 and settled by the discovery spike.
