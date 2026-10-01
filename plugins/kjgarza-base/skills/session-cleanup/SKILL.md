@@ -108,8 +108,10 @@ and reasons, and — for abandoned-question closes — the reproduced pending li
 
 **3. Execute with the canary pattern on a new scope.** The first time this skill runs
 against a given repo (or globally), use `--canary`: it closes up to 3 representative jobs
-first, verifies each transcript survived, then continues automatically. Skip `--canary`
-on repeat runs against a scope you've already validated.
+first (preferring ones that still have a transcript), verifies each transcript survived, then
+continues automatically. A canary whose transcript had already expired is reported and
+skipped, not counted as a failure. Skip `--canary` on repeat runs against a scope you've
+already validated.
 
 ```bash
 bash ${CLAUDE_PLUGIN_ROOT}/skills/session-cleanup/scripts/close.sh --plan <plan.json> --canary --go

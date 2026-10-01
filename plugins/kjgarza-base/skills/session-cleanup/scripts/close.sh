@@ -6,8 +6,10 @@
 #
 # --canary: before touching the rest of the list, close up to 3 representative
 #   jobs first (a plain done job, a working/blocked zombie, a done job with a
-#   clean pushed worktree — whichever are present in the plan) and verify each
-#   one's transcript survives before continuing. This is how the rubric this
+#   clean pushed worktree — whichever are present in the plan, preferring ones that
+#   still have a transcript) and verify each one's transcript survives before
+#   continuing. A canary whose transcript had already expired before the close is
+#   reported and skipped, not treated as a failure. This is how the rubric this
 #   skill encodes was originally validated (see README.md) — recommended for
 #   the first run against any new scope, optional after that.
 #
@@ -91,10 +93,12 @@ close_one() {
   echo "2"
 }
 
-verify_transcript() {
-  local sid="$1"
-  [ -z "$sid" ] && return 0
-  find "$HOME/.claude/projects" -maxdepth 2 -name "$sid.jsonl" 2>/dev/null | grep -q .
+# The canary checks the transcript path analyze.py recorded (which already follows
+# resumeSessionId for resumed jobs), not a fresh lookup by sessionId — a resumed job's own
+# sessionId has no transcript of its own, and would read as a false "missing".
+has_transcript() {
+  local path="$1"
+  [ -n "$path" ] && [ -f "$path" ]
 }
 
 echo "=== close run $(date -u +%FT%TZ) ===" >> "$LOG"
@@ -106,45 +110,57 @@ if [ "$CANARY" -eq 1 ] && [ "${#IDS[@]}" -gt 0 ]; then
   # Pick up to 3 representative ids by type, not just the first 3: a plain done
   # job with no worktree, a blocked/working zombie with no worktree, and a done
   # job that does own a worktree. Falls back to "first N available" for any
-  # type not present in this plan. De-duped and capped at 3.
+  # type not present in this plan. De-duped and capped at 3. Jobs that still have a
+  # transcript are preferred: an expired job (transcript already deleted by Claude
+  # Code's cleanup) can't show whether `claude rm` preserves one.
   canary_ids=($(python3 -c "
 import json
 p=json.load(open('$PLAN'))
 close_set=set(p['close_ids'])
 rows={r['id']: r for r in p['rows'] if r['id'] in close_set}
+order=[i for i in p['close_ids'] if rows[i].get('transcript')]
+order+=[i for i in p['close_ids'] if not rows[i].get('transcript')]
 picks=[]
 def want(pred):
-    for i in p['close_ids']:
+    for i in order:
         r=rows[i]
         if pred(r) and i not in picks:
             picks.append(i); return
 want(lambda r: r.get('state')=='done' and not r.get('worktreePath'))
 want(lambda r: r.get('state') in ('blocked','working') and not r.get('worktreePath'))
 want(lambda r: r.get('worktreePath'))
-for i in p['close_ids']:
+for i in order:
     if len(picks)>=3: break
     if i not in picks: picks.append(i)
 print(' '.join(picks[:3]))
 "))
+  tested=0
   for id in "${canary_ids[@]}"; do
-    sid=$(python3 -c "
+    tpath=$(python3 -c "
 import json
 p=json.load(open('$PLAN'))
 for r in p['rows']:
-    if r['id']=='$id': print(r.get('sessionId','')); break
+    if r['id']=='$id': print(r.get('transcript') or ''); break
 ")
+    # Only a transcript that exists before the close can prove anything after it.
+    had=0
+    has_transcript "$tpath" && had=1
     r=$(close_one "$id")
     [ "$r" = "0" ] && ok=$((ok+1))
     [ "$r" = "1" ] && { ok=$((ok+1)); stopped=$((stopped+1)); }
     [ "$r" = "2" ] && fail=$((fail+1))
-    if verify_transcript "$sid"; then
+    if [ "$had" -eq 0 ]; then
+      echo "  canary $id: no transcript before close (already expired) — nothing to verify"
+    elif has_transcript "$tpath"; then
       echo "  canary $id: transcript OK"
+      tested=$((tested+1))
     else
       echo "  canary $id: TRANSCRIPT MISSING — stopping before touching the rest" >&2
       echo "closed=$ok failed=$fail  log: $LOG"
       exit 1
     fi
   done
+  [ "$tested" -eq 0 ] && echo "  note: no canary had a transcript to check — survival not verified on this run"
   RUN_IDS=()
   for id in "${IDS[@]}"; do
     skip=0
@@ -153,12 +169,15 @@ for r in p['rows']:
   done
 fi
 
-for id in "${RUN_IDS[@]}"; do
-  r=$(close_one "$id")
-  [ "$r" = "0" ] && ok=$((ok+1))
-  [ "$r" = "1" ] && { ok=$((ok+1)); stopped=$((stopped+1)); }
-  [ "$r" = "2" ] && fail=$((fail+1))
-done
+# The canary pass may have taken every id (plans of 3 or fewer); same bash 3.2 empty-array trap as above.
+if [ "${#RUN_IDS[@]}" -gt 0 ]; then
+  for id in "${RUN_IDS[@]}"; do
+    r=$(close_one "$id")
+    [ "$r" = "0" ] && ok=$((ok+1))
+    [ "$r" = "1" ] && { ok=$((ok+1)); stopped=$((stopped+1)); }
+    [ "$r" = "2" ] && fail=$((fail+1))
+  done
+fi
 
 echo "closed=$ok (of which $stopped needed a stop first) failed=$fail  log: $LOG"
 echo -n "entries left in agents view: "
