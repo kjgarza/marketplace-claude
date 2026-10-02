@@ -261,7 +261,7 @@ Each migration is done when the consumer calls scrape-core, its old fetch code i
 | Risk | Mitigation |
 |---|---|
 | Jina Reader is rate limited or has an outage | Error code shows the tier. `JINA_API_KEY` raises the limit. A future headless tier gives a third path. |
-| Readability drops content on listing pages, such as event calendars | `NO_CONTENT` threshold is low (200 chars). A `--raw` flag returns the full HTML when a consumer needs it; whether that ships in v1 is §11 question 3. |
+| Readability drops content on listing pages, such as event calendars | `NO_CONTENT` threshold is low (200 chars). A `--raw` flag in v2 returns the full HTML when a consumer needs it (§11 question 3). |
 | Consumers keep old fetch code | Deleting it is part of each migration's done criteria. |
 | Output contract churn breaks agents | Semver on the contract. Agent docs pin to the error codes listed above. |
 
@@ -269,14 +269,15 @@ Each migration is done when the consumer calls scrape-core, its old fetch code i
 
 - `qurl add <url> --fetch`, with scrape-core as a qurl dependency.
 - A headless browser tier (Playwright) for pages that need JavaScript.
-- `--raw` output mode that returns the guarded HTML without Readability. See §11 question 3: this may belong in v1.
+- `--raw` output mode that returns the guarded HTML without Readability. Scheduled for v2 (§11 question 3).
 - Batch input with per-host concurrency limits. The input format is the discovery JSONL of §5.4, read as `--file jobs.jsonl`: one JSON object per line, of which scrape-core reads only `url` and ignores the rest. A plain newline-separated list of URLs stays valid, so a consumer without a discovery step is unaffected.
 - Shared JSON-LD and Open Graph extraction, if two or more consumers need it.
 
 ### 11. Open questions
 
-1. Publish to npm like qurl, or install locally only with `bun link`?
-2. Should berlin-flats import the library or call the CLI? The library is proposed, because it is already TypeScript.
-3. Does `--raw` belong in v1 rather than Future work? #34 argued yes, on the grounds that Readability strips the links discovery needs. Email discovery no longer supports that argument, because the pull script of §5.4 reads newsletter HTML straight from the feed and never calls scrape-core to find links. The remaining case is ordinary listing pages whose links Readability drops, such as event calendars. Decide on that case alone.
+None open. All questions below are resolved.
 
-> **Resolved:** who supplies URLs, and in what format? Answered in §5.4. Raised in #34 and settled by the discovery spike.
+1. **Publish to npm like qurl, or install locally only with `bun link`?** → **npm**, as `scrape-core` (the name was unclaimed on the registry when checked; it is reserved only once first published). Mirrors qurl: the CLI package is published on GitHub release, so the repo needs a GitHub remote and an `NPM_TOKEN` secret.
+2. **Should berlin-flats import the library or call the CLI?** → **Both stay available.** scrape-core ships the library (F12) and the CLI, and berlin-flats may use either.
+3. **Does `--raw` belong in v1?** → **No, v2.** The argument for v1 rested on email discovery needing unstripped links, and the pull script of §5.4 never calls scrape-core for links. Listing pages whose links Readability drops, such as event calendars, are the case v2 serves.
+4. **Who supplies URLs, and in what format?** → Answered in §5.4. Raised in #34 and settled by the discovery spike.
