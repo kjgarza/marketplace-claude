@@ -1,0 +1,22 @@
+{
+  "name": "dev-flow",
+  "version": "1.0.0",
+  "description": "Standard development flow for code changes — feature and bugfix paths sharing one spine: verify premise, plan, isolate, build, verify, ship. Human attention concentrates at premise validation and the merge decision, and both ends carry a live-probe gate.",
+  "author": {
+    "name": "Kristian Garza",
+    "email": "kj.garza@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "development",
+    "workflow",
+    "pull-request",
+    "ci",
+    "verification",
+    "falsification",
+    "tdd",
+    "code-review"
+  ],
+  "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/dev-flow",
+  "repository": "https://github.com/kjgarza/marketplace-claude"
+}

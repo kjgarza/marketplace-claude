@@ -46,6 +46,7 @@ plugins/<name>/                   ← Individual plugins
 | taskwarrior | productivity | Skills + hooks (task lifecycle; SessionStart/Stop enforcement) |
 | finanz-pilot | productivity | Agents + commands + skills + bun scripts (German finance; projection models) |
 | bulletjournal | productivity | Bullet-journal workflow automation (excluded from the autonomy overhaul) |
+| dev-flow | development | Skills (dev-flow spine, falsify, ship, babysit-pr; live-probe gate at design and merge) |
 
 ## Automation
 
