@@ -38,6 +38,36 @@ const kleinanzeigenDetailHtml = `
 <meta property="og:url" content="https://www.kleinanzeigen.de/s-anzeige/test/789-101" />
 </body></html>`;
 
+function encodeWireSnapshot(payload: unknown): string {
+  return JSON.stringify(payload)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+const inberlinwohnenItem = {
+  id: 18588,
+  title: "Wir erneuern den Boden für Sie!",
+  deeplink: "https://www.gewobag.de/fuer-mietinteressentinnen/mietangebote/7100-74804-0301-0034",
+  rooms: "3,5",
+  area: "83,10",
+  rentNet: "670,03",
+  rentGross: 870.03,
+  createdAt: "2026-07-01T16:31:04.000000Z",
+  address: [
+    { street: "Leubnitzer Weg", number: "11", zipCode: "13593", district: "Spandau" },
+    { s: "arr" },
+  ],
+};
+
+const inberlinwohnenSearchHtml = `
+<html><body>
+<div wire:id="a1" wire:snapshot="${encodeWireSnapshot({ data: { item: [inberlinwohnenItem, { s: "arr" }] } })}"></div>
+<div wire:id="a2" wire:snapshot="${encodeWireSnapshot({ data: { unrelated: true } })}"></div>
+<div wire:id="a3" wire:snapshot="${encodeWireSnapshot({ data: { item: [{ s: "arr" }] } })}"></div>
+</body></html>`;
+
 describe("parseSearchResults", () => {
   test("parses Kleinanzeigen apartment cards and skips adjacent categories", () => {
     const results = parseSearchResults(kleinanzeigenSearchHtml, "kleinanzeigen");
@@ -53,6 +83,36 @@ describe("parseSearchResults", () => {
 
   test("returns an empty array for malformed HTML", () => {
     expect(parseSearchResults("<html>", "kleinanzeigen")).toEqual([]);
+  });
+});
+
+describe("parseSearchResults — inberlinwohnen", () => {
+  test("extracts complete listings from Livewire wire:snapshot blobs, skipping non-item and marker-only snapshots", () => {
+    const results = parseSearchResults(inberlinwohnenSearchHtml, "inberlinwohnen");
+    expect(results).toHaveLength(1);
+    expect(results[0]).toMatchObject({
+      portal: "inberlinwohnen",
+      external_id: "18588",
+      url: "https://www.gewobag.de/fuer-mietinteressentinnen/mietangebote/7100-74804-0301-0034",
+      title: "Wir erneuern den Boden für Sie!",
+      cold_rent: 670.03,
+      warm_rent: 870.03,
+      sqm: 83.1,
+      rooms: 3.5,
+      district: "Spandau",
+      posted_at: "2026-07-01T16:31:04.000000Z",
+    });
+  });
+
+  test("returns an empty array when no wire:snapshot attributes are present", () => {
+    expect(parseSearchResults("<html><body>no listings here</body></html>", "inberlinwohnen")).toEqual([]);
+  });
+
+  test("handles an ampersand in a title without breaking JSON decoding", () => {
+    const html = `<div wire:snapshot="${encodeWireSnapshot({ data: { item: [{ ...inberlinwohnenItem, id: 999, title: "Wohnung & Garten" }, { s: "arr" }] } } )}"></div>`;
+    const results = parseSearchResults(html, "inberlinwohnen");
+    expect(results).toHaveLength(1);
+    expect(results[0].title).toBe("Wohnung & Garten");
   });
 });
 

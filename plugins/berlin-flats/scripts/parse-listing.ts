@@ -15,6 +15,70 @@ function parseFloatDe(str: string): number | null {
   return isNaN(num) ? null : num;
 }
 
+function decodeHtmlEntities(str: string): string {
+  // Decode &amp; FIRST so nested entities (e.g. &amp;quot;) collapse to their
+  // real form (&quot;) and then get decoded by the rules below. Decoding &amp;
+  // last would leave stray &quot;/&lt; sequences and can break JSON.parse.
+  return str
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#0?39;/g, "'");
+}
+
+interface InberlinwohnenAddress {
+  street?: string;
+  number?: string;
+  zipCode?: string;
+  district?: string;
+}
+
+interface InberlinwohnenItem {
+  id: number;
+  title?: string;
+  deeplink: string;
+  rooms?: string;
+  area?: string;
+  rentNet?: string;
+  rentGross?: number;
+  createdAt?: string;
+  address?: Array<InberlinwohnenAddress | { s: string }>;
+}
+
+// The Livewire component embeds one JSON blob per listing card in a
+// `wire:snapshot="..."` HTML attribute (HTML-entity-encoded). Each blob's
+// `data.item` array holds [realItemObject, {"s":"arr"}] — the second
+// element is Livewire's array-type marker, not data; filter by `id`.
+function extractInberlinwohnenItems(html: string): InberlinwohnenItem[] {
+  const items: InberlinwohnenItem[] = [];
+  const attrRe = /wire:snapshot="([^"]*)"/g;
+  let match: RegExpExecArray | null;
+  while ((match = attrRe.exec(html)) !== null) {
+    const raw = match[1];
+    if (!raw.includes('&quot;item&quot;')) continue;
+    let data: unknown;
+    try {
+      data = JSON.parse(decodeHtmlEntities(raw));
+    } catch {
+      continue;
+    }
+    const itemArray = (data as { data?: { item?: unknown } })?.data?.item;
+    if (!Array.isArray(itemArray)) continue;
+    for (const entry of itemArray) {
+      if (entry && typeof entry === 'object' && 'id' in entry && 'deeplink' in entry) {
+        items.push(entry as InberlinwohnenItem);
+      }
+    }
+  }
+  return items;
+}
+
+function findDistrictField(address: InberlinwohnenItem['address']): string | null {
+  const entry = address?.find((a): a is InberlinwohnenAddress => 'district' in a);
+  return entry?.district ?? null;
+}
+
 export function parseSearchResults(html: string, portal: string): Listing[] {
   const $ = cheerio.load(html);
   const listings: Listing[] = [];
@@ -86,6 +150,23 @@ export function parseSearchResults(html: string, portal: string): Listing[] {
           district: $el.find('.result-list-entry__address').first().text().trim(),
           posted_at: '',
         });
+      });
+    }
+  }
+
+  if (portal === 'inberlinwohnen') {
+    for (const item of extractInberlinwohnenItems(html)) {
+      listings.push({
+        portal,
+        external_id: String(item.id),
+        url: item.deeplink,
+        title: item.title || '',
+        cold_rent: parseFloatDe(item.rentNet || ''),
+        warm_rent: typeof item.rentGross === 'number' ? item.rentGross : null,
+        sqm: parseFloatDe(item.area || ''),
+        rooms: parseFloatDe(item.rooms || ''),
+        district: findDistrictField(item.address),
+        posted_at: item.createdAt || null,
       });
     }
   }
