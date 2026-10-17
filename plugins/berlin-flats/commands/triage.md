@@ -34,15 +34,16 @@ cd $CLAUDE_PLUGIN_ROOT && "$BUN_BIN" scripts/set-verdict.ts --id <id> --verdict 
 
 ## Step 2 — Interactive triage
 
-Load the remaining queue (pending + any still-review listings):
+Load the remaining queue ranked by fit score (pending + any still-review listings):
 
 ```bash
-cd $CLAUDE_PLUGIN_ROOT && "$BUN_BIN" scripts/queue.ts triage
+cd $CLAUDE_PLUGIN_ROOT && "$BUN_BIN" scripts/queue.ts rank
 ```
 
-For each listing, present:
+For each listing (already sorted best-first), present:
 - **Title** and URL
 - District | Cold rent | Warm rent | Rooms | sqm
+- **Fit score /100** with its top factors (one line, e.g. `fit 89 — VALUE: at median · SIZE: 104m² · NEBENKOSTEN: suspiciously low`)
 - Scam score and verdict (note any scam-judge override)
 - Description excerpt (first 200 chars)
 

@@ -38,7 +38,8 @@ Calculate exact dates using today's date. Only include future events.
 
 ### Step 3: Ingest Sources into qurl
 
-Scrape each priority source and ingest it into the local qurl database.
+Iterate the typed source registry in `scripts/sources.ts`, dispatch each source through its
+declared extraction strategy, and ingest the output into the local qurl database.
 
 > **Do not background the `qurl add` calls.** qurl writes to a single sqlite file; concurrent
 > writers hit `database is locked` and silently drop sources (seen in real runs: co-berlin
@@ -47,27 +48,26 @@ Scrape each priority source and ingest it into the local qurl database.
 
 ```bash
 PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-plugins/berlin-events}"
+BUN=$(command -v bun 2>/dev/null || echo "$HOME/.bun/bin/bun")
+
+# One-time setup if scripts/node_modules is missing:
+#   (cd "$PLUGIN_ROOT/scripts" && bun install && bunx playwright install chromium)
 
 ingest() {
-  local url="$1" tags="$2"
-  bun run "$PLUGIN_ROOT/scripts/extract-content.js" "$url" \
+  local slug="$1" url="$2" tags="$3"
+  "$BUN" run "$PLUGIN_ROOT/scripts/extract-events.ts" "$slug" \
     | qurl add "$url" --source berlin-events --tags "$tags"
 }
 
-# Art sources
-ingest "https://www.indexberlin.com/events/list/"                                         "art"
-ingest "https://www.kw-berlin.de/en/events"                                               "art"
-ingest "https://berlinischegalerie.de/programme/kalender/"                                "art"
-ingest "https://www.artatberlin.com/en/calendar-for-vernissagen-exhibitions-events/"      "art"
-ingest "https://co-berlin.org/de/programm/kalender"                                       "art"
-ingest "https://kunstleben-berlin.de/events/"                                             "art"
-
-# Food / broad sources
-ingest "https://www.berlin.de/en/events/"                  "food"
-ingest "https://www.visitberlin.de/en/event-calendar-berlin" "art,food"
+while IFS=$'\t' read -r slug url category _kind; do
+  [[ -z "$slug" ]] && continue
+  ingest "$slug" "$url" "$category"
+done < <("$BUN" run "$PLUGIN_ROOT/scripts/list-sources.ts")
 ```
 
 qurl deduplicates by URL + content hash — re-running is safe.
+The dispatcher prints plain text for Readability/Playwright sources and JSON `Event[]` for
+source-specific Playwright extractors; qurl accepts either.
 
 ### Step 4: Embed
 

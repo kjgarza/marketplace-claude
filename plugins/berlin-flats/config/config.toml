@@ -36,3 +36,22 @@ auto_send        = false
 
 [notifications]
 desktop = true
+
+# --- Application dossier (used by /prepare-application) -----------------
+# Uncomment and point at your actual files. `issued` drives freshness checks
+# (SCHUFA ≤ 90 days, payslips ≤ ~100 days, Mietschuldenfreiheit ≤ 180 days).
+# [documents.schufa]
+# path   = "~/Documents/wohnung/schufa.pdf"
+# issued = "2026-06-15"
+# [documents.payslips]
+# path   = "~/Documents/wohnung/payslips/"
+# issued = "2026-06-30"
+# [documents.id]
+# path   = "~/Documents/wohnung/id.pdf"
+# [documents.selbstauskunft]
+# path   = "~/Documents/wohnung/selbstauskunft.pdf"
+# [documents.employer_letter]
+# path   = "~/Documents/wohnung/arbeitgeber.pdf"
+# [documents.mietschuldenfreiheit]
+# path   = "~/Documents/wohnung/mietschuldenfrei.pdf"
+# issued = "2026-04-01"

@@ -1,15 +1,4 @@
-// Berlin 2024 Mietspiegel approximate medians (cold €/sqm) by district
-const MIETSPIEGEL = {
-  'Mitte': 15.5,
-  'Prenzlauer Berg': 14.8,
-  'Friedrichshain': 14.2,
-  'Kreuzberg': 13.9,
-  'Neukölln': 11.8,
-  'Charlottenburg': 14.0,
-  'Schöneberg': 13.5,
-  'Tempelhof': 11.2,
-  'default': 13.0,
-} as const;
+import { MIETSPIEGEL, findDistrict } from "./mietspiegel.ts";
 
 const HARD_RULES = [
   { pattern: /western\s*union|moneygram/i,            weight: 0.90, code: 'PAYMENT_FRAUD' },
@@ -23,15 +12,6 @@ const HARD_RULES = [
 ];
 
 import type { Listing, ScamResult } from "./types.ts";
-
-function findDistrict(districtStr?: string | null): keyof typeof MIETSPIEGEL {
-  if (!districtStr) return 'default';
-  for (const key of Object.keys(MIETSPIEGEL)) {
-    if (key === 'default') continue;
-    if (districtStr.toLowerCase().includes(key.toLowerCase())) return key as keyof typeof MIETSPIEGEL;
-  }
-  return 'default';
-}
 
 export function scamScore(listing: Listing): ScamResult {
   const desc = `${listing.title || ''} ${listing.description || ''}`.toLowerCase();

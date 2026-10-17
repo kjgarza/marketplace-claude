@@ -111,6 +111,8 @@ export function getDb(dbPath = resolveDbPath()): SqliteDb {
   `);
   // Migration: ensure reject_reason exists for databases created before this column was added
   ensureColumn(_db, 'listings', 'reject_reason', 'TEXT');
+  // Migration: verdict_at timestamps pipeline state changes (contacted/viewing/applied/…)
+  ensureColumn(_db, 'listings', 'verdict_at', 'TEXT');
   return _db;
 }
 
@@ -200,9 +202,24 @@ export function countQualifying(): number {
 }
 
 export function setVerdict(id: number, verdict: string, reason: string | null = null): void {
-  getDb().query(
-    'UPDATE listings SET verdict=$verdict, reject_reason=$reason WHERE id=$id'
+  const db = getDb();
+  db.query(
+    "UPDATE listings SET verdict=$verdict, reject_reason=$reason, verdict_at=datetime('now') WHERE id=$id"
   ).run({ $verdict: verdict, $reason: reason, $id: id });
+  db.query('INSERT INTO events (event_type, payload) VALUES ($type, $payload)').run({
+    $type: 'verdict',
+    $payload: JSON.stringify({ id, verdict, reason }),
+  });
+}
+
+export function getByVerdicts(verdicts: string[]): Listing[] {
+  if (verdicts.length === 0) return [];
+  const placeholders = verdicts.map((_, i) => `$v${i}`).join(', ');
+  const params: Record<string, string> = {};
+  verdicts.forEach((v, i) => { params[`$v${i}`] = v; });
+  return getDb().query(
+    `SELECT * FROM listings WHERE verdict IN (${placeholders}) ORDER BY verdict_at DESC, fetched_at DESC`
+  ).all(params) as Listing[];
 }
 
 export function recordRun(run: RunRecord): void {
