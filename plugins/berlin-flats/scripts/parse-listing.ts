@@ -15,16 +15,21 @@ function parseFloatDe(str: string): number | null {
   return isNaN(num) ? null : num;
 }
 
+const HTML_ENTITIES: Record<string, string> = {
+  "&amp;": "&",
+  "&lt;": "<",
+  "&gt;": ">",
+  "&quot;": '"',
+  "&#39;": "'",
+  "&#039;": "'",
+};
+
+// Single-pass decode: each entity is resolved exactly once, so an encoded
+// ampersand followed by "quot;" (i.e. &amp;quot;) yields the literal text
+// "&quot;" rather than being decoded a second time into a bare quote, which
+// would corrupt the JSON payload.
 function decodeHtmlEntities(str: string): string {
-  // Decode &amp; FIRST so nested entities (e.g. &amp;quot;) collapse to their
-  // real form (&quot;) and then get decoded by the rules below. Decoding &amp;
-  // last would leave stray &quot;/&lt; sequences and can break JSON.parse.
-  return str
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;/g, "'");
+  return str.replace(/&(?:amp|lt|gt|quot|#0?39);/g, (m) => HTML_ENTITIES[m] ?? m);
 }
 
 interface InberlinwohnenAddress {
@@ -60,7 +65,8 @@ function extractInberlinwohnenItems(html: string): InberlinwohnenItem[] {
     let data: unknown;
     try {
       data = JSON.parse(decodeHtmlEntities(raw));
-    } catch {
+    } catch (err) {
+      console.warn(`[parse-listing] inberlinwohnen: skipping unparseable wire:snapshot: ${(err as Error).message}`);
       continue;
     }
     const itemArray = (data as { data?: { item?: unknown } })?.data?.item;

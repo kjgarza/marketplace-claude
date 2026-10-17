@@ -129,4 +129,13 @@ describe("parseDetail", () => {
     expect(detail.rooms).toBe(2);
     expect(detail.external_id).toBe("789");
   });
+
+  test("parses a listing whose title contains the literal text &quot;Altbau&quot; (double-encoded as &amp;quot;)", () => {
+    const title = "&quot;Altbau&quot; in Schöneberg";
+    const encoded = encodeWireSnapshot({ data: { item: [{ ...inberlinwohnenItem, id: 1001, title }, { s: "arr" }] } });
+    expect(encoded).toContain("&amp;quot;Altbau&amp;quot;");
+    const results = parseSearchResults(`<div wire:snapshot="${encoded}"></div>`, "inberlinwohnen");
+    expect(results).toHaveLength(1);
+    expect(results[0].title).toBe(title);
+  });
 });
