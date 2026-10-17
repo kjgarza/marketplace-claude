@@ -12,7 +12,7 @@ LOG_FILE="$LOG_DIR/job-search-$STAMP.log"
 {
   echo "[$STAMP] Starting scheduled job search"
 
-  claude --permission-mode bypassPermissions --print '
+  claude --allowedTools "Bash Read Write Edit Glob Grep WebFetch WebSearch ToolSearch mcp__chrome-devtools__*" --print '
 Use the local skill `find-kristian-jobs` from this repository to run a full Kristian job search.
 
 Requirements:

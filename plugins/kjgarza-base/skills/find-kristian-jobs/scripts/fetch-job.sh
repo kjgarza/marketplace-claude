@@ -77,10 +77,17 @@ if echo "$URL" | grep -qE 'greenhouse\.io/([^/]+)/jobs/([0-9]+)'; then
   if [[ -n "$RESPONSE" ]] && echo "$RESPONSE" | jq -e '.id' >/dev/null 2>&1; then
     TITLE=$(echo "$RESPONSE" | jq -r '.title // ""')
     LOCATION=$(echo "$RESPONSE" | jq -r '.location.name // ""')
-    # Greenhouse API returns updated_at (ISO8601) — closest proxy to posted date
+    # first_published is the real posting date; updated_at moves on any edit,
+    # so it is only a fallback when first_published is absent.
+    PUBLISHED=$(echo "$RESPONSE" | jq -r '.first_published // .updated_at // ""')
     UPDATED=$(echo "$RESPONSE" | jq -r '.updated_at // ""')
-    POSTED_DATE=$(echo "$UPDATED" | grep -oE '20[0-9]{2}-[0-9]{2}-[0-9]{2}' | head -1 || echo "unknown")
-    CONTENT="# ${TITLE}\nLocation: ${LOCATION}\nUpdated: ${UPDATED}\n\n$(echo "$RESPONSE" | jq -r '.content // ""' | sed 's/<[^>]*>//g')"
+    POSTED_DATE=$(echo "$PUBLISHED" | grep -oE '20[0-9]{2}-[0-9]{2}-[0-9]{2}' | head -1 || true)
+    [[ -z "$POSTED_DATE" ]] && POSTED_DATE="unknown"
+    # content is HTML-entity-escaped: decode first (&amp; last), then strip tags
+    BODY=$(echo "$RESPONSE" | jq -r '.content // ""' \
+      | sed 's/&lt;/</g; s/&gt;/>/g; s/&quot;/"/g; s/&#39;/'"'"'/g; s/&nbsp;/ /g; s/&amp;/\&/g' \
+      | sed 's/<[^>]*>//g')
+    CONTENT=$(printf '# %s\nLocation: %s\nPublished: %s\nUpdated: %s\n\n%s' "$TITLE" "$LOCATION" "$PUBLISHED" "$UPDATED" "$BODY")
     STATUS="open"  # If the API returns a job, it's live
     # Application form fields (label, required, type, select options if any)
     QUESTIONS=$(echo "$RESPONSE" | jq -c '[.questions[]? | {
@@ -108,13 +115,10 @@ if echo "$URL" | grep -qE 'jobs\.lever\.co/([^/]+)/([a-f0-9-]+)'; then
     TITLE=$(echo "$RESPONSE" | jq -r '.text // ""')
     LOCATION=$(echo "$RESPONSE" | jq -r '.categories.location // ""')
     # Lever returns createdAt as Unix ms
-    CREATED_MS=$(echo "$RESPONSE" | jq -r '.createdAt // 0')
-    if [[ "$CREATED_MS" -gt 0 ]]; then
-      POSTED_DATE=$(date -d "@$((CREATED_MS / 1000))" +"%Y-%m-%d" 2>/dev/null || echo "unknown")
-    else
-      POSTED_DATE="unknown"
-    fi
-    CONTENT="# ${TITLE}\nLocation: ${LOCATION}\n\n$(echo "$RESPONSE" | jq -r '.descriptionPlain // .description // ""' | sed 's/<[^>]*>//g')"
+    # Convert in jq (portable; BSD date on macOS has no `-d @epoch`)
+    POSTED_DATE=$(echo "$RESPONSE" | jq -r 'if (.createdAt // 0) > 0 then (.createdAt / 1000 | floor | strftime("%Y-%m-%d")) else "unknown" end' 2>/dev/null || echo "unknown")
+    BODY=$(echo "$RESPONSE" | jq -r '.descriptionPlain // .description // ""' | sed 's/<[^>]*>//g')
+    CONTENT=$(printf '# %s\nLocation: %s\n\n%s' "$TITLE" "$LOCATION" "$BODY")
     STATUS=$(detect_closed "$CONTENT")
     emit_json "$URL" "$POSTED_DATE" "$STATUS" "$CONTENT"
     exit 0
@@ -124,12 +128,16 @@ fi
 # ── Jina Reader ───────────────────────────────────────────────────────────────
 
 if [[ -n "$JINA_KEY" ]]; then
-  JINA_RESPONSE=$(curl -sf --max-time "$TIMEOUT" \
+  JINA_TMP=$(mktemp)
+  JINA_CODE=$(curl -s --max-time "$TIMEOUT" -o "$JINA_TMP" -w '%{http_code}' \
     -H "Authorization: Bearer ${JINA_KEY}" \
     -H "X-Return-Format: markdown" \
-    "https://r.jina.ai/${URL}" 2>/dev/null || echo "")
+    "https://r.jina.ai/${URL}" 2>/dev/null || echo "000")
+  JINA_RESPONSE=$(cat "$JINA_TMP"); rm -f "$JINA_TMP"
 
-  if [[ -n "$JINA_RESPONSE" ]] && ! echo "$JINA_RESPONSE" | grep -qi "error\|not found\|403\|429"; then
+  # Judge success by HTTP status and body length, not by words in the page
+  # (valid JDs mention "error handling", numbers like 403, etc.).
+  if [[ "$JINA_CODE" == 2* ]] && [[ ${#JINA_RESPONSE} -ge 200 ]]; then
     POSTED_DATE=$(extract_date_from_text "$JINA_RESPONSE")
     [[ -z "$POSTED_DATE" ]] && POSTED_DATE="unknown"
     STATUS=$(detect_closed "$JINA_RESPONSE")

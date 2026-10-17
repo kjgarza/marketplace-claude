@@ -59,19 +59,9 @@ When parsing a posting with Jina Reader, always look for: `Posted`, `Date posted
 
 Browser tools are deferred — load schemas first with `ToolSearch` (`select:mcp__chrome-devtools__navigate_page,mcp__chrome-devtools__take_snapshot`). If the chrome-devtools MCP server is unavailable, skip browser steps and rely on WebSearch + fetch-job.sh — do not fail the run.
 
-**URL Caching with qurl — check before every fetch:**
-```bash
-qurl get "<url>"   # exits 0 with content if cached; exits 1 if not found
-```
-- Exit 0: use returned content directly. Skip Jina/WebFetch.
-- Exit 1: proceed with Jina or WebFetch, then index the result:
-```bash
-echo "<fetched_content>" | qurl add "<url>"
-```
-Applies to: job posting URLs, career page URLs, company about/team pages.
+**Fetching a posting:** `fetch-job.sh` is the single path for every job posting URL (below). It does not consult qurl, so for the `WebFetch`/browser fallbacks (career pages, company about/team pages) check the cache first with `qurl get "<url>"` (exit 0 = cached content, use it; exit 1 = fetch, then `echo "<content>" | qurl add "<url>"`). Skip qurl for posting URLs: `fetch-job.sh` already returns fresh `posted_date`/`status`.
 
-**Jina Reader pattern:** `curl -H "Authorization: Bearer $JINA_API_KEY" "https://r.jina.ai/[url]"` — use for every job posting URL to get clean markdown fast. Always preferred over raw WebFetch.
-**Job fetch pattern** — use for every job posting URL. Returns structured JSON with `posted_date` and `status` pre-extracted:
+**Job fetch pattern** — the only way to fetch a job posting URL. Returns structured JSON with `posted_date` and `status` pre-extracted:
 
 ```bash
 RESULT=$(bash ${CLAUDE_PLUGIN_ROOT}/skills/find-kristian-jobs/scripts/fetch-job.sh "$JOB_URL")
@@ -80,7 +70,7 @@ STATUS=$(echo "$RESULT"     | jq -r '.status')          # "open", "closed", or "
 CONTENT=$(echo "$RESULT"    | jq -r '.content')
 ```
 
-The script auto-selects the best source: **Greenhouse API → Lever API → Jina Reader → plain curl**. Always preferred over raw `curl` or `WebFetch`.
+The script auto-selects the best source: **Greenhouse API → Lever API → Jina Reader → plain curl**. Do not call raw `curl`, Jina or `WebFetch` for posting URLs; the script already falls back through them (Jina needs `JINA_API_KEY`).
 
 ## Output
 
