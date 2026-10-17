@@ -117,9 +117,13 @@ export function scoreAgainstPrefs(listing: Listing, prefs: SearchCriteria): numb
     if (!match) return -1;
   }
 
-  // keywords_required: all listed keywords must appear somewhere in title+description
-  for (const kw of (prefs.keywords_required || [])) {
-    if (!text.includes(kw.toLowerCase())) return -1;
+  // keywords_required: all listed keywords must appear somewhere in title+description.
+  // Skipped when the listing has no description (e.g. municipal inberlinwohnen cards):
+  // there is no text to match against, so absence of a keyword is not evidence.
+  if (listing.description?.trim()) {
+    for (const kw of (prefs.keywords_required || [])) {
+      if (!text.includes(kw.toLowerCase())) return -1;
+    }
   }
 
   return 100;

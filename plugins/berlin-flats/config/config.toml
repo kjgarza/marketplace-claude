@@ -15,6 +15,8 @@ max_rooms         = 4
 min_sqm           = 100
 max_warm_rent_eur = 2200
 max_cold_rent_eur = 2000
+# Matched against title+description. Listings with no description (e.g. municipal
+# inberlinwohnen cards) skip this check instead of failing it.
 keywords_required = ["Altbau"]
 deal_breakers     = ["WG", "Tausch", "Souterrain"]
 
