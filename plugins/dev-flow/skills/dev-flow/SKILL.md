@@ -1,6 +1,6 @@
 ---
 name: dev-flow
-description: Standard development flow for any code change — feature path (design interrogation, falsify, plan, worktree, build, verify, ship) or bugfix path (reproduce, root-cause, TDD fix, ship). Use when starting work on a new feature, enhancement, ticket, issue, bug, regression, or any request to implement or fix something in a codebase.
+description: This skill should be used when the user asks to "start work on a feature", "fix this bug", "implement this ticket", or "work on this regression". Standard development flow for any code change — feature path (design interrogation, falsify, plan, worktree, build, verify, ship) or bugfix path (reproduce, root-cause, TDD fix, ship).
 ---
 
 # Dev Flow
@@ -19,6 +19,7 @@ This skill orchestrates other skills. Installing it alone leaves dangling refere
 | `code-simplifier` (the `/simplify` agent) | `code-simplifier` (claude-plugins-official) |
 | `code-review`, `security-review` | `code-review` (claude-plugins-official) |
 | `architecture` | `knowledge-work-plugins` |
+| `cavecrew-reviewer`, `cavecrew-investigator` (optional) | `cavecrew` plugin (third-party, not in this marketplace); when absent, use `code-review` for review and the `Explore` agent for investigation |
 | `grill-me`, `ticket-swarm`, `handoff` | personal / project skills — optional, referenced only on named branches of the flow |
 
 `falsify`, `ship` and `babysit-pr` ship in this plugin.
@@ -45,7 +46,7 @@ This skill orchestrates other skills. Installing it alone leaves dangling refere
 ### 3. Isolate
 
 - `using-git-worktrees` skill — worktree off latest origin/main, one per ticket
-- Resuming an existing PR instead → freshness preflight first (global CLAUDE.md Git/PR rule)
+- Resuming an existing PR instead → freshness preflight first (`babysit-pr` Step 1b)
 
 ### 4. Build (pick by shape)
 
@@ -68,14 +69,14 @@ TDD applies in all cases: failing test before implementation code.
 ### 6. Ship
 
 - `ship` skill — creates PR, drives to green via babysit loop, classifies flaky CI, stops at merge-readiness report. Never merges; the user decides
-- End with the Run Output Contract sections (global CLAUDE.md)
+- End with the Run Output Contract sections (defined in `ship` Step 4)
 
 ## Bugfix path
 
 ### 1. Diagnose — no fix until root cause proven
 
 - `systematic-debugging` skill. **Reproduce first** — the reproduction is the live probe; a fix without one is an unverified assumption
-- Unknown location / cross-cutting → cavecrew-investigator or Explore agent to locate, keep findings not file dumps in context
+- Unknown location / cross-cutting → `cavecrew-investigator` if installed, otherwise the Explore agent, to locate, keep findings not file dumps in context
 
 ### 2. Isolate
 
@@ -89,7 +90,7 @@ TDD applies in all cases: failing test before implementation code.
 ### 4. Verify + ship
 
 - `verification-before-completion` (local evidence), then **`falsify` Mode 2 when the diff touches infra, deployed config or rendered layout** (running-system evidence), then `/simplify` (`code-simplifier` plugin) on the fix diff only, then `ship`
-- Tiny diffs: cavecrew-reviewer on the post-simplify diff instead of full `code-review`
+- Tiny diffs: `cavecrew-reviewer` if installed, otherwise `code-review`, on the post-simplify diff
 
 ## Delegation (context hygiene + independence)
 
@@ -99,11 +100,11 @@ Default rule: **delegate to a subagent when raw tool output vastly exceeds the c
 |---|---|---|
 | Brainstorm / grill / plan | Inline | User dialogue + accumulated understanding is the value; a subagent starts blind |
 | Falsify probes | Parallel subagents | Raw probe output pollutes; only the verdict table matters |
-| Code location / diagnosis sweeps | cavecrew-investigator or Explore | Want a file:line table, not 40 file reads in context |
+| Code location / diagnosis sweeps | `cavecrew-investigator` (else Explore) | Want a file:line table, not 40 file reads in context |
 | Build — independent tasks | Subagents (`subagent-driven-development`) | Tasks are self-contained by design. **State each agent's done explicitly: branch pushed, CI green, review findings addressed, and every call site of the thing it changed checked — never "PR opened"** |
 | Build — small sequential + TDD | Inline | Handoff cost exceeds pollution; TDD needs tight edit-test iteration |
 | `/simplify` | `code-simplifier` plugin agent on the ticket/fix diff | Independence: author doesn't grade own cleanup |
-| Review / verify pass | cavecrew-reviewer or code-review agent on the **post-simplify** diff | Independence: fresh eyes, author never reviews own work |
+| Review / verify pass | `cavecrew-reviewer` (else `code-review`) on the **post-simplify** diff | Independence: fresh eyes, author never reviews own work |
 | Ship loop | Background job | Long CI polling shouldn't occupy the interactive session |
 
 Never delegate a decision the user must see reasoning for (design trade-offs, scope calls) — subagent reports summarize, and the user loses the why.

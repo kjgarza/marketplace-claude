@@ -1,11 +1,13 @@
 ---
 name: falsify
-description: Red-team a design before any code exists, or a fix before it merges. Enumerates every factual assumption the work depends on, ranks by blast radius, and proves or disproves each with live probes. Use before implementing integration tickets, before merging a change to infrastructure, IaC, deployed config or rendered layout, when the user says "falsify this", "red-team this design", "falsify the fix", "check the assumptions", or before writing an ADR for work touching external APIs.
+description: This skill should be used when the user says "falsify this", "red-team this design", "falsify the fix", or "check the assumptions", before implementing integration tickets, before writing an ADR for work touching external APIs, or before merging a change to infrastructure, IaC, deployed config or rendered layout. Enumerates every factual assumption the work depends on, ranks by blast radius, and proves or disproves each with live probes.
 ---
 
 # Falsify
 
-Run a falsification phase BEFORE writing any implementation code. The goal is to find the one live probe or measurement that would invalidate the design — before the design costs a PR cycle.
+Run a falsification phase at two boundaries: BEFORE writing implementation code (Mode 1, the design) and BEFORE merging (Mode 2, the fix). The goal is to find the one live probe or measurement that would invalidate the work — before it costs a PR cycle or a bad deploy.
+
+The workflow and Step 4 outcomes below are Mode 1. Mode 2 has its own outcomes.
 
 ## When to run
 
@@ -66,17 +68,21 @@ Grade every claim. Only the third counts as verified:
 
 | Diff touches | Probe |
 |---|---|
-| IaC / provider config | Apply through the actual provider (`pulumi preview`, `terraform plan`). Provider constraints are stricter than the cloud API schema your types validate against — a tree that typechecks can still be rejected at deploy |
+| IaC / provider config | Run the provider's dry-run, never apply (`pulumi preview`, `terraform plan`). Provider constraints are stricter than the cloud API schema your types validate against — a tree that typechecks can still be rejected at deploy |
 | A localhost health check | Resolve the listening PID and confirm it belongs to this session's process tree; an orphaned server from another worktree is a false green |
 | Data / query paths | Query the real DB or API for the records touched, and paste the rows |
 | Rendered layout | Drive the real UI with the chrome tools, screenshot before/after, and assert the specific computed property you changed |
 | "These are/aren't duplicates" | Diff them and report line/byte similarity — never assert equivalence from reading |
 
-Report the Step 4 table, plus an explicit list of anything unprovable here and the access it would need.
+Report the Step 4 table (columns only; its outcomes are for designs), plus an explicit list of anything unprovable here and the access it would need. Mode 2 outcomes:
+
+- Any DISPROVED load-bearing assumption → fix the code, re-probe; the `ship` verdict is BLOCKED until it is CONFIRMED.
+- Any UNVERIFIED load-bearing assumption → surface to the user; no READY TO MERGE without explicit acceptance of the risk.
+- All CONFIRMED → fill in the `Live probe:` line of the `ship` / `babysit-pr` report with the observed evidence.
 
 ## Rules
 
-- No implementation code until every load-bearing assumption is CONFIRMED or the user explicitly accepts the risk
+- Mode 1: no implementation code until every load-bearing assumption is CONFIRMED or the user explicitly accepts the risk. Mode 2: no READY TO MERGE under the same condition
 - Show raw probe output, not paraphrases
 - Probes must be minimal and read-only where possible; never probe with destructive writes against shared/prod resources
 - Keep probe scripts in the repo (e.g. `scripts/probes/` or ticket branch) so they can be re-run when the API changes

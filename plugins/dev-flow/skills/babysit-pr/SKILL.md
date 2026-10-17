@@ -2,7 +2,7 @@
 
 name: babysit-pr
 
-description: Monitors a pull request until it is ready to merge. Checks CI status, reviews PR comments, and automatically fixes issues. Use when someone says "babysit this PR", "watch this PR", "monitor PR", "fix PR issues", or "get this PR ready to merge".
+description: This skill should be used when the user asks to "babysit this PR", "watch this PR", "monitor PR", "fix PR issues", or "get this PR ready to merge". Monitors a pull request until it is ready to merge: checks CI status, reviews PR comments, and automatically fixes issues.
 
 ---
 
@@ -376,7 +376,11 @@ PR #<number> Status:
 
 - Review re-requested: [yes/no — who]
 
+- Live probe: <what was observed in the running system, or NONE>
+
 ```
+
+When the diff touches `infra/`, IaC, deployed config or rendered layout, `Merge: ready` is NOT allowed while `Live probe:` is NONE; report `Merge: blocked (no live probe)` instead (same rule as `ship` Step 4).
 
   
 

@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Drive a branch all the way to a mergeable PR autonomously — create the PR if needed, then loop CI, review comments, and rebases until green, classifying flaky vs real failures and logging every iteration. Use when someone says "ship this", "ship this branch", "take this to mergeable", or "open a PR and get it green".
+description: This skill should be used when the user asks to "ship this", "ship this branch", "take this to mergeable", or "open a PR and get it green". Drives a branch all the way to a mergeable PR autonomously — creates the PR if needed, then loops CI, review comments, and rebases until green, classifying flaky vs real failures and logging every iteration.
 ---
 
 # Ship
@@ -74,7 +74,11 @@ SHIP REPORT — PR #<n>
 - Verdict: READY TO MERGE / BLOCKED ON <thing>
 ```
 
-Then end with the Run Output Contract sections (Completed / Skipped or degraded / Unverified claims) per global CLAUDE.md.
+Then end with the Run Output Contract: these three headings, each required, writing "None" when empty.
+
+- `### Completed` — each step/check with counts
+- `### Skipped or degraded` — anything not run, with the exact error
+- `### Unverified claims` — anything in the output not confirmed against live data
 
 ## Rules
 
