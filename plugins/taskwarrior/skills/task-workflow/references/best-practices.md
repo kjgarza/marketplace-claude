@@ -169,7 +169,10 @@ task +waiting list
 task priority:L entry.before:now-60d list
 ```
 
-For each stale task: update, delete, or add `+deferred` with an annotation explaining why.
+For each stale task: update it, add `+deferred` with an annotation explaining why, or — if the
+decision is to not do it at all — annotate the reason, add `+wontdo`, and `task <id> done`.
+Never `delete` a task just because it's stale or no longer wanted; deletion destroys the audit
+trail (see the Close-stage rules in `SKILL.md`). Reserve `delete` for genuine data-entry mistakes.
 
 ## Contexts
 

@@ -117,12 +117,32 @@ task <id> done
 # Partial completion — stop and annotate remaining work
 task <id> stop
 task <id> annotate "Partial: completed X. Remaining: Y"
+
+# Decided NOT to do the work — never delete, mark Won't Do instead
+task <id> annotate "Won't do: <reason>"
+task <id> modify +wontdo
+task <id> done
 ```
 
 **Close rules:**
 - Call `task <id> done` — this is non-negotiable; the task is not done until the ledger reflects it
 - If completion is partial: stop the active timer, annotate remaining work, do NOT mark done
+- **Never run `task <id> delete`** for a task that is no longer wanted. Deletion destroys the
+  audit trail (ISO 27001 requires decisions to stay retrievable, not disappear). Annotate the
+  reason, add `+wontdo`, then `task <id> done` — this closes it, keeps history, and is queryable
+  via `task +wontdo completed`. Reserve `delete` only for genuine data-entry mistakes (duplicate
+  or garbage entry that was never a real decision).
+- **Never run `task purge`** without explicit user sign-off — it permanently erases records,
+  including Won't Do history, regardless of status.
 - After closing, show a brief summary of remaining tasks in the same project
+- If the task carries an `obsidian://` annotation (see `references/obsidian-vault.md`),
+  check whether the linked note still needs updating to reflect completion — an open
+  checklist item, a stale `status: active` in its frontmatter, etc. Don't silently leave
+  it stale just because the ledger is now correct; a quick check-and-fix here is enough.
+  A dedicated sweep across many tasks/notes at once (e.g. after a bulk close, or when a
+  whole project just wrapped) is better handled by a vault-specific reconcile skill if
+  one is installed — this rule covers the common single-task case so drift doesn't
+  accumulate between sweeps.
 
 ## Notes and Annotations
 
@@ -187,6 +207,7 @@ before considering the turn done.
 | Situation | Required action |
 |-----------|----------------|
 | Work completed | `task <id> done` |
+| Decided not to do the work | annotate reason + `task <id> modify +wontdo` + `task <id> done` (never `delete`) |
 | Work partially done | `task <id> stop` + annotate progress |
 | Blocked | `task <id> modify +blocked` + annotate reason |
 | Blocked resolved | `task <id> modify -blocked` + `task <id> start` |

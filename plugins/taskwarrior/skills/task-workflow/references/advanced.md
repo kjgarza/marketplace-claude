@@ -277,8 +277,10 @@ task config theme.color.header.color cyan
 # Complete all tasks in a project
 task project:OldProject done
 
-# Delete all waiting tasks older than 30 days
-task +WAITING entry.before:now-30d delete
+# Close stale waiting tasks as Won't Do (never bulk `delete` — see SKILL.md Close rules)
+task +WAITING entry.before:now-30d annotate "Won't do: stale, no longer needed"
+task +WAITING entry.before:now-30d modify +wontdo
+task +WAITING entry.before:now-30d done
 
 # Bulk modify
 task project:Work +sprint modify due:eow
