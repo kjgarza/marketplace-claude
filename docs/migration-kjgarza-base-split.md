@@ -63,6 +63,48 @@ If you had `kjgarza-base` and used its job, home or file skills, also install:
 
 Restart Claude Code (or run `/reload-plugins`) afterwards.
 
+### If the rename didn't apply
+
+The `renames` map isn't always applied to an existing install. One real setup kept the old
+names after **Update marketplace** and a restart, even though the local marketplace copy had
+the map. Its `~/.claude/settings.json` was a symlink into a dotfiles repo, and the old plugin
+was enabled in several scopes. Neither cause was confirmed.
+
+Check from a shell:
+
+```bash
+claude plugin list | grep -A3 '@marketplace-claude'
+```
+
+If an old name (`kjgarza-base`, `kjgarza-product`, `scholarly-comms-researcher`,
+`prototyping-skills`) is still listed, swap it by hand. These commands write only your user
+settings, so run them from any folder (your home directory is safest):
+
+```bash
+claude plugin uninstall kjgarza-base@marketplace-claude --scope user
+claude plugin install dev-workflow@marketplace-claude --scope user
+```
+
+Repeat for each old → new pair you had, then add `job-search`, `smart-home` or `file-tools`
+as above. The CLI writes through a symlinked `settings.json`, so a dotfiles link stays
+intact. Check with `ls -l ~/.claude/settings.json`.
+
+**Project and local scopes.** A repo's `.claude/settings.json` or `.claude/settings.local.json`
+can still name an old plugin. Find and rewrite those files (adjust the search root):
+
+```bash
+grep -rl --include='settings*.json' -E '"(kjgarza-base|kjgarza-product|scholarly-comms-researcher|prototyping-skills)@marketplace-claude"' ~/code \
+  | xargs sed -i '' \
+      -e 's/"kjgarza-product@marketplace-claude"/"product@marketplace-claude"/' \
+      -e 's/"kjgarza-base@marketplace-claude"/"dev-workflow@marketplace-claude"/' \
+      -e 's/"scholarly-comms-researcher@marketplace-claude"/"scholarly-research@marketplace-claude"/' \
+      -e 's/"prototyping-skills@marketplace-claude"/"prototyping@marketplace-claude"/'
+```
+
+`sed -i ''` is the macOS form. On Linux use `sed -i`. A checked-in `.claude/settings.json`
+then needs a commit in each repo. Commit only that file
+(`git commit -m "…" -- .claude/settings.json`) so unrelated work stays out.
+
 ## Changed invocation names
 
 The plugin prefix changes with the plugin name, so update any scripts, notes or prompts that
