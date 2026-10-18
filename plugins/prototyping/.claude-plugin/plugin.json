@@ -1,0 +1,26 @@
+{
+  "name": "prototyping",
+  "version": "1.0.0",
+  "description": "Skills for rapid prototype development with a standardized Bun monorepo stack (core, types, api, ui, mcp). Encodes team conventions (Biome, bun:test, JSON:API, Actor Pattern, design tokens), deviation protocol, per-package patterns, test scaffolding, and development workflow chaining.",
+  "author": {
+    "name": "Kristian Garza"
+  },
+  "keywords": [
+    "prototyping",
+    "monorepo",
+    "bun",
+    "hono",
+    "nextjs",
+    "mcp",
+    "team-conventions",
+    "biome",
+    "jsonapi",
+    "actor-pattern",
+    "bun-sqlite"
+  ],
+  "agents": [
+    "./agents/scaffold-dispatcher.md"
+  ],
+  "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/prototyping",
+  "repository": "https://github.com/kjgarza/marketplace-claude"
+}

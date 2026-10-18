@@ -1,0 +1,19 @@
+{
+  "name": "job-search",
+  "version": "1.0.0",
+  "description": "Job search assistant: finds matching roles, prepares application materials, and identifies LinkedIn contacts to reach out to at target companies.",
+  "author": {
+    "name": "Kristian Garza",
+    "email": "kj.garza@gmail.com"
+  },
+  "license": "MIT",
+  "keywords": [
+    "jobs",
+    "job-search",
+    "cover-letter",
+    "linkedin",
+    "outreach"
+  ],
+  "homepage": "https://github.com/kjgarza/marketplace-claude/tree/main/plugins/job-search",
+  "repository": "https://github.com/kjgarza/marketplace-claude"
+}

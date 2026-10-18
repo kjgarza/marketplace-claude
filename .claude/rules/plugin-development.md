@@ -21,7 +21,7 @@ Key skills to use:
 
 Every plugin **must** have `.claude-plugin/plugin.json`. This is the canonical location for new plugins.
 
-> **Legacy note:** Some existing plugins (e.g. `kjgarza-product`) also have a root-level `plugin.json`. Do not delete it without verifying no downstream tooling depends on it — but do not create new ones at the root.
+> **Legacy note:** Root-level `plugins/<name>/plugin.json` manifests are no longer used by any plugin (`scripts/bump-version.py` still tolerates them). Do not create new ones at the root.
 
 **Minimum:**
 ```json

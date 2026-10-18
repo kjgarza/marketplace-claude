@@ -154,7 +154,7 @@ When dates are null in the book profile, derive them: announcement = today, arti
 
 ## Document Generation
 
-One-pagers are generated as Markdown by default. Use the `--pdf` flag to also produce PDF output via the pdf skill from kjgarza-product.
+One-pagers are generated as Markdown by default. Use the `--pdf` flag to also produce PDF output via the `product:pdf` skill (product plugin).
 
 In **one-pager body copy** (synopsis, hooks, labels), follow the same rule as Slack: no em dashes (—) in generated member-facing text; prefer commas, periods, colons, or parentheses.
 
