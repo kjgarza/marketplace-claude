@@ -325,6 +325,29 @@
         "retirement"
       ],
       "strict": true
+    },
+    {
+      "name": "dev-flow",
+      "source": "./plugins/dev-flow",
+      "description": "Standard development flow for code changes — feature and bugfix paths sharing one spine, with a live-probe gate at both the design and the merge boundary. Includes falsify, ship and babysit-pr.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "development",
+      "keywords": [
+        "development",
+        "workflow",
+        "pull-request",
+        "ci",
+        "verification",
+        "falsification",
+        "tdd",
+        "code-review"
+      ],
+      "strict": true
     }
   ]
 }
