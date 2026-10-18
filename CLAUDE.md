@@ -32,8 +32,8 @@ plugins/<name>/                   ← Individual plugins
 
 | Plugin | Category | Key Components |
 |--------|----------|----------------|
-| dev-workflow | development | Agent + commands + skills + output-style (babysit-pr, spike, metaprompt, session-cleanup, planning-with-files, scaffolding, skill-creator) |
-| job-search | productivity | Skills (find-jobs, find-linkedin-contacts) |
+| dev-workflow | development | Agent + commands + skills + output-style (spike, metaprompt, session-cleanup, planning-with-files, scaffolding, skill-creator) |
+| job-search | productivity | Skills + scripts (job-search, find-jobs, find-linkedin-contacts) |
 | smart-home | utilities | Skills (home-control) |
 | file-tools | utilities | Skills (file-organizer, image-processing) |
 | scholarly-research | documentation | Agent + skills (literature-review, scientific-writing, etc.) |
@@ -49,6 +49,7 @@ plugins/<name>/                   ← Individual plugins
 | taskwarrior | productivity | Skills + hooks (task lifecycle; SessionStart/Stop enforcement) |
 | finanz-pilot | productivity | Agents + commands + skills + bun scripts (German finance; projection models) |
 | bulletjournal | productivity | Bullet-journal workflow automation (excluded from the autonomy overhaul) |
+| dev-flow | development | Skills (dev-flow spine, falsify, ship, babysit-pr; live-probe gate at design and merge) |
 
 ## Automation
 

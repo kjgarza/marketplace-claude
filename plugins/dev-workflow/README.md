@@ -10,7 +10,6 @@ Developer workflow skills for day-to-day engineering work with Claude Code.
 
 ## Skills
 
-- `babysit-pr` - Monitor a PR until it is ready to merge (CI, review comments, fixes)
 - `spike` - Run throwaway prototypes to settle which approach to take
 - `metaprompt` - Turn a task description into a reusable prompt template
 - `session-cleanup` - Analyze and close stale Claude Code background sessions

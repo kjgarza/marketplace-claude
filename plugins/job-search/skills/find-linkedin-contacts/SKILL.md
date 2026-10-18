@@ -1,6 +1,6 @@
 ---
 name: find-linkedin-contacts
-description: "Find LinkedIn contacts at a target company for a specific job role. Use when helping with job applications and needing to identify people to reach out to — hiring managers, direct managers, and team members who are decision makers. Excludes C-suite, founders, and owners. Works alongside find-kristian-jobs and find-jobs skills. Triggers when asked to find contacts at a company, who should I reach out to for a job, find the hiring manager at a company, find people to reach out to on LinkedIn, build my outreach list for a job or company, or find decision makers at a company."
+description: "Find LinkedIn contacts at a target company for a specific job role. Use when helping with job applications and needing to identify people to reach out to — hiring managers, direct managers, and team members who are decision makers. Excludes C-suite, founders, and owners. Works alongside job-search and find-jobs skills. Triggers when asked to find contacts at a company, who should I reach out to for a job, find the hiring manager at a company, find people to reach out to on LinkedIn, build my outreach list for a job or company, or find decision makers at a company."
 ---
 
 # Find LinkedIn Contacts
@@ -10,7 +10,7 @@ Identify the right people to contact at a target company and build a prioritized
 ## Input
 
 Accept any of:
-- Company name + job title (from find-kristian-jobs or find-jobs output)
+- Company name + job title (from job-search or find-jobs output)
 - A job posting URL (fetch and extract company and role)
 - Company name + department (e.g. "DataCite, engineering")
 - Company website URL (use as a scraping source for team/people pages)

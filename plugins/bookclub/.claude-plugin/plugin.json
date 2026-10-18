@@ -1,6 +1,6 @@
 {
   "name": "bookclub",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Book club management plugin for generating Slack communications, discussion materials, and reading schedules",
   "author": {
     "name": "Kristian Garza",

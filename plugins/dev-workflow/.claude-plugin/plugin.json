@@ -1,14 +1,13 @@
 {
   "name": "dev-workflow",
   "version": "1.0.0",
-  "description": "Developer workflow skills: PR babysitting, spikes, metaprompting, session cleanup, file-based planning, project scaffolding/bootstrapping, skill creation, plan execution, and a senior-dev advisor agent with a technical-lead output style.",
+  "description": "Developer workflow skills: spikes, metaprompting, session cleanup, file-based planning, project scaffolding/bootstrapping, skill creation, plan execution, and a senior-dev advisor agent with a technical-lead output style.",
   "author": {
     "name": "Kristian Garza",
     "email": "kj.garza@gmail.com"
   },
   "license": "MIT",
   "keywords": [
-    "pull-requests",
     "spike",
     "metaprompt",
     "session-cleanup",

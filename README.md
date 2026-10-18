@@ -20,7 +20,8 @@ claude plugin marketplace add kjgarza/marketplace-claude
 
 | Plugin | Category | Description |
 |--------|----------|-------------|
-| **dev-workflow** | development | Developer workflow skills: PR babysitting, spikes, metaprompting, session cleanup, file-based planning, project scaffolding/bootstrapping, skill creation, plan execution, and a senior-dev advisor agent with a technical-lead output style. |
+| **dev-workflow** | development | Developer workflow skills: spikes, metaprompting, session cleanup, file-based planning, project scaffolding/bootstrapping, skill creation, plan execution, and a senior-dev advisor agent with a technical-lead output style. |
+| **dev-flow** | development | Standard development flow for code changes — feature and bugfix paths sharing one spine (verify premise, plan, isolate, build, verify, ship), with live-probe gates at design and merge, plus PR babysitting. |
 | **job-search** | productivity | Job search assistant: finds matching roles, prepares application materials, and identifies LinkedIn contacts to reach out to at target companies. |
 | **smart-home** | utilities | Controls smart home devices (lights, speakers, music playback, scenes) from natural-language requests. |
 | **file-tools** | utilities | Local file utilities: organize folders, find duplicates, and process images with ImageMagick (convert, resize, crop, batch). |

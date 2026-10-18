@@ -13,7 +13,7 @@
     {
       "name": "dev-workflow",
       "source": "./plugins/dev-workflow",
-      "description": "Developer workflow skills: PR babysitting, spikes, metaprompting, session cleanup, file-based planning, project scaffolding/bootstrapping, skill creation, plan execution, and a senior-dev advisor agent with a technical-lead output style.",
+      "description": "Developer workflow skills: spikes, metaprompting, session cleanup, file-based planning, project scaffolding/bootstrapping, skill creation, plan execution, and a senior-dev advisor agent with a technical-lead output style.",
       "version": "1.0.0",
       "author": {
         "name": "Kristian Garza",
@@ -22,7 +22,6 @@
       "license": "MIT",
       "category": "development",
       "keywords": [
-        "pull-requests",
         "spike",
         "metaprompt",
         "session-cleanup",
@@ -140,7 +139,7 @@
       "name": "bookclub",
       "source": "./plugins/bookclub",
       "description": "Book club management plugin for generating Slack communications, discussion materials, and reading schedules",
-      "version": "1.2.2",
+      "version": "1.2.3",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
@@ -383,6 +382,29 @@
         "capital-allocation",
         "personal-finance",
         "retirement"
+      ],
+      "strict": true
+    },
+    {
+      "name": "dev-flow",
+      "source": "./plugins/dev-flow",
+      "description": "Standard development flow for code changes — feature and bugfix paths sharing one spine, with a live-probe gate at both the design and the merge boundary. Includes falsify, ship and babysit-pr.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "development",
+      "keywords": [
+        "development",
+        "workflow",
+        "pull-request",
+        "ci",
+        "verification",
+        "falsification",
+        "tdd",
+        "code-review"
       ],
       "strict": true
     }
