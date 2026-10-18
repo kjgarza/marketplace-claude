@@ -408,5 +408,11 @@
       ],
       "strict": true
     }
-  ]
+  ],
+  "renames": {
+    "kjgarza-product": "product",
+    "kjgarza-base": "dev-workflow",
+    "scholarly-comms-researcher": "scholarly-research",
+    "prototyping-skills": "prototyping"
+  }
 }
