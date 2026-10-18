@@ -150,6 +150,20 @@
       "strict": true
     },
     {
+      "name": "vhs-berlin-agent",
+      "source": "./plugins/vhs-berlin-agent",
+      "description": "Personal navigation and monitoring layer for VHS Berlin courses — natural language search, watchlists with change detection, and awareness digests via Browser and SQLite MCP.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Kristian Garza",
+        "email": "kj.garza@gmail.com"
+      },
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": ["vhs", "berlin", "courses", "education", "monitoring", "watchlist", "sqlite", "scraping"],
+      "strict": true
+    },
+    {
       "name": "finanz-pilot",
       "source": "./plugins/finanz-pilot",
       "description": "German finance and accounting assistant for HGB bookkeeping, SKR04 account mapping, journal entries, financial statements, tax checks, and personal finance analysis.",
