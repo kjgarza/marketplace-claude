@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # Unattended full job search (cron / launchd). Deployment glue, not skill logic.
 # Usage: run-job-search.sh <repo-dir>
-#   <repo-dir>  directory the session runs in; it must contain
-#               .claude/find-kristian-jobs.local.md (profile + leads_dir config).
+#   <repo-dir>  directory the session runs in. Config is resolved by
+#               load-context.sh: $JOB_SEARCH_CONFIG, <repo-dir>/.claude/job-search.local.md,
+#               then ~/.claude/job-search.local.md.
 set -euo pipefail
 
 REPO_DIR="${1:?usage: run-job-search.sh <repo-dir>}"
@@ -16,16 +17,16 @@ LOG_FILE="$LOG_DIR/job-search-$STAMP.log"
 # Untrusted web content is read here, so no bypassPermissions: edits are
 # auto-accepted, everything else must match the explicit allowlist below.
 # Set NOTIFY_CMD to your own notifier; if unset, no notification is sent.
-ALLOWED='WebSearch WebFetch Read Glob Grep ToolSearch Write(leads/**) Bash(bash *fetch-job.sh:*) Bash(qurl:*) Bash(mkdir:*) mcp__chrome-devtools__navigate_page mcp__chrome-devtools__take_snapshot'
+ALLOWED='WebSearch WebFetch Read Glob Grep ToolSearch Write(leads/**) Bash(bash *fetch-job.sh:*) Bash(bash *load-context.sh:*) Bash(qurl:*) Bash(mkdir:*) mcp__chrome-devtools__navigate_page mcp__chrome-devtools__take_snapshot'
 
 {
   echo "[$STAMP] Starting scheduled job search"
 
   claude --permission-mode acceptEdits --allowedTools "$ALLOWED" --print '
-Run the `/kjgarza-base:find-kristian-jobs` skill: a full Kristian job search.
+Run the `/kjgarza-base:job-search` skill: a full job search.
 
 Requirements:
-- Read and follow the skill and its reference files.
+- Read and follow the skill, starting with its Step 0 context loader. If it fails, stop and report the error.
 - Save the results exactly as the skill specifies.
 - Do not ask interactive questions.
 - Stay within the skill search budget.
