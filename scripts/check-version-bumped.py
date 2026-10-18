@@ -31,8 +31,11 @@ def get_staged_plugin_names() -> set[str]:
 
 
 def get_changed_plugin_names(base: str) -> set[str]:
-    """Files changed between base ref and HEAD under plugins/<name>/."""
-    output = run(["git", "diff", "--name-only", base, "HEAD"])
+    """Files changed between base ref and HEAD under plugins/<name>/.
+
+    --no-renames so a skill moved out of one plugin still counts as a change there.
+    """
+    output = run(["git", "diff", "--name-only", "--no-renames", base, "HEAD"])
     return _plugin_names_from_paths(output.splitlines())
 
 
