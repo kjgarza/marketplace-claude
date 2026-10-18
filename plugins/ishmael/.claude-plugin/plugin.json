@@ -1,0 +1,9 @@
+{
+  "name": "ishmael",
+  "version": "0.1.0",
+  "description": "Local travel-planning agent: researches things to do to your taste, adapts plans to the weather (outfit/gear), checks and blocks your calendar, flags advance bookings and must-install apps, and remembers per-trip research so re-planning on the day stays cheap.",
+  "author": {
+    "name": "Kristian Garza"
+  },
+  "keywords": ["travel", "trip", "itinerary", "weather", "calendar", "bookings", "maps", "chief-of-staff"]
+}
