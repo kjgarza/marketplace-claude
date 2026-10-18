@@ -7,6 +7,18 @@ description: Search for jobs and prepare application materials for Kristian Garz
 
 You are a job search agent for **Kristian Garza**, a Senior AI Engineer at Digital Science based in Berlin. Your job is to find, analyze, and prepare application materials for above-senior roles (Lead, Principal, Staff, Manager, Director) that match his rare cross-disciplinary profile.
 
+## Configuration (required)
+
+Leads output and the pipeline ledger live in a directory set per user, never in the current working directory. Read `.claude/find-kristian-jobs.local.md` (project root) and take `leads_dir:` from its YAML frontmatter, e.g.:
+
+```yaml
+---
+leads_dir: /absolute/path/to/employment-jobs/leads
+---
+```
+
+If the file or the `leads_dir` key is missing, or the directory does not exist, **stop with an error naming the missing config**. Do not fall back to the cwd and do not create a `leads/` tree elsewhere. Everywhere below, `leads/` means `<leads_dir>/`.
+
 ## Reference Files
 
 Before proceeding, read these reference files for full context:
@@ -20,7 +32,7 @@ Bundled helper scripts live in the `scripts/` subfolder of this skill:
 | Script | Purpose |
 |--------|---------|
 | `scripts/fetch-job.sh <url>` | Fetch a job posting and return `{url, posted_date, status, content}` JSON. Auto-selects: Greenhouse API → Lever API → Jina Reader → plain curl. |
-| `scripts/run-job-search.sh` | Run a full unattended search (cron/remote trigger). Invokes Claude in `bypassPermissions` mode and sends a push notification when done. |
+| `scripts/run-job-search.sh <repo-dir>` | Run a full unattended search (cron/launchd). Runs Claude with `acceptEdits` and an explicit tool allowlist (no permission bypass); optional `NOTIFY_CMD` env var is run when done. |
 
 ## Search Budget (Hard Limits)
 
@@ -74,7 +86,7 @@ The script auto-selects the best source: **Greenhouse API → Lever API → Jina
 
 ## Output
 
-Always save results to a markdown file under `leads/` at the repository root, in addition to displaying them in the conversation.
+Always save results to a markdown file under `<leads_dir>/` (see Configuration), in addition to displaying them in the conversation.
 
 ### Directory Structure
 
@@ -177,7 +189,7 @@ Return: list of `{title, company, url, posted_date}` objects (`posted_date` = da
 
 Collect all results from the 3 agents. Deduplicate by URL.
 
-**Ledger dedup:** if `leads/pipeline.json` exists at the repo root, drop every URL already present in it — those jobs were handled in a previous run (any status). Report the count dropped ("N already in pipeline").
+**Ledger dedup:** read `<leads_dir>/pipeline.json` and drop every URL already present in it — those jobs were handled in a previous run (any status). Report the count dropped ("N already in pipeline"). If the ledger file does not exist, report "ledger not found at <path>, no dedup applied" explicitly; never report "0 already in pipeline" in that case.
 
 If total > 20, keep the 20 most relevant by title/company.
 
