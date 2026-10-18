@@ -187,6 +187,19 @@ describe("countQualifying (DOD pass condition)", () => {
 
     expect(countQualifying()).toBe(2);
   });
+
+  test("counts inberlinwohnen listings as real without requiring the s-anzeige/expose URL pattern", () => {
+    useTempDb();
+    upsertListing({
+      portal: "inberlinwohnen",
+      external_id: "18588",
+      url: "https://www.gewobag.de/fuer-mietinteressentinnen/mietangebote/7100-74804-0301-0034",
+      district: "Mitte",
+      warm_rent: 870.03,
+      verdict: "pending",
+    });
+    expect(countQualifying()).toBe(1);
+  });
 });
 
 describe("run telemetry", () => {

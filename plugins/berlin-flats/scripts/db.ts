@@ -196,7 +196,7 @@ export function countQualifying(): number {
        AND (${districtClause})
        AND ((warm_rent IS NOT NULL AND warm_rent <= 2000)
             OR (cold_rent IS NOT NULL AND cold_rent <= 1600))
-       AND (url LIKE '%/s-anzeige/%' OR url LIKE '%/expose/%')`
+       AND (url LIKE '%/s-anzeige/%' OR url LIKE '%/expose/%' OR portal = 'inberlinwohnen')`
   ).get(params) as { n: number };
   return row.n;
 }
