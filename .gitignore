@@ -9,6 +9,8 @@ logs/
 *.log
 
 evals/
+!plugins/*/evals/
+plugins/*/evals/results/
 random/
 .DS_Store
 _shared/
