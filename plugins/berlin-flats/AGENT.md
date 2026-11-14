@@ -32,6 +32,7 @@
 - `scripts/hunt.ts` — orchestration and CLI entrypoint
 - `scripts/health.ts` — drift classifier (selector/field/access/blocked) reading `runs` table + portal YAML baselines
 - `scripts/portal-profile.ts` — YAML profile loader for `portals/<portal>.yaml`
+- `portals/inberlinwohnen.yaml` — Berlin municipal housing companies aggregator (SSR, no anti-bot posture, complete listing data on the search page)
 - `scripts/__tests__/*.test.ts` — current test coverage
 - `portals/*.yaml` — portal recon profiles
 - `agents/` — sub-agent docs for plugin workflows

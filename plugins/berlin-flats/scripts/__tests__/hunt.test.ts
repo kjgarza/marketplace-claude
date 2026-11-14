@@ -30,6 +30,11 @@ describe("buildSearchUrl", () => {
   test("rejects unknown portals", () => {
     expect(() => buildSearchUrl("unknown", prefs)).toThrow("Unknown portal");
   });
+
+  test("builds the inberlinwohnen search URL (fixed — no server-side filter params)", () => {
+    const url = buildSearchUrl("inberlinwohnen", prefs);
+    expect(url).toBe("https://www.inberlinwohnen.de/wohnungsfinder/");
+  });
 });
 
 describe("scoreAgainstPrefs", () => {
@@ -43,9 +48,26 @@ describe("scoreAgainstPrefs", () => {
   test("rejects budget, deal breaker, keyword, district, and size mismatches", () => {
     expect(scoreAgainstPrefs({ portal: "x", url: "https://example.test", warm_rent: 2500, rooms: 3, sqm: 110, district: "Schöneberg", title: "Altbau" }, prefs)).toBe(-1);
     expect(scoreAgainstPrefs({ portal: "x", url: "https://example.test", title: "WG Zimmer Altbau", cold_rent: 1000, rooms: 3, sqm: 110, district: "Schöneberg" }, prefs)).toBe(-1);
-    expect(scoreAgainstPrefs({ portal: "x", url: "https://example.test", title: "Neubau Wohnung", cold_rent: 1000, rooms: 3, sqm: 110, district: "Schöneberg" }, prefs)).toBe(-1);
+    expect(scoreAgainstPrefs({ portal: "x", url: "https://example.test", title: "Neubau Wohnung", description: "Neubau mit Balkon", cold_rent: 1000, rooms: 3, sqm: 110, district: "Schöneberg" }, prefs)).toBe(-1);
     expect(scoreAgainstPrefs({ portal: "x", url: "https://example.test", title: "Altbau", cold_rent: 1000, rooms: 3, sqm: 110, district: "Wedding" }, prefs)).toBe(-1);
     expect(scoreAgainstPrefs({ portal: "x", url: "https://example.test", title: "Altbau", cold_rent: 1000, rooms: 3, sqm: 60, district: "Schöneberg" }, prefs)).toBe(-1);
+  });
+});
+
+describe("scoreAgainstPrefs — keywords_required without description", () => {
+  const base = { portal: "inberlinwohnen", url: "https://example.test", title: "Wohnung in Schöneberg", cold_rent: 1000, rooms: 3, sqm: 110, district: "Schöneberg" };
+
+  test("does not hard-fail keywords_required when the listing has no description", () => {
+    expect(scoreAgainstPrefs(base, prefs)).toBe(100);
+    expect(scoreAgainstPrefs({ ...base, description: "  " }, prefs)).toBe(100);
+  });
+
+  test("still enforces keywords_required when a description exists", () => {
+    expect(scoreAgainstPrefs({ ...base, description: "Neubau, 3. OG" }, prefs)).toBe(-1);
+  });
+
+  test("still applies deal breakers without a description", () => {
+    expect(scoreAgainstPrefs({ ...base, title: "WG Zimmer" }, prefs)).toBe(-1);
   });
 });
 
