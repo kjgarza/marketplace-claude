@@ -64,15 +64,17 @@ timestamps and find out what each source can really deliver.
 | Kleinanzeigen | Direct, polite polling | It serves listings to an honest client |
 | degewo, GESOBAU, WBM | Direct, polite polling | Plain web pages, no protection |
 | ImmoScout24 | Its own saved-search e-mail alert | It blocks scripts; the alert is the sanctioned route |
+| Immowelt | Its own saved-search e-mail alert | It blocks scripts too |
 | Gewobag | Its own search-agent e-mail | Official feature |
-| inberlinwohnen, HOWOGE, Stadt und Land | Your logged-in Chrome | They block scripts or render in the browser |
-| Immowelt, WG-Gesucht | Optional | Heavy overlap with ImmoScout24, or mostly sublets |
+| inberlinwohnen, HOWOGE, Stadt und Land | Your Chrome, when you start a session | They refuse scripts or render in the browser |
+| WG-Gesucht | Off by default | Mostly sublets and rooms |
 
 **How many things do I have to sign up for?**
-About three, each a one-time setup you do yourself: an ImmoScout24 saved search, a
-Kleinanzeigen saved search (as a backup channel), and the Gewobag search agent. One saved
-search per portal is enough because the plugin does its own filtering; you set the portal's
-filter broad and let the plugin be picky.
+Three free alerts, each a one-time setup you do yourself: an ImmoScout24 saved search, an
+Immowelt saved search, and the Gewobag search agent. No paid plan. You also add one Gmail
+filter so the alerts land under a label the plugin reads. One saved search per portal is
+enough because the plugin does its own filtering; you set the portal's filter broad and let
+the plugin be picky. Kleinanzeigen and the other municipal companies need no signup.
 
 **Will it apply for me?**
 No. It prepares; you send. It will open the listing, show you the draft and tell you which
@@ -91,9 +93,10 @@ and your application documents in a folder: Schufa, three payslips, ID copy,
 Mieterselbstauskunft, and ideally an employer letter and a Mietschuldenfreiheit.
 
 **What does my Mac need to be doing?**
-Awake, with Chrome open and the Claude extension signed in, during the hours you want it
-watching. If Chrome is closed or a site asks for a login, you get a "needs you" message rather
-than silence.
+Awake during the hours you want it watching. Background watching does not need Chrome; Chrome
+with the Claude extension is only needed when you sit down to apply or run a sweep yourself.
+A daily digest always arrives, even on a day with no flats, so a missing digest tells you
+something is wrong.
 
 **My move is in 2027. Why start now?**
 Most Berlin ads are for immediate move-in to about three months out, so the flats you will
@@ -103,9 +106,9 @@ and getting the document folder complete. Serious hunting starts about three mon
 move.
 
 **What does it cost to run?**
-Fetching and scoring cost nothing beyond electricity. Browser sweeps and message drafting use
-Claude tokens; the estimate is in the region of half a million input tokens a day at a
-30-minute cadence, on the cheapest model. That figure is an estimate and will be measured.
+Fetching and scoring cost nothing beyond electricity. Reading alert e-mails and drafting
+messages use Claude; the design caps this at one dollar a day and keeps notifying if the cap is
+hit. Actual cost has not been measured yet.
 
 ---
 
@@ -139,8 +142,11 @@ uses the channel it permits.
 Partly. In testing, the user's own Chrome loaded all five portals tried, with one
 self-clearing interstitial on ImmoScout24. But the sample was three loads over fifteen minutes,
 and a scripted poller hammering a protected portal from a personal browser is the pattern most
-likely to get that browser challenged. Chrome is the right tool for sources with no alert
-feature and for opening a specific listing; alerts are the right tool for ImmoScout24.
+likely to get that browser challenged, and it only works while the Mac is awake with Chrome
+open. So the recommended default is: background runs use honest HTTP and e-mail alerts only,
+and Chrome is used when you are present, to open a listing, read its form, or sweep the
+sources that have no alert. A scheduled read-only Chrome sweep stays available as an opt-in if
+measured alert latency turns out to be poor.
 
 **What are the biggest risks?**
 
@@ -169,11 +175,15 @@ is required or a bonus), the move-in date, a single rent ceiling, whether furnis
 temporary lets are excluded, which of the three alerts to create, and whether WG-Gesucht is in.
 
 **What is the order of work?**
-1. Make notifications trustworthy: fix IDs and verdict overwrites, record what was notified,
-   alert on failure, install the schedule. Kleinanzeigen and the plain municipal sites only.
-2. Make listings meaningful: extract size and rooms, filter junk categories, treat missing data
-   as "needs detail", refresh the config.
-3. Add the alert channel for ImmoScout24 and Gewobag.
-4. Add the Chrome sweep for sources with no alert.
-5. Make applying fast: draft on arrival, dossier kept fresh, an assisted `/apply` flow.
-6. Calibrate on real decisions and retire the old scraper tiers.
+Each step starts with a small live probe; the full plan is in
+[docs/2026-11-14-design.md](docs/2026-11-14-design.md).
+
+0. Kleinanzeigen notifications you can trust: honest client, one ingest path, fixed IDs,
+   verdicts that stick, junk categories filtered, size and rooms extracted, the schedule
+   installed.
+1. Municipal companies over plain HTTP, a daily digest, and the metrics line.
+2. E-mail alerts for ImmoScout24, Immowelt and Gewobag, with cross-portal dedup.
+3. Ranking that accounts for scam risk and missing data, a draft on arrival, and an assisted
+   `/apply` flow.
+4. Calibration on your real decisions.
+5. Only if alerts prove slow and you opt in: a scheduled read-only Chrome sweep.
