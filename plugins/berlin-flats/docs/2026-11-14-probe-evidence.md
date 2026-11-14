@@ -181,3 +181,27 @@ Recommended seam: `scripts/ingest.ts` exporting
   Genossenschaften, portal ToS texts: not probed.
 - Headless Chrome and headless Gmail were each exercised once, from a terminal. Neither was
   run from launchd, and Chrome was not tried headless on a protected portal.
+
+## 9. scrape-core probe (added later the same day)
+
+`scrape-core <url> --json --tiers=plain`, one request per source, reader-proxy tier excluded.
+
+| Source | Result | Text returned | Listing URLs in output |
+|---|---|---|---|
+| Kleinanzeigen search | ok | 896 characters (from a ~940 KB page); one listing's text | 0 |
+| degewo | ok | 3,052 characters; no rent, size or room figures | 0 |
+| WBM | ok | 1,919 characters; about 3 listings' figures | 0 |
+| GESOBAU | ok | 2,550 characters; about 6 listings' figures | 0 |
+| ImmoScout24 | `HTTP_4XX` (401) | none | — |
+| inberlinwohnen | ok (where default curl got 403) | 5,033 characters; about 20 listings with rent, size, rooms, "Eingestellt am" date | 0 |
+
+- scrape-core runs every page through a readability extractor. That keeps article text and
+  drops links and most repeated cards, so no output contains a single listing URL and
+  Kleinanzeigen collapses to one ad. There is no raw-HTML flag in this version
+  (`usage: scrape-core <url> [--json] [--timeout=<ms>] [--tiers=plain,jina,browser]`).
+- Verdict: scrape-core as it stands cannot do discovery for this plugin. It would become
+  useful with a raw-HTML mode (the change already requested in PR #34). It is suitable today
+  for reading one known listing's detail page as text.
+- inberlinwohnen served scrape-core's plain tier but refused default curl, so its filter looks
+  user-agent based. Which user agent scrape-core sends was not checked.
+- The `browser` tier was not tried.
