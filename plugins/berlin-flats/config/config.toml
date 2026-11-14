@@ -9,15 +9,17 @@ wbs               = false
 employer          = "Digital Science"
 
 [search]
-districts         = ["Schöneberg"]
+districts         = ["Schöneberg", "Prenzlauer Berg", "Kreuzberg"]
 min_rooms         = 2
 max_rooms         = 4
 min_sqm           = 100
-max_warm_rent_eur = 2200
+max_warm_rent_eur = 2000
 max_cold_rent_eur = 2000
 # Matched against title+description. Listings with no description (e.g. municipal
 # inberlinwohnen cards) skip this check instead of failing it.
-keywords_required = ["Altbau"]
+keywords_required = []
+# Preferences, not filters. Not read by the code yet (see docs/2026-11-14-spec-manual-hunt.md).
+nice_to_have      = ["Altbau", "Balkon"]
 deal_breakers     = ["WG", "Tausch", "Souterrain"]
 
 [portals]
