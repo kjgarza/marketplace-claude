@@ -114,7 +114,9 @@ bun scripts/dossier.ts           # are your application documents ready?
 ```
 
 To experiment without touching your real data, set `BERLIN_FLATS_STATE_DIR` to a scratch
-directory first.
+directory first. Be aware that `hunt.ts` as it stands still uses the reader-proxy fallback and
+has the duplicate-ID and verdict-overwrite bugs listed below, so prefer a scratch directory
+until those are fixed.
 
 The scheduled job lives outside the plugin, in `automation/jobs/berlin-flats-hunt.sh` at the
 repo root. It runs a hunt and sends new matches to Telegram. It is not installed, and its
@@ -125,9 +127,10 @@ install script and plugin path lookup both need fixing before it can run.
 Ordered by how much they hurt.
 
 1. **Three of four big portals refuse scripted requests.** ImmoScout24, Immowelt and
-   inberlinwohnen block a plain HTTP client. The scraper gets partway round this by pretending to
-   be Chrome and falling back to a third-party reader proxy, which is a workaround this project
-   has decided not to use.
+   inberlinwohnen block a plain HTTP client. The scraper responds by sending a Chrome user
+   agent and, when blocked, falling back to a third-party reader proxy. The proxy fallback is
+   the kind of workaround the owner's own rules exclude for sites that block automated access;
+   the review team also recommends dropping the browser user agent.
 2. **Duplicate notifications.** Kleinanzeigen ads get two different IDs (search card versus
    detail page), so "already seen" never matches.
 3. **Your verdicts can be overwritten.** Re-fetching a listing resets it to pending.

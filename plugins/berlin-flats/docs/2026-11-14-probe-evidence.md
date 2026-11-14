@@ -84,7 +84,14 @@ proxies, spoofing or reader-proxy fallback on a blocked site), isolated state vi
   headless.
 - VERIFIED (main session): a plain `claude -p --model haiku` run lists the
   `mcp__claude_ai_Gmail__*` connector tools. The July proposal assumed Gmail was
-  interactive-only. An actual headless `search_threads` call is UNVERIFIED.
+  interactive-only.
+- VERIFIED (main session): a headless Haiku run called `search_threads` for mail from the six
+  portal domains over 30 days. The call succeeded and returned 0 threads, so no portal alerts
+  exist yet. 6 s, $0.012. Run from a terminal, not from launchd.
+- VERIFIED (main session): a headless `claude -p --chrome` Haiku run, with only tab, navigate
+  and `get_page_text` tools allowed, loaded the Kleinanzeigen Berlin rental search with no
+  wall. 16 s, 8 turns, $0.022, no permission denials. The model reported 1 listing from a page
+  that holds about 25, so the transport works but model-read extraction is unreliable.
 - Preconditions for headless Chrome: Chrome running with the extension signed in to the same
   claude.ai account; Claude Code logged in via `/login` (not an API key); `--chrome`; Chrome
   tools in `--allowedTools`; Mac awake.
@@ -172,4 +179,5 @@ Recommended seam: `scripts/ingest.ts` exporting
   because the script's reader-proxy fallback is the workaround ruled out above.
 - ImmoScout24 contact form, all alert timings and caps, degewo/gewobag/Vonovia in Chrome,
   Genossenschaften, portal ToS texts: not probed.
-- Headless Chrome navigation and headless Gmail read: tool availability only.
+- Headless Chrome and headless Gmail were each exercised once, from a terminal. Neither was
+  run from launchd, and Chrome was not tried headless on a protected portal.

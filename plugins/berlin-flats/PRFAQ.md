@@ -22,7 +22,8 @@ state-owned housing companies that hold about one in four flats in the city. Whe
 new shows up, it throws away the swap offers, sublets, wanted-ads and scams, checks the rest
 against what you want, and scores each one from 0 to 100 with reasons. If a flat clears your
 bar, your phone buzzes with the essentials, the score, a scam verdict, and a German message
-already written in your voice for that specific flat.
+already written in your voice for that specific flat. (Until about three months before your
+move it runs in a quieter calibration mode: one daily digest, no drafts.)
 
 You tap through, read the draft, and send it yourself. berlin-flats never sends anything, fills
 in a form, or creates an account for you. It also never tries to sneak past a website's bot
@@ -44,7 +45,8 @@ months before your move.
 
 **Who is this for?**
 One person: someone planning a move to (or within) Berlin in 2027, with a job, a Schufa record
-and no WBS, who wants an unfurnished, open-ended lease.
+and no WBS, who wants an open-ended lease. Whether furnished flats count is still an open
+choice; the current config says "either".
 
 **What will I actually experience day to day?**
 A Telegram message when a matching flat appears, typically a handful a week rather than dozens
@@ -53,9 +55,10 @@ top reasons, scam verdict, a link, and a draft message. Once a day or so you can
 `/berlin-flats:triage` to go through anything you have not decided on.
 
 **How fast is "within minutes"?**
-The target is a median of 30 minutes from publication to your phone, and a draft ready within
-15 minutes of that. Today the plugin measures neither, so the first job is to record those
-timestamps and find out what each source can really deliver.
+Targets: a listing is picked up within 15 minutes of appearing (polled sources) or of the
+alert e-mail arriving; your phone is notified within 5 minutes of pickup; a draft is ready
+within 10 minutes after that. Today the plugin measures none of this, so the first job is to
+record those timestamps and find out what each source can really deliver.
 
 **Where does it look?**
 
@@ -70,8 +73,10 @@ timestamps and find out what each source can really deliver.
 | WG-Gesucht | Off by default | Mostly sublets and rooms |
 
 **How many things do I have to sign up for?**
-Three free alerts, each a one-time setup you do yourself: an ImmoScout24 saved search, an
-Immowelt saved search, and the Gewobag search agent. No paid plan. You also add one Gmail
+Two that matter, one optional, each a one-time setup you do yourself: an ImmoScout24 saved
+search and the Gewobag search agent are the musts; an Immowelt saved search is optional because
+its listings overlap heavily with ImmoScout24. No paid plan. A check on 2026-11-14 found no
+alert mail from any portal in your inbox in the last 30 days, so none exist yet. You also add one Gmail
 filter so the alerts land under a label the plugin reads. One saved search per portal is
 enough because the plugin does its own filtering; you set the portal's filter broad and let
 the plugin be picky. Kleinanzeigen and the other municipal companies need no signup.
@@ -152,9 +157,9 @@ measured alert latency turns out to be poor.
 
 | Risk | If it happens | How we find out early |
 |---|---|---|
-| Unattended Gmail read does not work | ImmoScout24 coverage needs you to open a session | One headless read probe before building |
+| Unattended Gmail read fails when started by launchd | ImmoScout24 coverage needs you to open a session | It works from a terminal (probed); repeat from launchd before building |
 | Portal alerts are slow or batched | "Within minutes" is not achievable on that source | Create one alert, timestamp arrivals for a week |
-| Chrome sweeps trigger challenges at real cadence | Municipal aggregator coverage drops to manual | Run the sweep for a week at low frequency first |
+| Scheduled Chrome sweeps, if you opt in, trigger challenges at real cadence | That source drops back to manual | One unattended page load worked (probed); run a week at low frequency first |
 | Listings are gone before a human can reply | Speed alone does not win | Track reply rate per source and per response time |
 | The Mac is asleep or Chrome is closed | Silent gap in coverage | Liveness alarm and a "needs you" message |
 
