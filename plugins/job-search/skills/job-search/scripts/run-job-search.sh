@@ -17,7 +17,7 @@ LOG_FILE="$LOG_DIR/job-search-$STAMP.log"
 # Untrusted web content is read here, so no bypassPermissions: edits are
 # auto-accepted, everything else must match the explicit allowlist below.
 # Set NOTIFY_CMD to your own notifier; if unset, no notification is sent.
-ALLOWED='WebSearch WebFetch Read Glob Grep ToolSearch Write(leads/**) Bash(bash *fetch-job.sh:*) Bash(bash *load-context.sh:*) Bash(qurl:*) Bash(mkdir:*) mcp__chrome-devtools__navigate_page mcp__chrome-devtools__take_snapshot'
+ALLOWED='WebSearch WebFetch Read Glob Grep ToolSearch Write(leads/**) Bash(bash *fetch-job.sh:*) Bash(bash *fetch-board.sh:*)Bash(bash *load-context.sh:*) Bash(qurl:*) Bash(mkdir:*) mcp__chrome-devtools__navigate_page mcp__chrome-devtools__take_snapshot'
 
 {
   echo "[$STAMP] Starting scheduled job search"
