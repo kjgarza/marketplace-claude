@@ -169,7 +169,8 @@ if echo "$URL" | grep -qE 'jobs\.lever\.co/([^/]+)/([a-f0-9-]+)'; then
     # Lever returns createdAt as Unix ms
     CREATED_MS=$(echo "$RESPONSE" | jq -r '.createdAt // 0')
     if [[ "$CREATED_MS" -gt 0 ]]; then
-      POSTED_DATE=$(date -d "@$((CREATED_MS / 1000))" +"%Y-%m-%d" 2>/dev/null || echo "unknown")
+      # jq, not `date -d @epoch`: that flag is GNU-only and fails on macOS/BSD date.
+      POSTED_DATE=$(jq -rn --argjson ms "$CREATED_MS" '($ms / 1000 | floor | todate)[0:10]' 2>/dev/null || echo "unknown")
     else
       POSTED_DATE="unknown"
     fi

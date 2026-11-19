@@ -17,7 +17,11 @@ LOG_FILE="$LOG_DIR/job-search-$STAMP.log"
 # Untrusted web content is read here, so no bypassPermissions: edits are
 # auto-accepted, everything else must match the explicit allowlist below.
 # Set NOTIFY_CMD to your own notifier; if unset, no notification is sent.
-ALLOWED='WebSearch WebFetch Read Glob Grep ToolSearch Write(leads/**) Bash(bash *fetch-job.sh:*) Bash(bash *fetch-board.sh:*) Bash(bash *load-context.sh:*) Bash(qurl:*) Bash(mkdir:*) mcp__chrome-devtools__navigate_page mcp__chrome-devtools__take_snapshot'
+# Rule syntax: `Bash(bash *fetch-job.sh *)` is a wildcard match. Don't mix `*` with the
+# trailing `:*` prefix form (`Bash(bash *x.sh:*)`): Claude Code then treats the `*` as a
+# literal and the rule never matches. File writes are gated by Edit(...) rules, not Write(...).
+# Commands with shell variables, $(...) or loops are rejected regardless; SKILL.md says so.
+ALLOWED='WebSearch WebFetch Read Glob Grep ToolSearch Agent Edit(leads/**) Bash(bash *load-context.sh*) Bash(bash *fetch-job.sh *) Bash(bash *fetch-board.sh *) Bash(bash *fetch-application-form.sh *) Bash(jq *) Bash(qurl *) Bash(mkdir *) mcp__chrome-devtools__navigate_page mcp__chrome-devtools__take_snapshot'
 
 {
   echo "[$STAMP] Starting scheduled job search"

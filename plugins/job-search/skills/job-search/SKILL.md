@@ -17,7 +17,9 @@ Run the loader before anything else:
 bash ${CLAUDE_PLUGIN_ROOT}/skills/job-search/scripts/load-context.sh
 ```
 
-It finds the config (`$JOB_SEARCH_CONFIG`, then `./.claude/job-search.local.md`, then `~/.claude/job-search.local.md`), checks that `leads_dir`, `profile` and `target_companies` all resolve, and prints the resolved paths followed by the full profile and target-company list.
+It finds the config (`$JOB_SEARCH_CONFIG`, then `./.claude/job-search.local.md`, then `~/.claude/job-search.local.md`), checks that `leads_dir`, `profile` and `target_companies` all resolve, and prints the resolved paths (including `scripts_dir`) followed by the full profile and target-company list.
+
+**How to write every Bash command below.** `<scripts_dir>` means the absolute `scripts_dir` path Step 0 printed: write it out literally, and put job URLs in literally too. Pipes into `jq` and quoted arguments are fine. Do **not** use shell variables (`S=…; bash $S`, `$JOB_URL`, `${CLAUDE_PLUGIN_ROOT}`), command substitution (`$(…)`) or `for` loops: unattended runs (`run-job-search.sh`) reject those before they execute. Run one script call per Bash command.
 
 - **Exit 2** → **stop** and show the user the error. It names the missing piece. Do not guess a profile, fall back to the cwd, or create a `leads/` tree elsewhere. For a first-time setup, tell the user to run `load-context.sh --init`, which copies `templates/` into `~/.claude/job-search/` and never overwrites.
 - **Exit 0** → treat the printed profile and companies as the source of truth for everything below. Everywhere below, `leads/` means the printed `leads_dir`.
@@ -86,11 +88,11 @@ If the profile names no location, skip this filter and say so in the output.
 | Task | Tool |
 |------|------|
 | Search for jobs | `WebSearch` |
-| **List a whole company board (preferred)** | `Bash`: `bash ${CLAUDE_PLUGIN_ROOT}/skills/job-search/scripts/fetch-board.sh <ats> <board>` |
-| Fetch application form + questions | `Bash`: `bash ${CLAUDE_PLUGIN_ROOT}/skills/job-search/scripts/fetch-application-form.sh "[url]"` |
+| **List a whole company board (preferred)** | `Bash`: `bash <scripts_dir>/fetch-board.sh <ats> <board>` |
+| Fetch application form + questions | `Bash`: `bash <scripts_dir>/fetch-application-form.sh "<job-url>"` |
 | Fetch career pages (JS-heavy, **only when the company has no board API**) | `mcp__chrome-devtools__navigate_page` + `mcp__chrome-devtools__take_snapshot` (or `evaluate_script` with `document.body.innerText` for plain text) |
 | Search LinkedIn Jobs (authenticated) | `mcp__chrome-devtools__*` browser tools |
-| Parse job posting content | `Bash`: `bash ${CLAUDE_PLUGIN_ROOT}/skills/job-search/scripts/fetch-job.sh "[url]"` |
+| Parse job posting content | `Bash`: `bash <scripts_dir>/fetch-job.sh "<job-url>"` |
 | Fallback fetch | `WebFetch` |
 
 Browser tools are deferred — load schemas first with `ToolSearch` (`select:mcp__chrome-devtools__navigate_page,mcp__chrome-devtools__take_snapshot`). If the chrome-devtools MCP server is unavailable, skip browser steps and rely on WebSearch + fetch-job.sh — do not fail the run.
@@ -100,18 +102,17 @@ Browser tools are deferred — load schemas first with `ToolSearch` (`select:mcp
 **Job fetch pattern** — the only way to fetch a job posting URL. Returns structured JSON with `posted_date` and `status` pre-extracted:
 
 ```bash
-RESULT=$(bash ${CLAUDE_PLUGIN_ROOT}/skills/job-search/scripts/fetch-job.sh "$JOB_URL")
-POSTED_DATE=$(echo "$RESULT" | jq -r '.posted_date')   # YYYY-MM-DD or "unknown"
-STATUS=$(echo "$RESULT"     | jq -r '.status')          # "open", "closed", or "unknown"
-CONTENT=$(echo "$RESULT"    | jq -r '.content')
+bash <scripts_dir>/fetch-job.sh "<job-url>"
 ```
+
+Read `posted_date` (YYYY-MM-DD or `unknown`), `status` (`open`, `closed` or `unknown`) and `content` from the JSON it prints. To see only the header fields, pipe it: `bash <scripts_dir>/fetch-job.sh "<job-url>" | jq '{posted_date, status}'`.
 
 The script auto-selects the best source: **Greenhouse API → Lever API → Ashby single-posting API → Jina Reader → plain curl**. Do not call raw `curl`, Jina or `WebFetch` for posting URLs; the script already falls back through them (Jina is used with `JINA_API_KEY` when set).
 
 **Fetching more than one posting? Pass them all to a single call.** It fetches concurrently and returns an array in argument order, instead of paying each round-trip serially:
 
 ```bash
-bash ${CLAUDE_PLUGIN_ROOT}/skills/job-search/scripts/fetch-job.sh "$URL_A" "$URL_B" "$URL_C" | jq -r '.[] | "\(.posted_date) \(.status) \(.url)"'
+bash <scripts_dir>/fetch-job.sh "<url-a>" "<url-b>" "<url-c>" | jq -r '.[] | "\(.posted_date) \(.status) \(.url)"'
 ```
 
 ## Output
@@ -159,7 +160,7 @@ leads/
 
 ### Step 1 — Spawn 3 Parallel Subagents
 
-**Spawn all 3 agents simultaneously using the Task tool.** Each agent operates independently within its budget. Do not wait for one to finish before spawning the next. Subagents don't inherit the loaded context: paste each agent the profile sections it needs (named below) in its prompt.
+**Spawn all 3 agents simultaneously using the Task tool.** Each agent operates independently within its budget. Do not wait for one to finish before spawning the next. Subagents don't inherit the loaded context: paste each agent the profile sections it needs (named below), the absolute `scripts_dir`, and the "How to write every Bash command" rule from Step 0 in its prompt.
 
 ---
 
@@ -167,14 +168,15 @@ leads/
 
 Budget: max 4 **browser** career page fetches + LinkedIn browser search. Board API calls are free and don't count. Input: the target-companies list (its **Board** column), profile **Search Plan → Career Pages** and **LinkedIn Searches**, and **Target Role Parameters** (for the geography pre-filter).
 
-0. **Sweep the board APIs first.** Run one call per company with a **Board** entry (`<ats>:<slug>`). Each returns every open role with a real posted date:
+0. **Sweep the board APIs first.** Run one call per company with a **Board** entry (`<ats>:<slug>`). If the target-companies file has no Board column (files made before v1.1.0), skip this step and use career pages as before. Each call returns every open role with a real posted date:
    ```bash
-   S=${CLAUDE_PLUGIN_ROOT}/skills/job-search/scripts/fetch-board.sh
-   bash $S ashby <slug>; bash $S greenhouse <slug>; bash $S lever <slug>
+   bash <scripts_dir>/fetch-board.sh ashby <slug>
+   bash <scripts_dir>/fetch-board.sh greenhouse <slug> | jq -r '.jobs[] | "\(.posted_date) \(.location) \(.title) \(.url)"'
    ```
+   (one Bash call per company; the `jq` form trims a large board to one line per role)
    Large boards can carry hundreds of roles: filter titles and locations with `jq` before returning anything. Apply the geography pre-filter and the 5-month rule to `posted_date` here, not later. **Do not browser-scrape the career page of a company whose board was swept.**
 
-   For Google (or any company listed with board `google`), run up to 3 keyword queries, never a bare location dump: `bash $S google "<keyword>" "<city country>"`. Results carry `posted_date: unknown` by design and come newest first; the Google freshness override applies.
+   For Google (or any company listed with board `google`), run up to 3 keyword queries, never a bare location dump: `bash <scripts_dir>/fetch-board.sh google "<keyword>" "<city country>"`. Results carry `posted_date: unknown` by design and come newest first; the Google freshness override applies.
 
 1. Use `mcp__chrome-devtools__navigate_page` to open each **remaining** URL under **Career Pages** (companies with no board API; first 4 only), then `take_snapshot` to extract roles:
    - On each career page, check for a "posted date" or "last updated" field; skip any role posted more than 5 months ago or marked closed.
@@ -228,9 +230,7 @@ If total > 20, keep the 20 most relevant by title/company.
 
 Fetch the full content of all surviving postings in **one batched call**, not a loop. The batch runs concurrently and returns an array in argument order:
 ```bash
-RESULTS=$(bash ${CLAUDE_PLUGIN_ROOT}/skills/job-search/scripts/fetch-job.sh "${JOB_URLS[@]}")
-echo "$RESULTS" | jq -r '.[] | "\(.posted_date) | \(.status) | \(.url)"'
-echo "$RESULTS" | jq -r '.[0].content'   # one posting's body
+bash <scripts_dir>/fetch-job.sh "<url-1>" "<url-2>" "<url-3>"
 ```
 A serial loop pays every network round-trip end to end; the batch finishes in about the time of its slowest posting.
 
@@ -298,8 +298,9 @@ This runs the full contact workflow: scrape company site, search LinkedIn, class
 
 1. **Check the target-companies list for a Board entry first.** If there is one, a single `fetch-board.sh` call returns the whole board with dates: skip to step 3. If there isn't, probe the obvious slug against all three ATSes before falling back to search and a browser:
    ```bash
-   S=${CLAUDE_PLUGIN_ROOT}/skills/job-search/scripts/fetch-board.sh
-   for ats in ashby greenhouse lever; do bash $S $ats <slug> | jq -c '{ats,count,error}'; done
+   bash <scripts_dir>/fetch-board.sh ashby <slug> | jq -c '{ats,count,error}'
+   bash <scripts_dir>/fetch-board.sh greenhouse <slug> | jq -c '{ats,count,error}'
+   bash <scripts_dir>/fetch-board.sh lever <slug> | jq -c '{ats,count,error}'
    ```
    Tell the user about any working slug so they can add it to the **Board** column.
 2. Otherwise: search `[company] careers [current year]`, then fetch the career page (use the URL from the target-companies list when the company is there) via browser (`mcp__chrome-devtools__navigate_page` + `take_snapshot`) or Jina Reader as fallback
@@ -313,9 +314,9 @@ This runs the full contact workflow: scrape company site, search LinkedIn, class
 
 ## Mode 3: Deep Analysis
 
-1. Fetch the full posting: `bash ${CLAUDE_PLUGIN_ROOT}/skills/job-search/scripts/fetch-job.sh "[url]"` — returns `{url, posted_date, status, content}` JSON
+1. Fetch the full posting: `bash <scripts_dir>/fetch-job.sh "<job-url>"` — returns `{url, posted_date, status, content}` JSON
 2. **Freshness check:** extract the posted date from the parsed content. If the role is closed or older than 5 months, **stop and report** — do not score. If date is unknown, note it and proceed with a warning.
-3. Fetch the application form: `bash ${CLAUDE_PLUGIN_ROOT}/skills/job-search/scripts/fetch-application-form.sh "[url]"`. Record the `apply_url` and how many custom questions the form carries (this feeds the effort estimate and the Application Package).
+3. Fetch the application form: `bash <scripts_dir>/fetch-application-form.sh "<job-url>"`. Record the `apply_url` and how many custom questions the form carries (this feeds the effort estimate and the Application Package).
 4. Score with dimension breakdown
 5. Determine positioning frame
 6. Map every requirement to a proof point
@@ -356,7 +357,7 @@ This runs the full contact workflow: scrape company site, search LinkedIn, class
 1. Run Deep Analysis (Mode 3)
 2. If score >= 60%, fetch the application form:
    ```bash
-   bash ${CLAUDE_PLUGIN_ROOT}/skills/job-search/scripts/fetch-application-form.sh "$JOB_URL"
+   bash <scripts_dir>/fetch-application-form.sh "<job-url>"
    ```
    - `needs_browser: false` and `questions` non-empty → use them as the authoritative form
    - `needs_browser: true` → the form wasn't captured; open `apply_url` with `mcp__chrome-devtools__navigate_page` + `take_snapshot` and read the rendered form (if browser tools are unavailable, extract questions from `form_text`, then try `WebFetch` on `apply_url`)
