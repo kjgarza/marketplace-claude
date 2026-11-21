@@ -139,7 +139,7 @@
       "name": "bookclub",
       "source": "./plugins/bookclub",
       "description": "Book club management plugin for generating Slack communications, discussion materials, and reading schedules",
-      "version": "1.2.3",
+      "version": "1.2.4",
       "author": {
         "name": "Kristian Garza",
         "email": "kj.garza@gmail.com"
