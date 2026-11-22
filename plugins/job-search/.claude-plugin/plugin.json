@@ -1,6 +1,6 @@
 {
   "name": "job-search",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Job search assistant: finds matching roles, prepares application materials, and identifies LinkedIn contacts to reach out to at target companies.",
   "author": {
     "name": "Kristian Garza",
