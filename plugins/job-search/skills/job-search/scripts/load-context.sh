@@ -79,6 +79,7 @@ config: $CFG
 leads_dir: $leads_dir
 profile: $profile
 target_companies: $target_companies
+scripts_dir: $SKILL_DIR/scripts
 
 EOF
 cat "$profile"
