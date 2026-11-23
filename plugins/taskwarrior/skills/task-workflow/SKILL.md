@@ -16,6 +16,31 @@ Manage the full lifecycle of tasks using Taskwarrior — from capture through co
 This skill defines the canonical workflow AI agents MUST follow when touching the task
 ledger. Taskwarrior stores data in `~/.task/` by default; run all `task` commands via Bash.
 
+## Ledger Rules (read before touching the ledger)
+
+These rules keep the ledger from growing faster than it closes. They override any
+looser guidance further down.
+
+1. **Search before adding.** Run `task description~<keyword> list` (and filter by
+   project) before every `task add`. If a matching task exists, annotate or modify it
+   instead of adding a near-duplicate.
+2. **Capture is not commitment.** New tasks get `+inbox` and no `due:`. A due date is
+   only for a real external deadline, a task the user put on this week's commit list,
+   or a `+owed` item.
+3. **Defer with `wait:`, never with a past due date.** `task <id> modify due: wait:<date>`
+   hides the task until that date. A stale due date only adds noise to the overdue list.
+4. **At most 3 new tasks per session without asking.** A batch of related work becomes
+   one parent task with a checklist in its annotations (or one GitHub issue), not N tasks.
+5. **`+owed` is for promises to people:** replies, requests, forms someone else is
+   waiting on, with a real `due:`. A decision the user is still weighing is not owed.
+6. **Done means evidence.** Close a task in the same step as the merged PR, sent message
+   or passing test, and annotate the evidence (PR URL, message, test command). A commit
+   alone is not evidence of done.
+7. **PRs name their task:** put `tw:<uuid8>` (first 8 chars of the task UUID, which
+   `task <uuid8> info` resolves) or `Closes #n` in the PR title or body.
+8. **Park, don't delete, private tasks** (finance, health, family). Use `wait:`. Delete
+   only tasks that are moot or duplicated elsewhere, and say so in the turn.
+
 ## Core Lifecycle: Add → Start → Update → Close
 
 Every unit of work follows this four-stage lifecycle. Never skip stages silently.
@@ -25,8 +50,11 @@ Every unit of work follows this four-stage lifecycle. Never skip stages silently
 Capture tasks immediately when work is identified. A task not in the ledger doesn't exist.
 
 ```bash
-# Minimal capture — always include project
-task add "Description of work" project:ProjectName
+# Search first (rule 1)
+task description~keyword list
+
+# Minimal capture — always include project, land in the inbox
+task add "Description of work" project:ProjectName +inbox
 
 # Full capture with all known attributes
 task add "Description of work" \
@@ -42,7 +70,7 @@ task add "Description of work" \
 - Always assign a `project` — unowned tasks decay
 - Use `project:Parent.Child` for sub-projects (e.g., `project:Work.API`)
 - Set `priority:H/M/L` only when it reflects real urgency — do not default to H
-- Add `due:` only when there is a real deadline
+- Add `due:` only when there is a real deadline (see Ledger Rules 2 and 5); otherwise tag `+inbox`
 - Add `+` tags for cross-cutting concerns (`+blocked`, `+waiting`, `+review`)
 - Translate natural language dates: "next Friday" → `due:friday`, "end of month" → `due:eom`
 
@@ -121,6 +149,7 @@ task <id> annotate "Partial: completed X. Remaining: Y"
 
 **Close rules:**
 - Call `task <id> done` — this is non-negotiable; the task is not done until the ledger reflects it
+- Annotate the evidence first: `task <id> annotate "Done: <PR URL | sent message | test command>"`
 - If completion is partial: stop the active timer, annotate remaining work, do NOT mark done
 - After closing, show a brief summary of remaining tasks in the same project
 
@@ -191,7 +220,7 @@ before considering the turn done.
 | Blocked | `task <id> modify +blocked` + annotate reason |
 | Blocked resolved | `task <id> modify -blocked` + `task <id> start` |
 | New resource found | `task <id> annotate "<url or path>"` |
-| Timeline slipped | `task <id> modify due:<new-date>` |
+| Timeline slipped | `task <id> modify due: wait:<date>` (keep `due:` only for a real external deadline) |
 
 ## Picking Up Existing Work
 
@@ -215,8 +244,11 @@ task <id> modify priority:H
 # Change project
 task <id> modify project:Work.Q4
 
-# Set due date
+# Set due date (real deadlines only)
 task <id> modify due:tomorrow
+
+# Defer without a due date (hidden until then)
+task <id> modify due: wait:2027-01-11
 
 # Add/remove tags
 task <id> modify +important -waiting
