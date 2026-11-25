@@ -1,6 +1,6 @@
 {
   "name": "dev-workflow",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Developer workflow skills: spikes, metaprompting, session cleanup, file-based planning, project scaffolding/bootstrapping, skill creation, plan execution, and a senior-dev advisor agent with a technical-lead output style.",
   "author": {
     "name": "Kristian Garza",
