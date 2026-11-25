@@ -13,7 +13,7 @@ Rubric — the question that decides everything is "what would closing lose?", n
      overriding tiers 1 and 3-5: Claude Code deletes the transcript at that age anyway, so
      rename/colour/PR/green can't save it. Tier 2 still wins (the branch outlives transcript
      cleanup; `claude rm` would not), as do explicit --protect-* flags. Jobs within
-     --warn-days of expiry (default 10 -> 20-29 days old) are flagged "hand off or clean".
+     --warn-days of expiry (default 10 -> 20-29 days old) are flagged "wrap up or clean".
   1. Hand-marked: renamed by the user, or a non-green colour   -> always KEEP (every level)
   2. Worktree whose HEAD is on no remote branch                -> always KEEP (every level) —
      `claude rm` deletes the local branch with the worktree; if nothing else holds that
@@ -211,7 +211,7 @@ def main():
                      help="Age at which Claude Code deletes the transcript; older jobs close "
                           "regardless of rename/colour (default: cleanupPeriodDays, else 30)")
     ap.add_argument("--warn-days", type=float, default=10,
-                     help="Flag kept jobs within this many days of --expire-days for handoff/cleanup")
+                     help="Flag kept jobs within this many days of --expire-days for wrap-up/cleanup")
     ap.add_argument("--check-prs", choices=["auto", "yes", "no"], default="auto")
     ap.add_argument("--self-id", default=os.environ.get("CLAUDE_JOB_DIR", "").rstrip("/").rsplit("/", 1)[-1])
     ap.add_argument("--out", default=None, help="Output basename (writes <out>.json and <out>.md)")
@@ -364,8 +364,8 @@ def main():
             (r.get("name") or "")[:40], r["why"]))
 
     if expiring:
-        md.append("\n## Expiring soon — hand off or clean\n")
-        md.append("Kept today, but Claude Code deletes these transcripts at %gd. Write a handoff "
+        md.append("\n## Expiring soon — wrap up or clean\n")
+        md.append("Kept today, but Claude Code deletes these transcripts at %gd. Run `/wrap-up <session-id>` "
                   "(or finish them) now, or close them — they won't survive expiry.\n" % args.expire_days)
         for r in expiring:
             md.append("- **`%s`** *%s* — %.0fd old, **~%.0fd left** (kept because: %s)" % (

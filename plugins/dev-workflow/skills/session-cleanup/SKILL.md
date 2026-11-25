@@ -1,6 +1,6 @@
 ---
 name: session-cleanup
-description: This skill should be used when the user wants to analyze and close stale Claude Code background sessions (the entries in `claude agents` / the agents view) so the view stops accumulating cruft. Builds a close/keep plan against a rubric based on what closing would actually lose (sessions past Claude Code's 30-day transcript cleanup close regardless of rename/colour; 20–29-day-old ones are flagged for handoff), then executes it with `claude rm` behind a dry-run-by-default, canary-first safety process. Triggers when the agents view is cluttered, wants to "clean up sessions", "close old background jobs", "free up disk in ~/.claude/jobs", or asks which sessions are safe to close. Supports scoping to one repo or globally, and a lite/standard/aggressive cleaning level.
+description: This skill should be used when the user wants to analyze and close stale Claude Code background sessions (the entries in `claude agents` / the agents view) so the view stops accumulating cruft. Builds a close/keep plan against a rubric based on what closing would actually lose (sessions past Claude Code's 30-day transcript cleanup close regardless of rename/colour; 20–29-day-old ones are flagged for wrap-up), then executes it with `claude rm` behind a dry-run-by-default, canary-first safety process. Triggers when the agents view is cluttered, wants to "clean up sessions", "close old background jobs", "free up disk in ~/.claude/jobs", or asks which sessions are safe to close. Supports scoping to one repo or globally, and a lite/standard/aggressive cleaning level.
 allowed-tools: ["Bash", "Read"]
 argument-hint: "[--scope global|repo] [--level lite|standard|aggressive] [--go]"
 ---
@@ -50,8 +50,8 @@ lost whether or not you close it. In order, first match wins:
    `resumeSessionId` transcript — a stale-looking card can front a live conversation). Closed at **every** level,
    *regardless of rename or colour*: the transcript is deleted by Claude Code anyway.
    Kept jobs within `--warn-days` (default 10, i.e. 20–29 days old) are listed under
-   **"Expiring soon — hand off or clean"** in the report: tell the user to write a
-   handoff (or finish the work) now, or close them.
+   **"Expiring soon — wrap up or clean"** in the report: tell the user to run
+   `/wrap-up <session-id>` (or finish the work) now, or close them.
 4. **You marked it** — renamed it, or gave it a colour other than green. This is the one
    signal in `state.json` that records *your* judgement rather than the daemon's, so it
    outranks every remaining tier, at every level.
@@ -136,7 +136,7 @@ with its days left and a prompt to hand off or close it, and the before/after co
 | `--live-done-hours` | `24` | How long a finished job stays protected as "still fresh" |
 | `--live-pending-days` | `3` | How long a blocked/working job stays protected before counting as "abandoned" |
 | `--expire-days` | `cleanupPeriodDays`, else `30` | Age at which a job closes regardless of rename/colour (tier 3) — match it to Claude Code's transcript retention |
-| `--warn-days` | `10` | Kept jobs within this many days of expiry get the "hand off or clean" warning |
+| `--warn-days` | `10` | Kept jobs within this many days of expiry get the "wrap up or clean" warning |
 | `--abandoned-days` | `3` | Same threshold, named for tier 8 specifically |
 | `--check-prs` | `auto` | `auto` uses `gh` if present; `no` skips PR checks entirely (any job with a PR reference is then kept, not assumed closeable) |
 | `--self-id` | `$CLAUDE_JOB_DIR`'s basename | Override if running outside a background job context |
